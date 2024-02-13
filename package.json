@@ -6,6 +6,7 @@
     "express-oauth2-jwt-bearer": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.9.1",
+    "node-dijkstra": "^2.5.0",
     "sequelize": "^6.37.0"
   },
   "devDependencies": {
