@@ -1,6 +1,8 @@
 // Importa le dipendenze necessarie
 import express from 'express';
 import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+
 import { Request, Response } from 'express';
 const { auth } = require('express-oauth2-jwt-bearer');
 
@@ -9,10 +11,21 @@ const checkJwt = auth({
   issuerBaseURL: `https://dev-a6vmtmzxl868505g.us.auth0.com`,
 });
 
+// Carica le variabili d'ambiente dal file .env
+dotenv.config();
+
+const dbUsername = process.env.MYSQL_ROOT;
+const dbPassword = process.env.MYSQL_PASSWORD; // Assicurati di avere questa variabile definita nel tuo .env
+const dbName = process.env.MYSQL_DB_NAME || 'mydb'; // Fornisce un valore di default se MYSQL_DB_NAME non è definito
+const dbHost = process.env.MYSQL_HOST || 'mysql_db'; // Fornisce un valore di default se MYSQL_HOST non è definito
+const dbPort = process.env.MYSQL_PORT || '3306'; // Fornisce un valore di default se MYSQL_PORT non è definito
+
+
+
 const app = express();
 const port = 3000;
 
-const db = new Sequelize('mysql://${MYSQL_ROOT}:password@mysql_db:3306/mydb') 
+const db = new Sequelize(`mysql://${dbUsername}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`);
 
 app.get('/', async (req: Request, res: Response) => {
   try {
