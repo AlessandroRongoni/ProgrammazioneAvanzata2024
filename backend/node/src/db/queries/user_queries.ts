@@ -31,7 +31,6 @@ export async function findAllUsers(): Promise<any> {
 };
 
 
-
 /**
  * Crea un nuovo utente nel database con i dettagli forniti nella richiesta.
  *

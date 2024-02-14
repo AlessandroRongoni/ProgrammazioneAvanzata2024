@@ -1,11 +1,8 @@
-import { findUser, createUserDb, createGameDb, setIsPlayingDb, findAllUsers } from '../db/queries/user_queries';
+import { findUser, createUserDb, findAllUsers } from '../db/queries/user_queries';
 import { Request, Response } from "express";
 import { MessageFactory } from '../status/messages_factory'
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes'
-import { setShips } from '../utils/game_utils';
-import { GameMode } from "../constants/game_constants";
 import { updateUserTokensDb } from '../db/queries/admin_queries';
-import { findGame } from '../db/queries/games_queries';
 import { getJwtEmail } from './jwt_service';
 import { verifyIsUser, verifyDifferentUser, verifyIsPlaying } from '../utils/user_utils';
 

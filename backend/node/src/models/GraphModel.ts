@@ -21,6 +21,15 @@ export const GraphModel = sequelize.define('graphs', {
         primaryKey: true,
         autoIncrement: true
     },
+    // Il creatore del grafo
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'users',
+            key: 'user_id',
+        }
+    },
     /**
      * The name of the graph.
      */
