@@ -9,6 +9,8 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+    depends_on:
+      - db
   db:
     container_name: mysql_db
     image: mysql
