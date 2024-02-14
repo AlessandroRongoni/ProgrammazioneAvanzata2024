@@ -1,35 +1,52 @@
-// Importa le dipendenze necessarie
-import express from 'express';
+var express = require('express');
+import { Request, Response } from "express";
+var bodyParser = require("body-parser");
+var jsonParser = bodyParser.json();
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
-//import { DbConnector } from './db/db_connection';
+import { checkEmail } from "./middleware/email_middleware"; // Import the missing checkEmail function
+import { checkPassword } from "./middleware/password_middleware"; // Import the missing checkPassword function
+import { getUserTokens, login, createUser} from './controllers/controller';
+import { checkJwt } from "./middleware/jwt_middleware"; // Import the missing checkJwt function
 
-import { Request, Response } from 'express';
-const { auth } = require('express-oauth2-jwt-bearer');
-
-const checkJwt = auth({
-  audience: 'http://pa2024',
-  issuerBaseURL: `https://dev-a6vmtmzxl868505g.us.auth0.com`,
-});
-
-
-
+dotenv.config();
 const app = express();
-const port = 3000;
-const host = '0.0.0.0';
+const port = process.env.PORT || 3000;
+const host = process.env.HOST;
 
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-
-app.get('/', async (req: Request, res: Response) => {
-  res.send('Ciao, mondo!');
+/**
+ * Home
+ */
+app.get("/", (req: Request, res: Response) => {
+  res.send("Effettua il login per usare l'applicazione");
+});
+/**
+ * Effettua il login e restituisce il jwt associato all'utente
+ */
+app.post("/login", jsonParser, checkEmail, checkPassword, (req: Request, res: Response) => {
+  login(req, res);
 });
 
+/**
+ * Registra un nuovo utente
+ */
 
-
-app.get('/history', checkJwt, (req: Request, res: Response) => {
-  res.send('Questa è una rotta protetta perchè è la cronologia di chrome!');
+app.post("/register", jsonParser, checkEmail, checkPassword, (req: Request, res: Response) => {
+  createUser(req, res);
 });
+
+/**
+* Restituisce i token associati ad un utente
+*/
+
+app.get("/user/tokens", checkJwt, (req: Request, res: Response) => {
+  getUserTokens(req, res);
+});
+
 
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);

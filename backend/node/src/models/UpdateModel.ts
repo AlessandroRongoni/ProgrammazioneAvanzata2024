@@ -6,6 +6,7 @@ import { DbConnector } from '../db/db_connection';
  * Connessione al database utilizzando il modulo di connessione Sequelize.
  * Viene autenticata la connessione al database e viene gestito il risultato dell'autenticazione.
  */
+setTimeout(() => {}, 10000);
 const sequelize = DbConnector.getConnection();
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
