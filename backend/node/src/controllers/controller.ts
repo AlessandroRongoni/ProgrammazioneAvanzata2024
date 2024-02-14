@@ -1,5 +1,5 @@
-import { generateJwtService } from '../services/jwt_service';
-import { createUserService, getTokensService, getAllUsersService } from '../services/user_service';
+import { generateJwtService } from '../Services/jwt_service';
+import { createUserService, getTokensService, getAllUsersService } from '../Services/user_service';
 import { Request, Response } from "express";
 
 /**
