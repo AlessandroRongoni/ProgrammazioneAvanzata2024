@@ -1,47 +1,44 @@
-// // src/models/UpdateEdgeModel.ts
+import { DataTypes} from 'sequelize';
+import { DbConnector } from '../db/db_connection';
 
-// import { DataTypes } from 'sequelize';
-// import { sequelize } from '../config/sequelize';
-// import { Edge } from './EdgeModel';
-// import { User } from './UserModel';
 
-// export const UpdateEdge = sequelize.define('UpdateEdge', {
-//   id: {
-//     type: DataTypes.INTEGER,
-//     primaryKey: true,
-//     autoIncrement: true,
-//   },
-//   edgeId: {
-//     type: DataTypes.INTEGER,
-//     references: {
-//       model: Edge,
-//       key: 'id',
-//     },
-//   },
-//   userId: {
-//     type: DataTypes.INTEGER,
-//     references: {
-//       model: User,
-//       key: 'id',
-//     },
-//   },
-//   newWeight: {
-//     type: DataTypes.FLOAT,
-//     allowNull: false,
-//   },
-//   approved: {
-//     type: DataTypes.BOOLEAN,
-//     defaultValue: false,
-//   },
-//   updatedAt: {
-//     type: DataTypes.DATE,
-//     defaultValue: DataTypes.NOW,
-//   },
-// }, {
-//   tableName: 'updateEdges',
-// });
+/**
+ * Connessione al database utilizzando il modulo di connessione Sequelize.
+ * Viene autenticata la connessione al database e viene gestito il risultato dell'autenticazione.
+ */
+const sequelize = DbConnector.getConnection();
+sequelize.authenticate().then(() => {
+  console.log('Connection has been established successfully.');
+}).catch((error: any) => {
+  console.error('Unable to connect to the database: ', error);
+});
 
-// Edge.hasMany(UpdateEdge);
-// UpdateEdge.belongsTo(Edge);
-// User.hasMany(UpdateEdge);
-// UpdateEdge.belongsTo(User);
+
+export const UpdateModel = sequelize.define('updates', {
+    update_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    edge_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'edges',
+            key: 'edge_id',
+        }
+    },
+    new_weight: {
+        type: DataTypes.FLOAT,
+        allowNull: false
+    },
+    approved: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true, // potrebbe essere `null` se l'aggiornamento è in attesa di approvazione
+    }
+}, {
+    modelName: 'UpdateModel',
+    timestamps: true, // Per tracciare `createdAt` e l'eventuale `updatedAt`
+    freezeTableName: true
+});
