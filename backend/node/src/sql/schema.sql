@@ -1,3 +1,7 @@
+CREATE DATABASE mydb;
+\c mydb
+
+
 -- Creazione della tabella 'users'
 CREATE TABLE IF NOT EXISTS `users` (
     `user_id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -5,16 +9,18 @@ CREATE TABLE IF NOT EXISTS `users` (
     `password` VARCHAR(255) NOT NULL,
     `tokens` FLOAT NOT NULL,
     `isadmin` BOOLEAN NOT NULL
-) ENGINE=InnoDB;
+);
 
 -- Creazione della tabella 'graphs'
 CREATE TABLE IF NOT EXISTS `graphs` (
     `graph_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `description` TEXT,
     `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+    `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+);
 
 -- Creazione della tabella 'edges'
 CREATE TABLE IF NOT EXISTS `edges` (
@@ -24,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `edges` (
     `end_node` VARCHAR(255) NOT NULL,
     `weight` FLOAT NOT NULL,
     FOREIGN KEY (`graph_id`) REFERENCES `graphs` (`graph_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+);
 
 -- Creazione della tabella 'updates'
 CREATE TABLE IF NOT EXISTS `updates` (
@@ -35,4 +41,4 @@ CREATE TABLE IF NOT EXISTS `updates` (
     `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`edge_id`) REFERENCES `edges` (`edge_id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+);
