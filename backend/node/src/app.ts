@@ -7,18 +7,13 @@ import dotenv from 'dotenv';
 import { checkEmail } from "./middleware/email_middleware"; // Import the missing checkEmail function
 import { checkPassword } from "./middleware/password_middleware"; // Import the missing checkPassword function
 import { getUserTokens, login, createUser} from './controllers/controller';
-
-const { auth } = require('express-oauth2-jwt-bearer');
+import { checkJwt } from "./middleware/jwt_middleware"; // Import the missing checkJwt function
 
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 const host = process.env.HOST;
 
-const checkJwt = auth({
-  audience: 'http://pa2024',
-  issuerBaseURL: `https://dev-a6vmtmzxl868505g.us.auth0.com`,
-});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
