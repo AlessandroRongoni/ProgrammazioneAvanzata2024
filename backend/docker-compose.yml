@@ -1,5 +1,18 @@
 version: '3.8'
 services:
+  db:
+      container_name: mysql_db
+      image: mysql
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: rootpassword
+        MYSQL_DATABASE: mydb
+        MYSQL_USER: user
+        MYSQL_PASSWORD: password
+      ports:
+        - "3306:3306"
+      volumes:
+        - ./node/src/sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
   app:
     container_name: node_app
     build: ./node
@@ -12,18 +25,4 @@ services:
       - NODE_ENV=development
     depends_on:
       - db
-  db:
-    container_name: mysql_db
-    image: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-    ports:
-      - "3306:3306"
-    volumes:
-      - db-data:/var/lib/mysql
-volumes:
-  db-data:
+  
