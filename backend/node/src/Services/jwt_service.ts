@@ -19,7 +19,7 @@ export async function generateJwtService(req: Request, res: Response) {
     try {
         const user: any = await findUser(req.body.email);
 
-        if (user) {
+        if (user!=null && user.length != 0 && user[0].dataValues.password == password) {
             const payload = {
                 email: email,
                 password: password,
