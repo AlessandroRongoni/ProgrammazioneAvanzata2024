@@ -90,7 +90,22 @@ export async function addEdgesToGraph(graphId: number, edges: { startNode: strin
     return await Promise.all(edgePromises);
 }
 
-
+/**
+ * Aggiorna il peso di un arco specificato nel database.
+ * 
+ * @param edgeId ID dell'arco da aggiornare.
+ * @param updatedWeight Nuovo peso da assegnare all'arco.
+ */
+export async function updateEdgeWeightInDB(edgeId: number, updatedWeight: number): Promise<void> {
+    try {
+        const result = await EdgeModel.update({ weight: updatedWeight }, { where: { edge_id: edgeId } });
+        console.log('Update result:', result);
+        // Gestire qui eventuali risposte specifiche, come la verifica del numero di righe effettivamente aggiornate.
+    } catch (error) {
+        console.error('Errore durante l\'aggiornamento del peso dell\'arco:', error);
+        throw new Error('Errore durante l\'aggiornamento del peso dell\'arco');
+    }
+}
 
 /**
  * Crea una nuova richiesta di aggiornamento per un arco nel database.
