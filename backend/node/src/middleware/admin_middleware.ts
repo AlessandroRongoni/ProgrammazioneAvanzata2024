@@ -1,4 +1,4 @@
-import { findUser } from "../db/queries/user_queries";
+import { findUser, checkPassword } from "../db/queries/user_queries";
 import { decodeJwt } from "../services/jwt_service";
 import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500 } from "../status/status_codes";
@@ -22,7 +22,8 @@ export const checkIsAdmin = async (req: Request, res: Response, next: NextFuncti
 
         if (jwtDecode != null) {
             const user = await findUser(jwtDecode.email);
-            if (user.length != 0 && user[0].dataValues.isadmin) {
+            const pass = await checkPassword(jwtDecode.email, jwtDecode.password);
+            if (user.length != 0 && user[0].dataValues.isadmin && pass.length != 0 && pass[0].dataValues.password === jwtDecode.password && pass[0].dataValues.email === jwtDecode.email) {
                 next();
             } else {
                 statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.Unauthorized);
