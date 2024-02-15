@@ -19,6 +19,28 @@ export async function findUser(email: string): Promise<any> {
 
 };
 
+
+/**Verifica che la password passata è 
+ * corrispondente all'email passata 
+ * 
+ * @param email - L'indirizzo email dell'utente da cercare nel database.
+ * @param password - La password dell'utente da cercare nel database.  
+ * @returns Restituisce i dettagli dell'utente trovato.
+ * 
+ *  */
+export async function checkPassword(email: string, password: string): Promise<any> {
+
+    return await UserModel.findAll({
+        where: {
+            email: email,
+            password: password
+        }
+    });
+
+};
+
+
+
 /**
  * Trova tutti gli utenti nel database.
  *

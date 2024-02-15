@@ -8,6 +8,9 @@ import { checkEmail } from "./middleware/email_middleware"; // Import the missin
 import { checkPassword } from "./middleware/password_middleware"; // Import the missing checkPassword function
 import { getUserTokens, login, createUser} from './controllers/controller';
 import { checkJwt } from "./middleware/jwt_middleware"; // Import the missing checkJwt function
+import { checkIsAdmin } from "./middleware/admin_middleware";
+import { checkTokensBody } from "./middleware/tokens_middleware";
+import { updateTokens } from "./controllers/adminController";
 
 dotenv.config();
 const app = express();
@@ -47,6 +50,13 @@ app.get("/user/tokens", checkJwt, (req: Request, res: Response) => {
   getUserTokens(req, res);
 });
 
+/**
+ * Modifica i token di un utente
+ */
+
+app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkTokensBody, (req: Request, res: Response) => {
+  updateTokens(req, res)
+})
 
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);
