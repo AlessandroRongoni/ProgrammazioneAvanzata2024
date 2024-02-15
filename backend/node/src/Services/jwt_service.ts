@@ -23,7 +23,6 @@ export async function generateJwtService(req: Request, res: Response) {
             const payload = {
                 email: email,
                 password: password,
-                user: user[0].dataValues.id
             };
 
             const jwtBearerToken = jwt.sign(payload, PRIVATE_KEY);

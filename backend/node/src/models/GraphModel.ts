@@ -57,7 +57,8 @@ export const GraphModel = sequelize.define('graphs', {
  * Viene gestito il risultato della sincronizzazione.
  */
 sequelize.sync().then(() => {
-    console.log('User table created successfully!');
+    console.log('Graphs table created successfully!');
 }).catch((error: any) => {
     console.error('Unable to create table : ', error);
 });
+
