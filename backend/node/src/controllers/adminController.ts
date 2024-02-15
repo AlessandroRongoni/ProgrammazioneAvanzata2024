@@ -1,4 +1,4 @@
-import { updateUserTokensService } from '../Services/admin_service';
+import { updateUserTokensService } from '../services/admin_service';
 import { Request, Response } from "express";
 
 /**
