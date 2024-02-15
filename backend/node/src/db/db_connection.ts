@@ -17,7 +17,7 @@ export class DbConnector {
     private static instance: DbConnector;
     private sequelizer: any;
     private constructor() {
-        this.sequelizer = new Sequelize('my_db', 'postgres', 'postgres', {
+        this.sequelizer = new Sequelize('mydb', 'postgres', 'postgres', {
             host: 'db',
             dialect: 'postgres',
         });
