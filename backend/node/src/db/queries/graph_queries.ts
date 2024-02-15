@@ -69,7 +69,7 @@ export async function findUpdatesByEdgeId(edgeId: number): Promise<any> {
 }
 
 
-export async function createGraph(userId: number, name: string, description: string): Promise<any> {
+export async function createGraphQuery(userId: number, name: string, description: string): Promise<any> {
     return await GraphModel.create({
         user_id: userId,
         name: name,

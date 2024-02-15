@@ -30,8 +30,11 @@ export enum Messages400 {
     Unauthorized = "Questo utente non ha le autorizzazioni necessarie a svolgere l\'operazione", //quando uno user prova a fare refillToken
     UserNotFound = "Non è possibile trovare l\'utente specificato",
     GraphNotFound = "Non è possibile trovare il grafo specificato",
+    EdgeNotFound = "Non è possibile trovare l'arco specificato",
     GraphValidation = "La struttura del grafo non è valida",
     WeightValidation = "Nuovo peso inserito non valido",
+    NoNodes = "deve essere presente ALMENO un nodo",
+    NoEdges = "devono essere presenti anche gli archi",
     NoTokens = "Tokens insufficienti per creare il grafo, contattare l\'admin",
     InvalidToken = "I Token inseriti devono essere dei valori double compresi tra 0 e 1000",
     EmailCheck = "Il formato dell'email inserita non è corretto",

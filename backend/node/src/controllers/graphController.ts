@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+/*import { Request, Response } from "express";
 import { EdgeModel } from "../models/EdgeModel"; // Assumi queste importazioni
 import { GraphModel } from "../models/GraphModel"; // Assumi queste importazioni
 import { UserModel } from "../models/UserModel"; // Assumi queste importazioni
@@ -20,7 +20,7 @@ export const graphController = {
     async createGraph(req: Request, res: Response) {
         // Esempio di creazione di un nuovo grafo
         const { name, description, nodes, edges } = req.body;
-        const userId = req.user.id; // Assumi che l'ID utente venga estratto dal token JWT
+        const userId? = req.user.id; // Assumi che l'ID utente venga estratto dal token JWT
     
         // Calcola il costo per la creazione del grafo
         // Assicurati che la funzione calculateCost sia definita per accettare un oggetto con proprietà nodes ed edges
