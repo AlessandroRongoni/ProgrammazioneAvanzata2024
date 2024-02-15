@@ -6,8 +6,8 @@ dotenv.config();
 
 const dbUsername = process.env.PGUSER || 'user'; //
 const dbPassword = process.env.PGPASSWORD; // Assicurati di avere questa variabile definita nel tuo .env
-const dbName = process.env.PGDATABASEE || 'mydb'; // Fornisce un valore di default se MYSQL_DB_NAME non è definito
-const dbHost = process.env.PGHOST || 'mysql_db'; // Fornisce un valore di default se MYSQL_HOST non è definito
+const dbName = process.env.PGDATABASEE || 'my_db'; // Fornisce un valore di default se MYSQL_DB_NAME non è definito
+const dbHost = process.env.PGHOST || 'db_host'; // Fornisce un valore di default se MYSQL_HOST non è definito
 const dbPort = process.env.PGPORT || '5432'; // Fornisce un valore di default se MYSQL_PORT non è definito
 /**
  * Classe per la connessione al database.
@@ -19,7 +19,7 @@ export class DbConnector {
     private constructor() {
         this.sequelizer = new Sequelize(dbName, dbUsername, dbPassword, {
             host: dbHost,
-            dialect: 'mysql',
+            dialect: 'postgres',
         });
     }
 

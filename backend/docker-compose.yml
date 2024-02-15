@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   db:
-      container_name: mysql_db
+      container_name: my_db
       image: postgres
       restart: always
       environment:
