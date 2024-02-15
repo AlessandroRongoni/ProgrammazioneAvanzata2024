@@ -42,3 +42,15 @@ export const EdgeModel = sequelize.define('edges', {
     timestamps: false,
     freezeTableName: true
 });
+
+
+/**
+ * Crea le tabelle nel database utilizzando Sequelize.
+ * Viene chiamato il metodo `sync()` su `sequelize` per sincronizzare il modello definito con le tabelle effettive nel database.
+ * Viene gestito il risultato della sincronizzazione.
+ */
+sequelize.sync().then(() => {
+    console.log('Edges table created successfully!');
+}).catch((error: any) => {
+    console.error('Unable to create table : ', error);
+});

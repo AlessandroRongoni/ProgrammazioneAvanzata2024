@@ -30,7 +30,15 @@ export const UpdateModel = sequelize.define('updates', {
             key: 'edge_id',
         }
     },
-    user_id: {
+    requester_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'users',
+            key: 'user_id',
+        }
+    },
+    receiver_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -44,10 +52,22 @@ export const UpdateModel = sequelize.define('updates', {
     },
     approved: {
         type: DataTypes.BOOLEAN,
-        allowNull: true, // potrebbe essere `null` se l'aggiornamento è in attesa di approvazione
+        allowNull: true,
+        defaultValue: null // Potrebbe essere null se l'aggiornamento è in attesa di approvazione
     }
 }, {
     modelName: 'UpdateModel',
-    timestamps: true, // Per tracciare `createdAt` e l'eventuale `updatedAt`
+    timestamps: true, // Per tracciare createdAt e l'eventuale updatedAt
     freezeTableName: true
+});
+
+/**
+ * Crea le tabelle nel database utilizzando Sequelize.
+ * Viene chiamato il metodo `sync()` su `sequelize` per sincronizzare il modello definito con le tabelle effettive nel database.
+ * Viene gestito il risultato della sincronizzazione.
+ */
+sequelize.sync().then(() => {
+    console.log('Updates table created successfully!');
+}).catch((error: any) => {
+    console.error('Unable to create table : ', error);
 });

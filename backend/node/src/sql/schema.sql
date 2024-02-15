@@ -1,9 +1,10 @@
 CREATE DATABASE mydb;
-USE mydb;
+
+\c mydb;
 
 -- Creazione della tabella 'users'
 CREATE TABLE IF NOT EXISTS users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     tokens FLOAT NOT NULL,
@@ -12,18 +13,19 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Creazione della tabella 'graphs'
 CREATE TABLE IF NOT EXISTS graphs (
-    graph_id INT AUTO_INCREMENT PRIMARY KEY,
+    graph_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
+
 -- Creazione della tabella 'edges'
 CREATE TABLE IF NOT EXISTS edges (
-    edge_id INT AUTO_INCREMENT PRIMARY KEY,
+    edge_id SERIAL PRIMARY KEY,
     graph_id INT NOT NULL,
     start_node VARCHAR(255) NOT NULL,
     end_node VARCHAR(255) NOT NULL,
@@ -33,12 +35,12 @@ CREATE TABLE IF NOT EXISTS edges (
 
 -- Creazione della tabella 'updates'
 CREATE TABLE IF NOT EXISTS updates (
-    update_id INT AUTO_INCREMENT PRIMARY KEY,
+    update_id SERIAL PRIMARY KEY,
     edge_id INT NOT NULL,
     new_weight FLOAT NOT NULL,
     approved BOOLEAN,
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (edge_id) REFERENCES edges (edge_id) ON DELETE CASCADE
 );
 
@@ -49,3 +51,36 @@ INSERT INTO users (email, password, tokens, isadmin) VALUES
  ('adriano@op.it', 'opti2024!', 100.00, true),
  ('user1@op.it', 'opti2024!', 100.00, false),
  ('user2@op.it', 'opti2024!', 100.00, false);
+
+-- Inserimento di due grafi con 8 nodi e 16 archi
+INSERT INTO graphs (user_id, name, description) VALUES
+    (1, 'Graph 1', 'Description of Graph 1'),
+    (2, 'Graph 2', 'Description of Graph 2');
+
+-- Inserimento degli archi per il primo grafo
+INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
+    (1, 'A', 'B', 1.5),
+    (1, 'B', 'C', 2.0),
+    (1, 'C', 'D', 1.2),
+    (1, 'D', 'E', 1.8),
+    (1, 'E', 'F', 2.3),
+    (1, 'F', 'G', 1.6),
+    (1, 'G', 'H', 1.9),
+    (1, 'H', 'A', 1.4);
+
+-- Inserimento degli archi per il secondo grafo
+INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
+    (2, 'A', 'B', 2.1),
+    (2, 'B', 'C', 1.7),
+    (2, 'C', 'D', 1.3),
+    (2, 'D', 'E', 2.5),
+    (2, 'E', 'F', 1.6),
+    (2, 'F', 'G', 1.8),
+    (2, 'G', 'H', 2.2),
+    (2, 'H', 'A', 1.9);
+
+-- Inserimento di alcune richieste di modifica degli archi
+INSERT INTO updates (edge_id, new_weight, approved) VALUES
+    (1, 1.7, NULL), -- Richiesta di modifica per il primo arco
+    (4, 2.0, NULL), -- Richiesta di modifica per il quarto arco
+    (9, 1.5, NULL); -- Richiesta di modifica per il nono arco
