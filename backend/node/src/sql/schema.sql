@@ -33,16 +33,20 @@ CREATE TABLE IF NOT EXISTS edges (
     FOREIGN KEY (graph_id) REFERENCES graphs (graph_id) ON DELETE CASCADE
 );
 
--- Creazione della tabella 'updates'
 CREATE TABLE IF NOT EXISTS updates (
     update_id SERIAL PRIMARY KEY,
     edge_id INT NOT NULL,
+    requester_id INT NOT NULL,
+    receiver_id INT NOT NULL,
     new_weight FLOAT NOT NULL,
     approved BOOLEAN,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (edge_id) REFERENCES edges (edge_id) ON DELETE CASCADE
+    FOREIGN KEY (edge_id) REFERENCES edges (edge_id) ON DELETE CASCADE,
+    FOREIGN KEY (requester_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
+
 
 -- Inserimento dati nella tabella 'users'
 INSERT INTO users (email, password, tokens, isadmin) VALUES
@@ -79,8 +83,8 @@ INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (2, 'G', 'H', 2.2),
     (2, 'H', 'A', 1.9);
 
--- Inserimento di alcune richieste di modifica degli archi
-INSERT INTO updates (edge_id, new_weight, approved) VALUES
-    (1, 1.7, NULL), -- Richiesta di modifica per il primo arco
-    (4, 2.0, NULL), -- Richiesta di modifica per il quarto arco
-    (9, 1.5, NULL); -- Richiesta di modifica per il nono arco
+-- Inserimento di alcune richieste di modifica degli archi con requester_id e receiver_id
+INSERT INTO updates (edge_id, requester_id, receiver_id, new_weight, approved) VALUES
+    (1, 1, 3, 1.7, NULL), -- Richiesta di modifica per il primo arco da daniele a adriano
+    (4, 1, 3, 2.0, NULL), -- Richiesta di modifica per il quarto arco da daniele a adriano
+    (9, 1, 3, 1.5, NULL); -- Richiesta di modifica per il nono arco da daniele a adriano
