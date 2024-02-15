@@ -6,6 +6,7 @@
     "express-oauth2-jwt-bearer": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
     "node-dijkstra": "^2.5.0",
+    "pg": "^8.11.3",
     "postgres": "^3.4.3",
     "sequelize": "^6.37.0"
   },
