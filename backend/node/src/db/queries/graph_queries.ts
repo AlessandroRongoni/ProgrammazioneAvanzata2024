@@ -187,3 +187,57 @@ export async function findEdgeUpdatesByRequester(requesterId: number): Promise<a
         }
     });
 }
+
+
+// Funzione per trovare le richieste di aggiornamento fatte dopo una certa data
+export async function findUpdatesAfterDate(date: Date): Promise<any> {
+    return await UpdateModel.findAll({
+        where: {
+            createdAt: {
+                [Op.gt]: date // Filtra le righe con createdAt maggiore della data specificata
+            }
+        }
+    });
+}
+
+
+// Funzione per trovare le richieste di aggiornamento fatte prima di una certa data
+export async function findUpdatesBeforeDate(date: Date): Promise<any> {
+    return await UpdateModel.findAll({
+        where: {
+            createdAt: {
+                [Op.lt]: date // Filtra le righe con createdAt minore della data specificata
+            }
+        }
+    });
+}
+
+// Funzione per trovare le richieste di aggiornamento fatte in un intervallo di date
+export async function findUpdatesBetweenDates(startDate: Date, endDate: Date): Promise<any> {
+    return await UpdateModel.findAll({
+        where: {
+            createdAt: {
+                [Op.between]: [startDate, endDate] // Filtra le righe con createdAt compreso tra startDate e endDate
+            }
+        }
+    });
+}
+
+/**
+ * Trova tutti gli aggiornamenti richiesti ad un utente specifico e filtrali per data.
+ * 
+ * @param userId - L'ID dell'utente per cui trovare gli aggiornamenti.
+ * @param startDate - Data di inizio del filtro.
+ * @param endDate - Data di fine del filtro.
+ * @returns Una promessa che rappresenta l'elenco degli aggiornamenti richiesti per l'utente specificato, filtrati per data.
+ */
+export async function findUpdatesByUserAndDate(userId: number, startDate: Date, endDate: Date): Promise<any> {
+    return await UpdateModel.findAll({
+        where: {
+            receiver_id: userId,
+            createdAt: {
+                [Op.between]: [startDate, endDate]
+            }
+        }
+    });
+}
