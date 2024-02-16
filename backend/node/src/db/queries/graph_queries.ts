@@ -107,4 +107,25 @@ export async function requestEdgeUpdate(edgeId: number, requesterId: number, rec
 }
 
 
+/**
+ * Approva una richiesta di aggiornamento dell'arco nel database.
+ * 
+ * @param updateId - L'ID della richiesta di aggiornamento da approvare.
+ * @returns Una promessa che rappresenta l'esito dell'operazione di approvazione della richiesta di aggiornamento.
+ */
+export async function approveEdgeUpdate(updateId: number): Promise<any> {
+    return await UpdateModel.update({ approved: true }, {
+        where: {
+            update_id: updateId
+        }
+    });
+}
 
+// Funzione per trovare tutti gli aggiornamenti degli archi per un determinato utente
+export async function findUpdatesByUserId(userId: number): Promise<any> {
+    return await UpdateModel.findAll({
+        where: {
+            user_id: userId,
+        }
+    });
+}

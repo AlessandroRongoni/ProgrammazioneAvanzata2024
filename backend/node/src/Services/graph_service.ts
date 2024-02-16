@@ -4,8 +4,7 @@ import { GraphModel } from "../models/GraphModel"; // Assumi queste importazioni
 import { UserModel } from "../models/UserModel"; // Assumi queste importazioni
 import { UpdateModel } from "../models/UpdateModel"; // Assumi queste importazioni
 import { findUser } from "../db/queries/user_queries";
-import { findEdgeById, requestEdgeUpdate, updateEdgeWeightInDB, createGraphQuery, addEdgesToGraph } from "../db/queries/graph_queries";
-import {approveEdgeUpdate, findUpdateByUserId} from '../db/queries/';
+import { findEdgeById, requestEdgeUpdate, updateEdgeWeightInDB, createGraphQuery, addEdgesToGraph, approveEdgeUpdate, findUpdatesByUserId } from "../db/queries/graph_queries";
 
 import { checkIsAdmin } from "../middleware/admin_middleware"; // Middleware di autenticazione
 import { checkJwt } from "../middleware/jwt_middleware"; // Middleware di autenticazione
