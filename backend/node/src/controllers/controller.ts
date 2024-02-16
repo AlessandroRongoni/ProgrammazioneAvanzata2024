@@ -85,3 +85,4 @@ export const getGraphEdges = (req: Request,res: Response) => {
 export const updateEdgesWeight = (req: Request,res: Response) => {
     return updateEdgeWeight(req,res);
 };
+
