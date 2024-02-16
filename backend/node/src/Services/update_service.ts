@@ -60,7 +60,7 @@ export const rejectUpdate = async (req: Request, res: Response) => {
 
 // Visualizza lo storico delle richieste di aggiornamento approvate o rifiutate, filtrato per data
 export const viewFilteredUpdateHistory = async (req: Request, res: Response) => {
-    const userId = req.user?.id; // Ottiene l'ID dell'utente dall'autenticazione
+    const userId: any = await findUser(req.body.email);
     const { startDate, endDate } = req.query;
 
     try {
