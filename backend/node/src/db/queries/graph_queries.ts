@@ -50,26 +50,7 @@ export async function findEdgeById(edgeId: number): Promise<any> {
 
 
 
-// Funzione per trovare tutti gli aggiornamenti degli archi per un determinato utente
-export async function findUpdatesByUserId(userId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            user_id: userId,
-        }
-    });
-}
-
-// Funzione per trovare tutti gli aggiornamenti degli archi per un determinato arco
-export async function findUpdatesByEdgeId(edgeId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            edge_id: edgeId,
-        }
-    });
-}
-
-
-export async function createGraph(userId: number, name: string, description: string): Promise<any> {
+export async function createGraphQuery(userId: number, name: string, description: string): Promise<any> {
     return await GraphModel.create({
         user_id: userId,
         name: name,
@@ -90,7 +71,22 @@ export async function addEdgesToGraph(graphId: number, edges: { startNode: strin
     return await Promise.all(edgePromises);
 }
 
-
+/**
+ * Aggiorna il peso di un arco specificato nel database.
+ * 
+ * @param edgeId ID dell'arco da aggiornare.
+ * @param updatedWeight Nuovo peso da assegnare all'arco.
+ */
+export async function updateEdgeWeightInDB(edgeId: number, updatedWeight: number): Promise<void> {
+    try {
+        const result = await EdgeModel.update({ weight: updatedWeight }, { where: { edge_id: edgeId } });
+        console.log('Update result:', result);
+        // Gestire qui eventuali risposte specifiche, come la verifica del numero di righe effettivamente aggiornate.
+    } catch (error) {
+        console.error('Errore durante l\'aggiornamento del peso dell\'arco:', error);
+        throw new Error('Errore durante l\'aggiornamento del peso dell\'arco');
+    }
+}
 
 /**
  * Crea una nuova richiesta di aggiornamento per un arco nel database.
@@ -110,6 +106,7 @@ export async function requestEdgeUpdate(edgeId: number, requesterId: number, rec
     });
 }
 
+
 /**
  * Approva una richiesta di aggiornamento dell'arco nel database.
  * 
@@ -124,120 +121,11 @@ export async function approveEdgeUpdate(updateId: number): Promise<any> {
     });
 }
 
-/**
- * Respinti una richiesta di aggiornamento dell'arco nel database.
- * 
- * @param updateId - L'ID della richiesta di aggiornamento da respingere.
- * @returns Una promessa che rappresenta l'esito dell'operazione di respingimento della richiesta di aggiornamento.
- */
-export async function rejectEdgeUpdate(updateId: number): Promise<any> {
-    return await UpdateModel.update({ approved: false }, {
-        where: {
-            update_id: updateId
-        }
-    });
-}
-
-/**
- * Trova tutte le richieste di aggiornamento pendenti per un utente specifico nel database.
- * 
- * @param userId - L'ID dell'utente per cui trovare le richieste di aggiornamento pendenti.
- * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento pendenti per l'utente specificato.
- */
-export async function findPendingRequests(userId: number): Promise<any> {
+// Funzione per trovare tutti gli aggiornamenti degli archi per un determinato utente
+export async function findUpdatesByUserId(userId: number): Promise<any> {
     return await UpdateModel.findAll({
         where: {
             user_id: userId,
-            approved: null // Solo le richieste pendenti
-        },
-        include: [
-            { model: EdgeModel } // Include i dettagli dell'arco associato alla richiesta
-        ]
-    });
-}
-
-/**
- * Trova tutte le richieste di aggiornamento NON pendenti per un utente specifico nel database.
- * 
- * @param userId - L'ID dell'utente per cui trovare le richieste di aggiornamento pendenti.
- * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento true e false per l'utente specificato.
- */
-export async function findRequestHistory(userId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            user_id: userId,
-            approved: { [Op.not]: null } // Tutte le richieste tranne quelle pendenti
-        },
-        include: [
-            { model: EdgeModel } // Include i dettagli dell'arco associato alla richiesta
-        ]
-    });
-}
-
-/**
- * Trova tutte le richieste di aggiornamento fatte da un utente specifico nel database.
- * 
- * @param requesterId - L'ID dell'utente che ha fatto le richieste di aggiornamento.
- * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento fatte dall'utente specificato.
- */
-export async function findEdgeUpdatesByRequester(requesterId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            requester_id: requesterId
-        }
-    });
-}
-
-
-// Funzione per trovare le richieste di aggiornamento fatte dopo una certa data
-export async function findUpdatesAfterDate(date: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            createdAt: {
-                [Op.gt]: date // Filtra le righe con createdAt maggiore della data specificata
-            }
-        }
-    });
-}
-
-
-// Funzione per trovare le richieste di aggiornamento fatte prima di una certa data
-export async function findUpdatesBeforeDate(date: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            createdAt: {
-                [Op.lt]: date // Filtra le righe con createdAt minore della data specificata
-            }
-        }
-    });
-}
-
-// Funzione per trovare le richieste di aggiornamento fatte in un intervallo di date
-export async function findUpdatesBetweenDates(startDate: Date, endDate: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            createdAt: {
-                [Op.between]: [startDate, endDate] // Filtra le righe con createdAt compreso tra startDate e endDate
-            }
-        }
-    });
-}
-
-/**
- * Trova tutti gli aggiornamenti richiesti ad un utente specifico e filtrali per data.
- * 
- * @param userId - L'ID dell'utente per cui trovare gli aggiornamenti.
- * @param startDate - Data di inizio del filtro.
- * @param endDate - Data di fine del filtro.
- * @returns Una promessa che rappresenta l'elenco degli aggiornamenti richiesti per l'utente specificato, filtrati per data.
- */
-export async function findUpdatesByUserAndDate(userId: number, startDate: Date, endDate: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            receiver_id: userId,
-            createdAt: {
-                [Op.between]: [startDate, endDate]
-            }
         }
     });
 }

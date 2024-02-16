@@ -9,6 +9,7 @@ export enum CustomStatusCodes {
 export enum Messages200 {
     ModelCreationSuccess = "Modello creato con successo",
     ModelUpdateSuccess = "Modello aggiornato con successo",
+    UpdateNotification = "RIchiesta di aggiornamento inviata con successo",
     WeightUpdateApprovalSuccess = "Richiesta di aggiornamento dei pesi accettata con successo",
     WeightUpdateRejectionSuccess = "Richiesta di aggiornamento dei pesi rifiutata con successo",
     ModelExecutionSuccess = "Modello eseguito con successo",
@@ -30,13 +31,17 @@ export enum Messages400 {
     Unauthorized = "Questo utente non ha le autorizzazioni necessarie a svolgere l\'operazione", //quando uno user prova a fare refillToken
     UserNotFound = "Non è possibile trovare l\'utente specificato",
     GraphNotFound = "Non è possibile trovare il grafo specificato",
+    EdgeNotFound = "Non è possibile trovare l'arco specificato",
     GraphValidation = "La struttura del grafo non è valida",
     WeightValidation = "Nuovo peso inserito non valido",
+    NoNodes = "deve essere presente ALMENO un nodo",
+    NoEdges = "devono essere presenti anche gli archi",
     NoTokens = "Tokens insufficienti per creare il grafo, contattare l\'admin",
     InvalidToken = "I Token inseriti devono essere dei valori double compresi tra 0 e 1000",
     EmailCheck = "Il formato dell'email inserita non è corretto",
     PasswordCheck = "La password deve contenere almeno 8 caratteri ed un numero, un carattere speciale, un carattere maiuscolo e uno minuscolo",
     SameUser = "Non puoi creare lo stesso utente più volte",
+    NoDate = "non hai inserito la data di inizio o di fine",
     InvalidDateSame = "La data di inizio non può coincidere con quella di fine",
     InvalidDate = "La data di fine deve precedere quella di inizio",
     NegativeTokens = "Non puoi inserire un numero di token negativo",
@@ -46,6 +51,8 @@ export enum Messages400 {
     PasswordEmpty = "La password non può essere vuota",
     TokensEmpty = "Il valore dei token non può essere vuoto",
     InvalidDateFormat = "Le date sono state inserite in maniera errata",
+    UpdateRequestNotFound = "non ci sono richieste per te",
+    NoStoric = "non c'è uno storico di richieste per te"
 }
 
 export enum Messages500 {
