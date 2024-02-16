@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { findEdgeUpdatesByReceiver, approveEdgeUpdate, rejectEdgeUpdate, findUpdatesByUserAndDate } from '../db/queries/update_queries';
 import { findUser } from "../db/queries/user_queries";
+import { formatJsonForDb } from '../utils/graph_utils';
 import { CustomStatusCodes, Messages400, Messages200, Messages500 } from '../status/status_codes';
 import { MessageFactory } from '../status/messages_factory';
 

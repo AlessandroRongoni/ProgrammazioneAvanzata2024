@@ -24,3 +24,36 @@ export function calculateCost(action: 'create' | 'update', details: { nodes?: nu
 
     return totalCost;
 }
+
+
+
+/**
+ * Analizza una stringa JSON e la formatta per l'inserimento nel database.
+ * Esegue la validazione e la trasformazione in base a regole predefinite.
+ * 
+ * @param {string} jsonString La stringa JSON da analizzare.
+ * @returns {object} L'oggetto formattato e validato pronto per l'inserimento nel DB.
+ * @throws {Error} Se il JSON è invalido o non soddisfa i criteri di validazione.
+ */
+export function formatJsonForDb(jsonString: string) {
+    const obj = JSON.parse(jsonString);
+
+    // Esempio di validazione e trasformazione
+    if (!obj.campoRichiesto) {
+        throw new Error('Campo richiesto mancante');
+    }
+
+    // Trasforma i dati secondo le necessità per il DB
+    const transformedObj = {
+        ...obj,
+        campoTrasformato: transformData(obj.alcunCampo)
+    };
+
+    return transformedObj;
+}
+
+function transformData(data: any) {
+    // Placeholder per la logica effettiva di trasformazione dei dati
+    return data;
+}
+

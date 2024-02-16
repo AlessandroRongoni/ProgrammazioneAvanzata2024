@@ -10,6 +10,7 @@ import { checkJwt } from "../middleware/jwt_middleware"; // Middleware di autent
 import { calculateCost } from "../utils/graph_utils"; 
 import { CustomStatusCodes, Messages400, Messages200, Messages500 } from '../status/status_codes';
 import { MessageFactory } from '../status/messages_factory';
+import { formatJsonForDb } from "../utils/graph_utils";
 import dotenv from 'dotenv';
 
 // Carica le variabili d'ambiente dal file .env
@@ -19,11 +20,25 @@ var statusMessage: MessageFactory = new MessageFactory();
 
 const ALPHA = parseFloat(process.env.ALPHA || "0.8"); // Assicurati che ALPHA sia un numero
 
+/*
+{
+  "email": "utente@example.com",
+  "name": "Mio Grafo",
+  "description": "Descrizione del grafo",
+  "nodes": ["A", "B", "C"],
+  "edges": [
+    {"start": "A", "end": "B", "weight": 5},
+    {"start": "B", "end": "C", "weight": 3}
+  ]
+}
+*/ 
+
 export async function createGraph(req: Request, res: Response) {
     try {
         // Creazione di un nuovo grafo
-        const { name, description, nodes, edges } = req.body;
-        const userId: any = await findUser(req.body.email);
+        const formattedData = formatJsonForDb(req.body);
+        const { name, description, nodes, edges } = formattedData;
+        const userId: any = await findUser(formattedData.email);
 
 
         // Calcola il costo per la creazione del grafo
@@ -55,11 +70,18 @@ export async function createGraph(req: Request, res: Response) {
 }
 
 
-
-
+/*
+{
+    "edgeId": 123,
+    "newWeight": 5.5,
+    "email": "utente@example.com"
+  }
+*/
 export async function updateEdgeWeight(req: Request, res: Response) {
-    const { edgeId, newWeight } = req.body;
-    const requesterId: any = await findUser(req.body.email);
+
+    const formattedData = formatJsonForDb(req.body);
+    const { edgeId, newWeight } = formattedData;
+    const requesterId: any = await findUser(formattedData.email);
 
     try {
         // Trova l'arco dal database
@@ -78,7 +100,7 @@ export async function updateEdgeWeight(req: Request, res: Response) {
             // L'utente non è il creatore del grafo, quindi invia una richiesta al creatore del grafo per l'aggiornamento
             const creatorId = graph.userId;
             await requestEdgeUpdate(edgeId, requesterId, creatorId, newWeight);
-            return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
+            return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UpdateNotification);
         }
 
         // Calcola il costo dell'aggiornamento
