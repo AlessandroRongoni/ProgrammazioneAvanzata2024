@@ -14,7 +14,7 @@ export const viewPendingUpdates = async (req: Request, res: Response) => {
         const pendingUpdates = await findEdgeUpdatesByReceiver(receiverId);
 
         if (pendingUpdates.length === 0) {
-            return res.status(200).json({ message: "Nessuna richiesta di aggiornamento pendente." });
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateRequestNotFound);
         }
 
         res.status(200).json(pendingUpdates);
@@ -34,10 +34,10 @@ export const approveUpdate = async (req: Request, res: Response) => {
             return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateRequestNotFound);
         }
 
-        res.status(200).json({ message: "Richiesta di aggiornamento approvata con successo." });
+        return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateApprovalSuccess);
     } catch (error) {
         console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages500.InternalServerError);
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -51,7 +51,7 @@ export const rejectUpdate = async (req: Request, res: Response) => {
             return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateRequestNotFound);
         }
 
-        res.status(200).json({ message: "Richiesta di aggiornamento rifiutata con successo." });
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages200.WeightUpdateRejectionSuccess);
     } catch (error) {
         console.error(error);
         statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages500.InternalServerError);
@@ -91,7 +91,7 @@ export const viewFilteredUpdateHistory = async (req: Request, res: Response) => 
         const updateHistory = await findUpdatesByUserAndDate(userId, start, end);
 
         if (updateHistory.length === 0) {
-            return res.status(200).json({ message: "Nessuna richiesta di aggiornamento storica trovata per i filtri specificati." });
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoStoric);
         }
 
         res.status(200).json(updateHistory);

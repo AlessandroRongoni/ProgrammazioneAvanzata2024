@@ -51,7 +51,8 @@ export enum Messages400 {
     PasswordEmpty = "La password non può essere vuota",
     TokensEmpty = "Il valore dei token non può essere vuoto",
     InvalidDateFormat = "Le date sono state inserite in maniera errata",
-    UpdateRequestNotFound = "non ci sono richieste per te"
+    UpdateRequestNotFound = "non ci sono richieste per te",
+    NoStoric = "non c'è uno storico di richieste per te"
 }
 
 export enum Messages500 {

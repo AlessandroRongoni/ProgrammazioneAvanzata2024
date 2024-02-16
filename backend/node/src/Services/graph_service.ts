@@ -63,9 +63,9 @@ export async function createGraph(req: Request, res: Response) {
         await addEdgesToGraph(graph.id, edges);
 
         // Restituisce la risposta con il successo della creazione del grafo
-        res.json({ message: "Grafo creato con successo", graph });
-    } catch (e) {
         statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphValidation);
+    } catch (e) {
+        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelCreationSuccess);
     }
 }
 
@@ -87,13 +87,13 @@ export async function updateEdgeWeight(req: Request, res: Response) {
         // Trova l'arco dal database
         const edge = await findEdgeById(edgeId);
         if (!edge) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotFound);
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
         }
 
         // Verifica se l'utente è autorizzato a modificare questo arco
         const graph = await GraphModel.findByPk(edge.graphId);
         if (!graph) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphNotFound);
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.GraphNotFound);
         }
 
         if (graph.userId !== requesterId) {
@@ -126,6 +126,6 @@ export async function updateEdgeWeight(req: Request, res: Response) {
         return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
     } catch (error) {
         console.error(error);
-        return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages500.InternalServerError);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 }
