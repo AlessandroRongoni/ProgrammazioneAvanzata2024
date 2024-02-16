@@ -21,18 +21,4 @@ export async function verifyIsUser(email: string, res: Response, isPresent: Bool
     return isPresent;
 }
 
-/**
-* Verifica se due utenti sono diversi, tramite un confronto su email.
-* @param email1 - La prima email da confrontare.
-* @param email2 - La seconda email da confrontare.
-* @param res - L'oggetto di risposta HTTP utilizzato per inviare la risposta al client.
-* @param isDifferent - Flag che indica se le due email sono diverse o meno.
-* @returns Una Promise che restituisce true se le due email sono diverse, altrimenti false.
-*/
-export async function verifyDifferentUser(email1: string, email2: string, res: Response, isDifferent: Boolean) {
-    if (email1 == email2) {
-        isDifferent = false;
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.SameUser);
-    }
-    return isDifferent;
-}
+

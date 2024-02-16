@@ -59,7 +59,7 @@ export function decodeJwt(auth: any) {
 export function getJwtEmail(req: Request): string {
     let jwtBearerToken = req.headers.authorization;
     let jwtDecode = jwtBearerToken ? decodeJwt(jwtBearerToken) : null;
-    let jwtPlayerEmail: any;
-    jwtPlayerEmail = jwtDecode.email;
-    return jwtPlayerEmail;
+    let jwtUserEmail: any;
+    jwtUserEmail = jwtDecode.email;
+    return jwtUserEmail;
 }

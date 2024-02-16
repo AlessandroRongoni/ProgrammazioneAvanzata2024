@@ -6,11 +6,13 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import { checkEmail } from "./middleware/email_middleware"; // Import the missing checkEmail function
 import { checkPassword } from "./middleware/password_middleware"; // Import the missing checkPassword function
-import { getUserTokens, login, createUser} from './controllers/controller';
+import { getUserTokens, login, createUser, getAllGraphs,  getGraphEdges, updateEdgesWeight, getAllUsers } from './controllers/controller';
 import { checkJwt } from "./middleware/jwt_middleware"; // Import the missing checkJwt function
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { checkTokensBody } from "./middleware/tokens_middleware";
 import { updateTokens } from "./controllers/adminController";
+import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, updateEdgeWeight, validateEdgeWeightsCreation, validateEdgeWeightsUpdate} from "./middleware/graph_middleware";
+
 
 dotenv.config();
 const app = express();
@@ -55,8 +57,55 @@ app.get("/user/tokens", checkJwt, (req: Request, res: Response) => {
  */
 
 app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkTokensBody, (req: Request, res: Response) => {
-  updateTokens(req, res)
-})
+  updateTokens(req, res);
+});
+
+/**
+ * Rotta per la creazione di un grafo
+ */
+app.post("/graph", checkJwt, checkUserTokensCreate, (req: Request, res: Response) => {
+
+});
+
+
+/**
+ * Rotta per ottenere tutta la lista dei grafi
+ */
+app.get("/graphslist", checkJwt, (req: Request, res: Response) => { 
+    getAllGraphs(req,res);
+  });
+
+
+  /**
+   * Rotta per ottenere la lista degli archi di un grafo
+   */
+app.get("/graph/edges", checkJwt, (req: Request, res: Response) => {
+    getGraphEdges(req,res);
+  });
+
+/**
+ * Rotta per modificare i pesi di un arco di un determinato grafo (DA RIVEDERE)
+ * 
+ */
+app.put("/graph/update/edge", checkJwt,checkEdgeBelonging, validateEdgeWeightsUpdate, checkUserTokensUpdate, checkGraphOwnership, updateEdgeWeight, (req: Request, res: Response) => {
+  updateEdgesWeight(req,res);
+});
+
+/**
+ * Rotta per ottenere tutti gli utenti
+ */
+app.get("/user/all", (req: Request, res: Response) => {
+  getAllUsers(req, res);
+});
+
+
+
+
+
+
+
+
+
 
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);

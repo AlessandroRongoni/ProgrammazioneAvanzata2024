@@ -48,7 +48,9 @@ export const GraphModel = sequelize.define('graphs', {
 }, {
     modelName: 'GraphModel',
     timestamps: true,
-    freezeTableName: true
+    freezeTableName: true,
+    createdAt: 'createdat', 
+    updatedAt: 'updatedat' 
 });
 
 /**
