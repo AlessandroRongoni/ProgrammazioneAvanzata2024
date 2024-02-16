@@ -14,13 +14,13 @@ export const viewPendingUpdates = async (req: Request, res: Response) => {
         const pendingUpdates = await findEdgeUpdatesByReceiver(receiverId);
 
         if (pendingUpdates.length === 0) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateRequestNotFound);
+            statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
         }
 
         res.status(200).json(pendingUpdates);
     } catch (error) {
         console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages500.InternalServerError);
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -31,7 +31,7 @@ export const approveUpdate = async (req: Request, res: Response) => {
         const result = await approveEdgeUpdate(parseInt(updateId));
 
         if (!result) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateRequestNotFound);
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
         }
 
         return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateApprovalSuccess);
@@ -48,13 +48,13 @@ export const rejectUpdate = async (req: Request, res: Response) => {
         const result = await rejectEdgeUpdate(parseInt(updateId));
 
         if (!result) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateRequestNotFound);
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
         }
 
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages200.WeightUpdateRejectionSuccess);
+        return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateRejectionSuccess);
     } catch (error) {
         console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages500.InternalServerError);
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -91,12 +91,12 @@ export const viewFilteredUpdateHistory = async (req: Request, res: Response) => 
         const updateHistory = await findUpdatesByUserAndDate(userId, start, end);
 
         if (updateHistory.length === 0) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoStoric);
+            statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NoStoric);
         }
 
         res.status(200).json(updateHistory);
     } catch (error) {
         console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages500.InternalServerError);
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
