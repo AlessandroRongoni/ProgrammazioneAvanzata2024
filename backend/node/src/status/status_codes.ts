@@ -9,7 +9,7 @@ export enum CustomStatusCodes {
 export enum Messages200 {
     ModelCreationSuccess = "Modello creato con successo",
     ModelUpdateSuccess = "Modello aggiornato con successo",
-    UpdateNotification = "RIchiesta di aggiornamento inviata con successo",
+    UpdateNotification = "Richiesta di aggiornamento inviata con successo",
     WeightUpdateApprovalSuccess = "Richiesta di aggiornamento dei pesi accettata con successo",
     WeightUpdateRejectionSuccess = "Richiesta di aggiornamento dei pesi rifiutata con successo",
     ModelExecutionSuccess = "Modello eseguito con successo",

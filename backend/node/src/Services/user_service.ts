@@ -4,7 +4,7 @@ import { MessageFactory } from '../status/messages_factory'
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes'
 import { updateUserTokensDb } from '../db/queries/admin_queries';
 import { getJwtEmail } from './jwt_service';
-import { verifyIsUser, verifyDifferentUser} from '../utils/user_utils';
+import { verifyIsUser} from '../utils/user_utils';
 
 let statusMessage: MessageFactory = new MessageFactory();
 

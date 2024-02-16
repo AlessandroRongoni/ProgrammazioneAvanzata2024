@@ -69,3 +69,16 @@ export async function createUserDb(req: Request): Promise<any> {
     });
 
 };
+
+
+/**
+ * Query per trovare lo User by Id
+ */
+export async function findUserById(id: number): Promise<any> {
+
+    return await UserModel.findAll({
+        where: {
+            user_id: id,
+        }
+    });
+};

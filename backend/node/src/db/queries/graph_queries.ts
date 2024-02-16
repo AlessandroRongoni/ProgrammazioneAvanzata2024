@@ -9,6 +9,7 @@ import { GraphModel } from '../../models/GraphModel';
 import { EdgeModel } from '../../models/EdgeModel';
 // Importa il modello per gli aggiornamenti degli archi
 import { UpdateModel } from '../../models/UpdateModel';
+import sequelize from "sequelize";
 
 
 
@@ -128,4 +129,13 @@ export async function findUpdatesByUserId(userId: number): Promise<any> {
             user_id: userId,
         }
     });
+}
+
+
+//Query per sottrarre tokens all'utente per email
+export async function subtractTokensByEmail(email: string, tokens: number): Promise<any> {
+    return await UserModel.update(
+        { tokens: sequelize.literal(`tokens - ${tokens}`) },
+        { where: { email: email } }
+    );
 }
