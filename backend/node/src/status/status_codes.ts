@@ -40,6 +40,7 @@ export enum Messages400 {
     EmailCheck = "Il formato dell'email inserita non è corretto",
     PasswordCheck = "La password deve contenere almeno 8 caratteri ed un numero, un carattere speciale, un carattere maiuscolo e uno minuscolo",
     SameUser = "Non puoi creare lo stesso utente più volte",
+    NoDate = "non hai inserito la data di inizio o di fine",
     InvalidDateSame = "La data di inizio non può coincidere con quella di fine",
     InvalidDate = "La data di fine deve precedere quella di inizio",
     NegativeTokens = "Non puoi inserire un numero di token negativo",
@@ -49,6 +50,7 @@ export enum Messages400 {
     PasswordEmpty = "La password non può essere vuota",
     TokensEmpty = "Il valore dei token non può essere vuoto",
     InvalidDateFormat = "Le date sono state inserite in maniera errata",
+    UpdateRequestNotFound = "non ci sono richieste per te"
 }
 
 export enum Messages500 {

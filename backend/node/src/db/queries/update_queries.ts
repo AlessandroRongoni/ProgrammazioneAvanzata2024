@@ -80,15 +80,17 @@ export async function findPendingRequests(userId: number): Promise<any> {
  * @param userId - L'ID dell'utente per cui trovare le richieste di aggiornamento pendenti.
  * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento true e false per l'utente specificato.
  */
+// Trova lo storico delle richieste di aggiornamento per un utente specifico
 export async function findRequestHistory(userId: number): Promise<any> {
     return await UpdateModel.findAll({
         where: {
             user_id: userId,
-            approved: { [Op.not]: null } // Tutte le richieste tranne quelle pendenti
+            approved: { [Op.ne]: null } // Seleziona le richieste che sono state approvate o rifiutate
         },
         include: [
-            { model: EdgeModel } // Include i dettagli dell'arco associato alla richiesta
-        ]
+            // Opzionale: includi qui altri modelli se necessario, ad esempio per dettagli sull'arco
+        ],
+        order: [['updatedAt', 'DESC']] // Ordina le richieste dal più recente al più vecchio
     });
 }
 
@@ -102,6 +104,20 @@ export async function findEdgeUpdatesByRequester(requesterId: number): Promise<a
     return await UpdateModel.findAll({
         where: {
             requester_id: requesterId
+        }
+    });
+}
+
+/**
+ * Trova tutte le richieste di aggiornamento fatte da un utente specifico nel database.
+ * 
+ * @param requesterId - L'ID dell'utente che ha fatto le richieste di aggiornamento.
+ * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento fatte dall'utente specificato.
+ */
+export async function findEdgeUpdatesByReceiver(receiverId: number): Promise<any> {
+    return await UpdateModel.findAll({
+        where: {
+            receiver_id: receiverId
         }
     });
 }
