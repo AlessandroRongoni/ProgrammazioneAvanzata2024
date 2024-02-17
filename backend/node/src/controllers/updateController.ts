@@ -3,8 +3,8 @@ import { Request, Response } from "express";
 import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { approveEdgeUpdate, findEdgeUpdatesByReceiver, findUpdatesByUserAndDate, rejectEdgeUpdate } from '../db/queries/update_queries';
-import { findEdgeById, updateEdgeWeightInDB } from '../db/queries/graph_queries';
+import { approveEdgeUpdate, findEdgeUpdatesByReceiver, findUpdatesByEdgeId, findUpdatesByUserAndDate, rejectEdgeUpdate } from '../db/queries/update_queries';
+import { findEdgeById, findEdgesByGraphId, updateEdgeWeightInDB } from '../db/queries/graph_queries';
 var jwt = require('jsonwebtoken');
 var statusMessage: MessageFactory = new MessageFactory();
 const ALPHA = parseFloat(process.env.ALPHA || "0.8"); 
@@ -46,7 +46,7 @@ export async function updateEdgeWeight(req: Request, res: Response) {
  * @param res - The response object.
  * @returns A JSON response containing the pending updates.
  */
-export const viewPendingUpdates = async (req: Request, res: Response) => {
+export const viewPendingUpdatesForUser = async (req: Request, res: Response) => {
     try {
         const receiverId: any = await findUser(req.body.email);
         const pendingUpdates = await findEdgeUpdatesByReceiver(receiverId);
@@ -150,6 +150,28 @@ export const viewFilteredUpdateHistory = async (req: Request, res: Response) => 
         }*/
 
         res.status(200).json(updateHistory);
+    } catch (error) {
+        console.error(error);
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+
+/**
+ * Retrieves and returns the pending updates for a model.
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A JSON response containing the pending updates.
+ */
+export const viewPendingUpdatesForModel = async (req: Request, res: Response) => {
+    try {
+        const edges = await findEdgesByGraphId(req.body.graphId);
+        console.log("Archi: ",edges);
+        // if (!pendingUpdates.length) {
+        //     return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
+        // }
+        // res.status(200).json(pendingUpdates);
     } catch (error) {
         console.error(error);
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);

@@ -59,7 +59,8 @@ INSERT INTO users (email, password, tokens, isadmin) VALUES
 -- Inserimento di due grafi con 8 nodi e 16 archi
 INSERT INTO graphs (user_id, name, description) VALUES
     (1, 'Graph 1', 'Description of Graph 1'),
-    (2, 'Graph 2', 'Description of Graph 2');
+    (2, 'Graph 2', 'Description of Graph 2'),
+    (3, 'Graph 3', 'Description of Graph 3');
 
 -- Inserimento degli archi per il primo grafo
 INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
@@ -82,6 +83,17 @@ INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (2, 'F', 'G', 1.8),
     (2, 'G', 'H', 2.2),
     (2, 'H', 'A', 1.9);
+
+-- Inserimento degli archi per il terzo grafo
+INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
+    (3, 'A', 'B', 1.1),
+    (3, 'B', 'C', 1.4),
+    (3, 'C', 'D', 1.2),
+    (3, 'D', 'E', 2.1),
+    (3, 'E', 'F', 1.9),
+    (3, 'F', 'G', 1.2),
+    (3, 'G', 'H', 2.1),
+    (3, 'H', 'A', 1.2);
 
 -- Inserimento di alcune richieste di modifica degli archi con requester_id e receiver_id
 INSERT INTO updates (edge_id, requester_id, receiver_id, new_weight, approved) VALUES

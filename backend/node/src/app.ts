@@ -3,14 +3,14 @@ import { Request, Response } from "express";
 var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 import dotenv from 'dotenv';
-import { checkEmail, checkPassword, checkTokensBody, checkUser, checkUserJwt, checkUserNotRegistered } from "./middleware/user_middleware"; // Import the missing checkEmail function
+import { checkEmail, checkPassword, checkPasswordMatch, checkTokensBody, checkUser, checkUserJwt, checkUserNotRegistered } from "./middleware/user_middleware"; // Import the missing checkEmail function
 import { getUserTokens, login, createUser, getAllUsers } from './controllers/userController';
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkPendingUpdatesExist, checkGraphExistence} from "./middleware/graph_middleware";
+import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkGraphExistence} from "./middleware/graph_middleware";
 import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
-import { updateEdgeWeight, viewPendingUpdates } from "./controllers/updateController";
+import { updateEdgeWeight, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 
 dotenv.config();
 const app = express();
@@ -30,7 +30,7 @@ app.get("/", (req: Request, res: Response) => {
 /**
  * Effettua il login e restituisce il jwt associato all'utente
  */
-app.post("/login", jsonParser, checkEmail, checkPassword,checkUser, (req: Request, res: Response) => {
+app.post("/login", jsonParser, checkEmail, checkPassword,checkUser, checkPasswordMatch, (req: Request, res: Response) => {
   login(req, res);
 });
 
@@ -77,7 +77,7 @@ app.get("/graphslist", checkJwt, (req: Request, res: Response) => {
   /**
    * Rotta per ottenere la lista degli archi di un grafo
    */
-app.get("/graph/edges", checkJwt, (req: Request, res: Response) => {
+app.get("/graph/edges", checkJwt,checkGraphExistence, (req: Request, res: Response) => {
     getGraphEdges(req,res);
   });
 
@@ -92,7 +92,6 @@ app.put("/graph/update/edge", jsonParser, checkJwt, checkEdgeBelonging, validate
 /**
  * Rotta per ottenere tutti gli utenti
  * 
- * }
  */
 app.get("/user/all",checkJwt,checkIsAdmin, (req: Request, res: Response) => {
   getAllUsers(req, res);
@@ -103,11 +102,19 @@ body:{
   *        "graphId": "1",
   * }
 */
-app.get("/updates/graph/pending", checkJwt,checkGraphExistence, checkPendingUpdatesExist, (req: Request, res: Response) => {
-  viewPendingUpdates(req, res);
+app.get("/updates/graph/pending", checkJwt, checkGraphExistence, (req: Request, res: Response) => {
+  viewPendingUpdatesForModel(req, res);
 });
 
 
+
+
+/** Rotta per visualizzare gli aggiornamenti pendenti per un utente
+
+*/
+app.get("/updates/user/pending", checkJwt, (req: Request, res: Response) => {
+  viewPendingUpdatesForUser(req, res);
+});
 
 
 

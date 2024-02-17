@@ -57,6 +57,28 @@ export const checkPassword = (req: Request, res: Response, next: NextFunction) =
 };
 
 /**
+ * Controllo se la password inserita è corretta e corrisposnde a quella nel DB
+ * 
+ * @param req - Oggetto della richiesta HTTP.
+ * @param res - Oggetto della risposta HTTP.
+ * @param next - Funzione di callback per passare alla prossima operazione.
+ * 
+ */
+export const checkPasswordMatch = async (req: Request, res: Response, next: NextFunction) => {
+    const user: any = await findUser(req.body.email);
+    if (user.length != 0) {
+        if (user[0].password == req.body.password) {
+            next();
+        } else {
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordNotMatch);
+        }
+    } else {
+        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
+    }
+};
+
+
+/**
  * Controlla la validità del formato dell'indirizzo email specificato nella richiesta.
  * Verifica se l'indirizzo email è non vuoto e rispetta il formato standard.
  * Restituisce un errore 400 se l'indirizzo email non è valido.

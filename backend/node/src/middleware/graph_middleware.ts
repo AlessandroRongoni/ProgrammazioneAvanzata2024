@@ -181,21 +181,6 @@ export const verifyGraphExists = async (req: Request, res: Response, next: NextF
 };
 
 
-export const checkPendingUpdatesExist = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const pendingUpdates = await findUpdatesByEdgeId(req.body.graphId);
-        
-        if (!pendingUpdates.length) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
-        }
-        
-        next();
-    } catch (error) {
-        console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};
-
 export const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
     const startDate = req.query.startDate;
     const endDate = req.body.endDate
@@ -252,7 +237,7 @@ export const verifyLoadUpdateHistory = async (req: Request, res: Response, next:
 
 
 /**
- * COntrollo esistenza di un grafo
+ * Controllo esistenza di un grafo
  * @param req
  * @param res
  * @param next

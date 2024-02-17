@@ -139,3 +139,26 @@ export async function subtractTokensByEmail(email: string, tokens: number): Prom
         { where: { email: email } }
     );
 }
+
+
+// Trova gli archi di un grafo specificato dall'ID
+export async function findEdgesByGraphIdNew(graphId: number) {
+    const query = 'SELECT * FROM edges WHERE graph_id = $1';
+    try {
+        const result = await GraphModel.query(query, [graphId]);
+        return result.rows;
+    } catch (error) {
+        throw new Error('Error querying edges by graphId.');
+    }
+}
+
+// Trova gli aggiornamenti pendenti per un array di ID di archi
+export async function findUpdatesByEdgeId(edgeIds: number[]) {
+    const query = 'SELECT * FROM updates WHERE edge_id = ANY($1::int[]) AND status = $2';
+    try {
+        const result = await UpdateModel.query(query, [edgeIds, 'pending']);
+        return result.rows;
+    } catch (error) {
+        throw new Error('Error querying updates by edgeId'  );
+    }
+}
