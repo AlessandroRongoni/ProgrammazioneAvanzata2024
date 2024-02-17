@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS graphs (
     user_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdat DATE DEFAULT CURRENT_DATE,
+    updatedat DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS updates (
     receiver_id INT NOT NULL,
     new_weight FLOAT NOT NULL,
     approved BOOLEAN,
-    createdat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdat DATE DEFAULT CURRENT_DATE,
+    updatedat DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (graph_id) REFERENCES graphs (graph_id) ON DELETE CASCADE,
     FOREIGN KEY (edge_id) REFERENCES edges (edge_id) ON DELETE CASCADE,
     FOREIGN KEY (requester_id) REFERENCES users (user_id) ON DELETE CASCADE,
@@ -102,3 +102,4 @@ INSERT INTO updates (graph_id, edge_id, requester_id, receiver_id, new_weight, a
     (1, 1, 2, 1, 1.7, NULL), -- Richiesta di modifica per il primo arco da daniele a adriano
     (1, 4, 2, 1, 2.0, NULL), -- Richiesta di modifica per il quarto arco da daniele a adriano
     (2, 9, 1, 2, 1.5, NULL); -- Richiesta di modifica per il nono arco da daniele a adriano
+   
