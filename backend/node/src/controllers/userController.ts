@@ -77,14 +77,9 @@ export const getUserTokens = async (req: Request, res: Response) => {
  */
 export const createUser = async (req: Request, res: Response) => {
     try {
-        const user: any = await findUser(req.body.email);
-        if (user.length == 0) {
-            await createUserDb(req);
-            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UserCreateSuccess);
-        }
-        else {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnauthorizedUser);
-        };
+        await createUserDb(req);
+        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UserCreateSuccess);
+        
     } catch (e) {
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
