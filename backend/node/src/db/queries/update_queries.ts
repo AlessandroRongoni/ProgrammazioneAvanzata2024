@@ -109,7 +109,7 @@ export async function findEdgeUpdatesByRequester(requesterId: number): Promise<a
 }
 
 /**
- * Trova tutte le richieste di aggiornamento fatte da un utente specifico nel database.
+ * Trova tutte le richieste di aggiornamento fatte ad un utente specifico nel database.
  * 
  * @param requesterId - L'ID dell'utente che ha fatto le richieste di aggiornamento.
  * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento fatte dall'utente specificato.

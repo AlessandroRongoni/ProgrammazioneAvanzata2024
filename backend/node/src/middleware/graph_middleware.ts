@@ -4,6 +4,7 @@ import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500, Messages200 } from "../status/status_codes";
 import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
+import { findEdgeUpdatesByReceiver, findUpdatesByUserAndDate } from '../db/queries/update_queries';
 
 var statusMessage: MessageFactory = new MessageFactory();
 
@@ -91,12 +92,16 @@ export const checkUserTokensCreate = async (req: Request, res: Response, next: N
 //Valida i pesi degli archi inviati nella richiesta. Verifica che l'array edges sia presente, che sia un array, e che tutti gli archi abbiano pesi validi (numerici e non negativi)
 export const validateEdgeWeightsUpdate = (req: Request, res: Response, next: NextFunction) => {
     const new_weight = req.body.newWeight;
-
-    if (!new_weight || new_weight < 0 || typeof new_weight !== 'number') {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+    try{
+        if (!new_weight || new_weight < 0 || typeof new_weight !== 'number') {
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+        }
+        next();
+    } catch (error) {
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
-    next();
 };
+
 
 //RICORDATI SERGY DI AGGIUNGERE IL MIDDLEWARE PER LA CREAZIONE DEI GRAFI
 export const validateEdgeWeightsCreation = (req: Request, res: Response, next: NextFunction) => {
@@ -136,9 +141,6 @@ export const validateGraphStructure = (req: Request, res: Response, next: NextFu
 
 
 
-/**
- * Middleware per aggiornare il peso di un arco
- */
 
 
 
@@ -153,11 +155,99 @@ export const checkEdgeBelonging = async (req: Request, res: Response, next: Next
         if (!edge) {
             statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotFound);
         }
-        if (edge.graphId != graphId) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphNotFound);
+        if (edge.graph_id != graphId) {
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
         }
         next();
     } catch (error) {
+        console.error(error);
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
+
+//Middleware per verificare l'esistenza di un grafo
+export const verifyGraphExists = async (req: Request, res: Response, next: NextFunction) => {
+    const  graphId  = req.body.graphId;
+    try {
+        const graph = await findGraphById(graphId);
+        if (!graph) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.GraphNotFound);
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+
+export const checkPendingUpdatesExist = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let jwtUserEmail = getJwtEmail(req);
+        const requester = findUser(jwtUserEmail)
+        const pendingUpdates = await findEdgeUpdatesByReceiver(requester.user_id);
+        
+        if (!pendingUpdates.length) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
+        }
+        
+        next();
+    } catch (error) {
+        console.error(error);
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+export const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
+    const startDate = req.query.startDate;
+    const endDate = req.body.endDate
+
+    if (!startDate || !endDate) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoDate);
+    }
+
+    const start = new Date(startDate as string);
+    const end = new Date(endDate as string);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
+    }
+
+    if (start.getTime() === end.getTime()) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDateSame);
+    }
+
+    if (start > end) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
+    }
+
+    next();
+};
+
+export const verifyLoadUpdateHistory = async (req: Request, res: Response, next: NextFunction) => {
+    const userId: any = await findUser(req.body.email);
+    const { startDate, endDate } = req.query;
+
+    // Assicurati che startDate e endDate siano stringhe
+    if (typeof startDate !== 'string' || typeof endDate !== 'string') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoDate);
+    }
+
+    // Converti le stringhe delle date in oggetti Date
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    try {
+        const updateHistory = await findUpdatesByUserAndDate(userId, start, end);
+
+        if (updateHistory.length === 0) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NoStoric);
+        }
+
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
