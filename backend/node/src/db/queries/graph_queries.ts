@@ -72,66 +72,6 @@ export async function addEdgesToGraph(graphId: number, edges: { startNode: strin
     return await Promise.all(edgePromises);
 }
 
-/**
- * Aggiorna il peso di un arco specificato nel database.
- * 
- * @param edgeId ID dell'arco da aggiornare.
- * @param updatedWeight Nuovo peso da assegnare all'arco.
- */
-export async function updateEdgeWeightInDB(edgeId: number, updatedWeight: number): Promise<void> {
-    try {
-        const result = await EdgeModel.update({ weight: updatedWeight }, { where: { edge_id: edgeId } });
-        console.log('Update result:', result);
-        // Gestire qui eventuali risposte specifiche, come la verifica del numero di righe effettivamente aggiornate.
-    } catch (error) {
-        console.error('Errore durante l\'aggiornamento del peso dell\'arco:', error);
-        throw new Error('Errore durante l\'aggiornamento del peso dell\'arco');
-    }
-}
-
-/**
- * Crea una nuova richiesta di aggiornamento per un arco nel database.
- * 
- * @param edgeId - L'ID dell'arco da aggiornare.
- * @param requesterId - L'ID dell'utente che richiede l'aggiornamento.
- * @param receiverId - L'ID dell'utente a cui è destinata la richiesta di aggiornamento.
- * @param newWeight - Il nuovo peso da assegnare all'arco.
- * @returns Una promessa che rappresenta l'esito dell'operazione di creazione della richiesta di aggiornamento.
- */
-export async function requestEdgeUpdate(edgeId: number, requesterId: number, receiverId: number, newWeight: number): Promise<any> {
-    return await UpdateModel.create({
-        edge_id: edgeId,
-        requester_id: requesterId,
-        receiver_id: receiverId,
-        new_weight: newWeight
-    });
-}
-
-
-/**
- * Approva una richiesta di aggiornamento dell'arco nel database.
- * 
- * @param updateId - L'ID della richiesta di aggiornamento da approvare.
- * @returns Una promessa che rappresenta l'esito dell'operazione di approvazione della richiesta di aggiornamento.
- */
-export async function approveEdgeUpdate(updateId: number): Promise<any> {
-    return await UpdateModel.update({ approved: true }, {
-        where: {
-            update_id: updateId
-        }
-    });
-}
-
-// Funzione per trovare tutti gli aggiornamenti degli archi per un determinato utente
-export async function findUpdatesByUserId(userId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            user_id: userId,
-        }
-    });
-}
-
-
 //Query per sottrarre tokens all'utente per email
 export async function subtractTokensByEmail(email: string, tokens: number): Promise<any> {
     return await UserModel.update(
@@ -141,24 +81,3 @@ export async function subtractTokensByEmail(email: string, tokens: number): Prom
 }
 
 
-// Trova gli archi di un grafo specificato dall'ID
-export async function findEdgesByGraphIdNew(graphId: number) {
-    const query = 'SELECT * FROM edges WHERE graph_id = $1';
-    try {
-        const result = await GraphModel.query(query, [graphId]);
-        return result.rows;
-    } catch (error) {
-        throw new Error('Error querying edges by graphId.');
-    }
-}
-
-// Trova gli aggiornamenti pendenti per un array di ID di archi
-export async function findUpdatesByEdgeId(edgeIds: number[]) {
-    const query = 'SELECT * FROM updates WHERE edge_id = ANY($1::int[]) AND status = $2';
-    try {
-        const result = await UpdateModel.query(query, [edgeIds, 'pending']);
-        return result.rows;
-    } catch (error) {
-        throw new Error('Error querying updates by edgeId'  );
-    }
-}

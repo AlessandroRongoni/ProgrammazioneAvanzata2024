@@ -6,7 +6,6 @@ import { DbConnector } from '../db/db_connection';
  * Connessione al database utilizzando il modulo di connessione Sequelize.
  * Viene autenticata la connessione al database e viene gestito il risultato dell'autenticazione.
  */
-setTimeout(() => {}, 10000);
 const sequelize = DbConnector.getConnection();
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
@@ -21,6 +20,14 @@ export const UpdateModel = sequelize.define('updates', {
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
+    },
+    graph_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'graphs',
+            key: 'graph_id',
+        }
     },
     edge_id: {
         type: DataTypes.INTEGER,
@@ -58,7 +65,9 @@ export const UpdateModel = sequelize.define('updates', {
 }, {
     modelName: 'UpdateModel',
     timestamps: true, // Per tracciare createdAt e l'eventuale updatedAt
-    freezeTableName: true
+    freezeTableName: true,
+    createdAt: 'createdat', 
+    updatedAt: 'updatedat'
 });
 
 /**

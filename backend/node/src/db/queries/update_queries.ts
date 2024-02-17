@@ -201,3 +201,53 @@ export async function findEdgeUpdateHistory(edgeId: number): Promise<any> {
         throw new Error('Errore durante la ricerca della cronologia degli aggiornamenti');
     }
 }
+
+
+/**
+ * Query per trovare tutti gli updates dato l'ID di un grafo
+ */
+export async function findPendingUpdatesByGraphId(graphId: number): Promise<any> {
+    return await UpdateModel.findAll({
+        where: {
+            graph_id: graphId,
+            approved: null
+        } 
+    });
+}
+
+/**
+ * Crea una nuova richiesta di aggiornamento per un arco nel database.
+ * 
+ * @param edgeId - L'ID dell'arco da aggiornare.
+ * @param requesterId - L'ID dell'utente che richiede l'aggiornamento.
+ * @param receiverId - L'ID dell'utente a cui è destinata la richiesta di aggiornamento.
+ * @param newWeight - Il nuovo peso da assegnare all'arco.
+ * @returns Una promessa che rappresenta l'esito dell'operazione di creazione della richiesta di aggiornamento.
+ */
+export async function requestEdgeUpdate(edgeId: number, requesterId: number, receiverId: number, newWeight: number): Promise<any> {
+    return await UpdateModel.create({
+        edge_id: edgeId,
+        requester_id: requesterId,
+        receiver_id: receiverId,
+        new_weight: newWeight
+    });
+}
+
+/**
+ * Aggiorna il peso di un arco specificato nel database.
+ * 
+ * @param edgeId ID dell'arco da aggiornare.
+ * @param updatedWeight Nuovo peso da assegnare all'arco.
+ */
+export async function updateEdgeWeightInDB(edgeId: number, updatedWeight: number): Promise<void> {
+    try {
+        const result = await EdgeModel.update({ weight: updatedWeight }, { where: { edge_id: edgeId } });
+        console.log('Update result:', result);
+        // Gestire qui eventuali risposte specifiche, come la verifica del numero di righe effettivamente aggiornate.
+    } catch (error) {
+        console.error('Errore durante l\'aggiornamento del peso dell\'arco:', error);
+        throw new Error('Errore durante l\'aggiornamento del peso dell\'arco');
+    }
+}
+
+
