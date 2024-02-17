@@ -4,7 +4,7 @@ import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500, Messages200 } from "../status/status_codes";
 import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
-import { findEdgeUpdatesByReceiver, findUpdatesByUserAndDate } from '../db/queries/update_queries';
+import { findEdgeUpdatesByReceiver, findUpdatesByEdgeId, findUpdatesByUserAndDate } from '../db/queries/update_queries';
 
 var statusMessage: MessageFactory = new MessageFactory();
 
@@ -183,9 +183,7 @@ export const verifyGraphExists = async (req: Request, res: Response, next: NextF
 
 export const checkPendingUpdatesExist = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let jwtUserEmail = getJwtEmail(req);
-        const requester = findUser(jwtUserEmail)
-        const pendingUpdates = await findEdgeUpdatesByReceiver(requester.user_id);
+        const pendingUpdates = await findUpdatesByEdgeId(req.body.graphId);
         
         if (!pendingUpdates.length) {
             return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
@@ -251,3 +249,24 @@ export const verifyLoadUpdateHistory = async (req: Request, res: Response, next:
     }
 };
 
+
+
+/**
+ * COntrollo esistenza di un grafo
+ * @param req
+ * @param res
+ * @param next
+ */
+export const checkGraphExistence = async (req: Request, res: Response, next: NextFunction) => {
+    const graphId = req.body.graphId;
+    try {
+        const graph = await findGraphById(graphId);
+        if (!graph) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.GraphNotFound);
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};

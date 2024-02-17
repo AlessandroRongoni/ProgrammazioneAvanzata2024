@@ -8,7 +8,7 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkPendingUpdatesExist} from "./middleware/graph_middleware";
+import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkPendingUpdatesExist, checkGraphExistence} from "./middleware/graph_middleware";
 import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
 import { updateEdgeWeight, viewPendingUpdates } from "./controllers/updateController";
 
@@ -91,13 +91,19 @@ app.put("/graph/update/edge", jsonParser, checkJwt, checkEdgeBelonging, validate
 
 /**
  * Rotta per ottenere tutti gli utenti
+ * 
+ * }
  */
 app.get("/user/all",checkJwt,checkIsAdmin, (req: Request, res: Response) => {
   getAllUsers(req, res);
 });
 
-// Rotta per visualizzare gli aggiornamenti pendenti per un utente
-app.get("/updates/pending", checkJwt, checkPendingUpdatesExist, (req: Request, res: Response) => {
+/** Rotta per visualizzare gli aggiornamenti pendenti per un modello
+body:{
+  *        "graphId": "1",
+  * }
+*/
+app.get("/updates/graph/pending", checkJwt,checkGraphExistence, checkPendingUpdatesExist, (req: Request, res: Response) => {
   viewPendingUpdates(req, res);
 });
 
