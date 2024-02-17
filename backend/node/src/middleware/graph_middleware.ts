@@ -2,10 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { findAllGraphs, findEdgeById, findEdgesByGraphId, findGraphById, requestEdgeUpdate, subtractTokensByEmail } from '../db/queries/graph_queries';
 import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500, Messages200 } from "../status/status_codes";
-import { getJwtEmail } from '../services/jwt_service';
+import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
-import { updateEdgeWeightService } from '../utils/graph_utils';
-
 
 var statusMessage: MessageFactory = new MessageFactory();
 
@@ -137,53 +135,11 @@ export const validateGraphStructure = (req: Request, res: Response, next: NextFu
 };
 
 
-/**
- * Middleware per richiedere la lista completa
- * dei grafi presenti del database
- */
-export const getGraphsList = async (res: Response) => {
-    try {
-        const graphs = await findAllGraphs();
-        let message = JSON.parse(JSON.stringify({ graphs: graphs }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
-    } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-
-};
-
-/**
- * 
- * Middleware per richiedere gli archi di un grafo specifico
- */
-export const getAllEdgesOfGraph = async (req: Request, res: Response) => {
-    try {
-        const graphId = req.body.graphId;
-        const edges = await findEdgesByGraphId(graphId);
-        let message = JSON.parse(JSON.stringify({ edges: edges }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
-    } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};
-
 
 /**
  * Middleware per aggiornare il peso di un arco
  */
-export const updateEdgeWeight = async (req: Request, res: Response) => {
-    try {
-        const { edgeId, newWeight } = req.body;
-        const edge = await findEdgeById(edgeId);
-        if (!edge) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotFound);
-        }
-        updateEdgeWeightService; // Richiamo il service di update per gli archi e di conseguenza la query per aggiornarli
-        await edge.save();
-    } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};
+
 
 
 /**
