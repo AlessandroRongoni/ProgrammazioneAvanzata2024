@@ -8,9 +8,9 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkGraphExistence} from "./middleware/graph_middleware";
+import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkGraphExistence, checkUpdateExistence, checkUpdatePending, checkOwner} from "./middleware/graph_middleware";
 import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
-import { updateEdgeWeight, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
+import { answerUpdate, updateEdgeWeight, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 
 dotenv.config();
 const app = express();
@@ -110,14 +110,23 @@ app.get("/updates/graph/pending", checkJwt, checkGraphExistence, (req: Request, 
 /** Rotta per visualizzare gli aggiornamenti pendenti per un utente
 
 */
-app.get("/updates/user/pending", checkJwt, (req: Request, res: Response) => {
+app.get("/updates/user/pending", checkJwt,(req: Request, res: Response) => {
   viewPendingUpdatesForUser(req, res);
 });
 
 
+// Rotte per approvare o rifiutare una richiesta di aggiornamento
+/**
+ * body:{
+ *       "updateId": "1",
+ *       "answer": true/false
+ * }
+  */
+app.put("/update/answer", jsonParser, checkJwt,checkUpdateExistence, checkOwner, checkUpdatePending, (req: Request, res: Response) => {
+  answerUpdate(req,res);
+});
 
-
-
+       
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);
 });

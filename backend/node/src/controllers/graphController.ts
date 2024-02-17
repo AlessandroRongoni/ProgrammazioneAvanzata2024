@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { approveEdgeUpdate, findEdgeUpdatesByReceiver, findUpdatesByUserAndDate, rejectEdgeUpdate } from '../db/queries/update_queries';
 import { findAllGraphs, findEdgeById, findEdgesByGraphId } from '../db/queries/graph_queries';
 var jwt = require('jsonwebtoken');
 var statusMessage: MessageFactory = new MessageFactory();

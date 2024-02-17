@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { approveEdgeUpdate, findEdgeUpdatesByReceiver, findPendingUpdatesByGraphId, findUpdatesByEdgeId, findUpdatesByUserAndDate, rejectEdgeUpdate } from '../db/queries/update_queries';
+import { approveEdgeUpdate, findPendingUpdatesByGraphId, findUpdatesByEdgeId, findUpdatesByReceiverInPending, findUpdatesByUserAndDate, rejectEdgeUpdate } from '../db/queries/update_queries';
 import { updateEdgeWeightInDB } from '../db/queries/update_queries';
 import { findEdgeById } from '../db/queries/graph_queries';
 var jwt = require('jsonwebtoken');
@@ -41,7 +41,7 @@ export async function updateEdgeWeight(req: Request, res: Response) {
 
 
 /**
- * Retrieves and returns the pending updates for a user.
+ * Retrieves and returns the pending updates for a user. DA RIVEDERE TUTTA
  * 
  * @param req - The request object.
  * @param res - The response object.
@@ -49,66 +49,20 @@ export async function updateEdgeWeight(req: Request, res: Response) {
  */
 export const viewPendingUpdatesForUser = async (req: Request, res: Response) => {
     try {
-        const receiverId: any = await findUser(req.body.email);
-        const pendingUpdates = await findEdgeUpdatesByReceiver(receiverId);
-
-       /* if (pendingUpdates.length === 0) {
-            statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
-        }*/
-
-        res.status(200).json(pendingUpdates);
-    } catch (error) {
-        console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};
-
-/**
- * Approves an update request.
- * 
- * @param req - The request object.
- * @param res - The response object.
- * @returns A status message indicating the result of the approval.
- */
-export const approveUpdate = async (req: Request, res: Response) => {
-    try {
-        const { updateId } = req.params;
-        const result = await approveEdgeUpdate(parseInt(updateId));
-/*
-        if (!result) {
+        let jwtUserEmail = getJwtEmail(req);
+        const user = await findUser(jwtUserEmail);
+        const pendingUpdates = await findUpdatesByReceiverInPending(user[0].dataValues.user_id);
+        if (pendingUpdates.length === 0) {
             return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
-        }*/
-
-        return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateApprovalSuccess);
+        }
+        let message = JSON.parse(JSON.stringify({ pendingUpdates: pendingUpdates }));
+        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
     } catch (error) {
         console.error(error);
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
-
-/**
- * Rejects an update request.
- * 
- * @param req - The request object.
- * @param res - The response object.
- * @returns A status message indicating the result of the rejection.
- */
-export const rejectUpdate = async (req: Request, res: Response) => {
-    try {
-        const { updateId } = req.params;
-        const result = await rejectEdgeUpdate(parseInt(updateId));
-/*
-        if (!result) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
-        }*/
-
-        return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateRejectionSuccess);
-    } catch (error) {
-        console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};
 
 /**
  * Retrieves and returns the filtered update history for a user within a specified date range.
@@ -179,4 +133,31 @@ export const viewPendingUpdatesForModel = async (req: Request, res: Response) =>
         console.error(error);
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
+};
+
+
+/**
+ * Rispondi alle richieste di update rifiutandole o accettandole a seconda di cosa viene preso sul body
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A status message indicating the result of the approval or rejection.
+ * 
+ */
+export const answerUpdate = async (req: Request, res: Response) => {
+    try {
+        const { updateId, answer } = req.body;
+        const result = await findUpdatesByEdgeId(updateId);
+        if (answer) {
+            await approveEdgeUpdate(updateId);
+            return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateApprovalSuccess);
+        } else {
+            await rejectEdgeUpdate(updateId);
+            return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateRejectionSuccess);
+        }
+    } catch (error) {
+        console.error(error);
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+
 };

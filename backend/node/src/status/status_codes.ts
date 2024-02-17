@@ -27,6 +27,7 @@ export enum Messages400 {
     NoAuthHeader = "Bad Request - No authorization header",
     NoTokenJWT = "Bad Request - No JWT",
     InvalidTokenJWT = "Forbidden - Invalid JWT (the key is incorrect)",
+    UpdateRequired = "Bad Request - The request must contain an update",
     UnauthorizedUser = "Non è possibile creare l\'utente perchè è già esistente",
     Unauthorized = "Questo utente non ha le autorizzazioni necessarie a svolgere l\'operazione", //quando uno user prova a fare refillToken
     UserNotFound = "Non è possibile trovare l\'utente specificato",
@@ -53,8 +54,12 @@ export enum Messages400 {
     TokensEmpty = "Il valore dei token non può essere vuoto",
     InvalidDateFormat = "Le date sono state inserite in maniera errata",
     UpdateRequestNotFound = "Non ci sono richieste per te.",
+    UpdateNotFound = "Non ci sono update con questo ID.",
+    UpdateAlreadyAwnsered = "Non puoi modificare un update a cui già hai risposto.",
     UpdateRequestNotFoundForModel = "Non ci sono richieste per il grafo specificato.",
     NoStoric = "Non c'è uno storico di richieste per te.",
+    AllRequestAlreadyAwnsered = "Non ci sono richieste di aggiornamento pendenti per te.",
+    NotOwner = "Non sei il proprietario del grafo",
     PasswordNotMatch = "La password inserita non corrisponde a quella nel DB"
 }
 

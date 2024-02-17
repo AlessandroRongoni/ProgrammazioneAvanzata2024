@@ -4,7 +4,7 @@ import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500, Messages200 } from "../status/status_codes";
 import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
-import { findEdgeUpdatesByReceiver, findUpdatesByEdgeId, findUpdatesByUserAndDate, requestEdgeUpdate } from '../db/queries/update_queries';
+import {findUpdateById, findUpdatesByEdgeId, findUpdatesByUserAndDate, requestEdgeUpdate } from '../db/queries/update_queries';
 
 var statusMessage: MessageFactory = new MessageFactory();
 
@@ -241,6 +241,7 @@ export const verifyLoadUpdateHistory = async (req: Request, res: Response, next:
  * @param req
  * @param res
  * @param next
+ * @returns
  */
 export const checkGraphExistence = async (req: Request, res: Response, next: NextFunction) => {
     const graphId = req.body.graphId;
@@ -254,4 +255,75 @@ export const checkGraphExistence = async (req: Request, res: Response, next: Nex
         console.error(error);
         return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
+};
+
+
+/** Controllo se esiste l'update passando l'id
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const checkUpdateExistence = async (req: Request, res: Response, next: NextFunction) => {
+    const updateId = req.body.updateId;
+    try {
+        if (!updateId) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateRequired);
+        }
+        if (updateId < 0 || isNaN(updateId)) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber);
+
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+/** 
+ * Controllo se l'Update ha lo stato approved NULL
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const checkUpdatePending = async (req: Request, res: Response, next: NextFunction) => {
+    const updateId = req.body.updateId;
+    try {
+        const update = await findUpdateById(updateId);
+        if (update.approved != null) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAlreadyAwnsered);
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+
+/**
+ * Controllo se il l'upgrade corrisponde ad un grafo a cui chi fa la richiesta
+ * è proprietario
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const checkOwner = async (req: Request, res: Response, next: NextFunction) => {
+    const updateId = req.body.updateId;
+    let JwtUserEmail = getJwtEmail(req);
+    try {
+        const updates = await findUpdateById(updateId);
+        const receiver = await findUserById(updates.receiver_id);
+        if (receiver[0].dataValues.email != JwtUserEmail) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotOwner);
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+
 };

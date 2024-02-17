@@ -57,24 +57,6 @@ export async function rejectEdgeUpdate(updateId: number): Promise<any> {
 }
 
 /**
- * Trova tutte le richieste di aggiornamento pendenti per un utente specifico nel database.
- * 
- * @param userId - L'ID dell'utente per cui trovare le richieste di aggiornamento pendenti.
- * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento pendenti per l'utente specificato.
- */
-export async function findPendingRequests(userId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            user_id: userId,
-            approved: null // Solo le richieste pendenti
-        },
-        include: [
-            { model: EdgeModel } // Include i dettagli dell'arco associato alla richiesta
-        ]
-    });
-}
-
-/**
  * Trova tutte le richieste di aggiornamento NON pendenti per un utente specifico nel database.
  * 
  * @param userId - L'ID dell'utente per cui trovare le richieste di aggiornamento pendenti.
@@ -100,7 +82,7 @@ export async function findRequestHistory(userId: number): Promise<any> {
  * @param requesterId - L'ID dell'utente che ha fatto le richieste di aggiornamento.
  * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento fatte dall'utente specificato.
  */
-export async function findEdgeUpdatesByRequester(requesterId: number): Promise<any> {
+export async function findUpdatesByRequester(requesterId: number): Promise<any> {
     return await UpdateModel.findAll({
         where: {
             requester_id: requesterId
@@ -112,12 +94,14 @@ export async function findEdgeUpdatesByRequester(requesterId: number): Promise<a
  * Trova tutte le richieste di aggiornamento fatte ad un utente specifico nel database.
  * 
  * @param requesterId - L'ID dell'utente che ha fatto le richieste di aggiornamento.
+ * @param approved - Lo stato di approvazione della richiesta di aggiornamento.
  * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento fatte dall'utente specificato.
  */
-export async function findEdgeUpdatesByReceiver(receiverId: number): Promise<any> {
+export async function findUpdatesByReceiverInPending(receiverId: number): Promise<any> {
     return await UpdateModel.findAll({
         where: {
-            receiver_id: receiverId
+            receiver_id: receiverId,
+            approved: null
         }
     });
 }
@@ -176,33 +160,6 @@ export async function findUpdatesByUserAndDate(userId: number, startDate: Date, 
     });
 }
 
-// Visualizza la cronologia delle modifiche di un arco
-export async function findEdgeUpdateHistory(edgeId: number): Promise<any> {
-    try {
-        const updates = await UpdateModel.findAll({
-            where: {
-                edge_id: edgeId,
-            },
-            order: [
-                ['createdAt', 'ASC'] // Ordina le modifiche dalla più vecchia alla più recente
-            ],
-            attributes: ['edge_id', 'requester_id', 'receiver_id', 'new_weight', 'approved', 'createdAt', 'updatedAt'],
-            // Considera di includere join con altri modelli se necessario, per ottenere informazioni aggiuntive
-        });
-
-        // Controllo per assicurarsi che ci siano effettivamente aggiornamenti per l'arco
-        if (updates.length === 0) {
-            return { message: "Nessuna cronologia di aggiornamenti trovata per l'arco specificato." };
-        }
-
-        return updates;
-    } catch (error) {
-        console.error('Errore durante la ricerca della cronologia degli aggiornamenti dell\'arco:', error);
-        throw new Error('Errore durante la ricerca della cronologia degli aggiornamenti');
-    }
-}
-
-
 /**
  * Query per trovare tutti gli updates dato l'ID di un grafo
  */
@@ -250,4 +207,12 @@ export async function updateEdgeWeightInDB(edgeId: number, updatedWeight: number
     }
 }
 
-
+/** QUERY PER ottenere gli update dato l'ID
+ * 
+ * @param updateId - L'ID dell'aggiornamento da ottenere.
+ * @returns Una promessa che rappresenta l'aggiornamento richiesto.
+ * 
+ */
+export async function findUpdateById(updateId: number): Promise<any> {
+    return await UpdateModel.findByPk(updateId);
+}
