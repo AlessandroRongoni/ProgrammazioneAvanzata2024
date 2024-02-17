@@ -6,13 +6,14 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import { checkEmail } from "./middleware/email_middleware"; // Import the missing checkEmail function
 import { checkPassword } from "./middleware/password_middleware"; // Import the missing checkPassword function
-import { getUserTokens, login, createUser, getAllGraphs,  getGraphEdges, updateEdgesWeight, getAllUsers } from './controllers/controller';
+import { getUserTokens, login, createUser, getAllUsers } from './controllers/userController';
 import { checkJwt } from "./middleware/jwt_middleware"; // Import the missing checkJwt function
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { checkTokensBody } from "./middleware/tokens_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, updateEdgeWeight, validateEdgeWeightsCreation, validateEdgeWeightsUpdate} from "./middleware/graph_middleware";
-
+import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate} from "./middleware/graph_middleware";
+import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
+import { updateEdgeWeight } from "./controllers/updateController";
 
 dotenv.config();
 const app = express();
@@ -88,13 +89,13 @@ app.get("/graph/edges", checkJwt, (req: Request, res: Response) => {
  * 
  */
 app.put("/graph/update/edge", checkJwt,checkEdgeBelonging, validateEdgeWeightsUpdate, checkUserTokensUpdate, checkGraphOwnership, updateEdgeWeight, (req: Request, res: Response) => {
-  updateEdgesWeight(req,res);
+  updateEdgeWeight(req,res);
 });
 
 /**
  * Rotta per ottenere tutti gli utenti
  */
-app.get("/user/all", (req: Request, res: Response) => {
+app.get("/user/all",checkJwt,checkIsAdmin, (req: Request, res: Response) => {
   getAllUsers(req, res);
 });
 

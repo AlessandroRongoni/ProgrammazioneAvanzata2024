@@ -1,13 +1,55 @@
-import { Request, Response } from 'express';
-import { findEdgeUpdatesByReceiver, approveEdgeUpdate, rejectEdgeUpdate, findUpdatesByUserAndDate } from '../db/queries/update_queries';
-import { findUser } from "../db/queries/user_queries";
-import { formatJsonForDb } from '../utils/graph_utils';
-import { CustomStatusCodes, Messages400, Messages200, Messages500 } from '../status/status_codes';
+import { getJwtEmail } from '../utils/jwt_utils';
+import { Request, Response } from "express";
+import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
-
+import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
+import { approveEdgeUpdate, findEdgeUpdatesByReceiver, findUpdatesByUserAndDate, rejectEdgeUpdate } from '../db/queries/update_queries';
+import { findEdgeById, updateEdgeWeightInDB } from '../db/queries/graph_queries';
+var jwt = require('jsonwebtoken');
 var statusMessage: MessageFactory = new MessageFactory();
+const ALPHA = parseFloat(process.env.ALPHA || "0.8"); 
+/**
+ * Updates the weight of an edge. (DA FINIRE)
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A Promise that resolves to void.
+ */
 
-// Visualizza le richieste di aggiornamento pendenti per un receiver specificato
+/*
+{   "graphId": 1,
+    "edgeId": 123,
+    "newWeight": 5.5
+  }
+*/
+export async function updateEdgeWeight(req: Request, res: Response) {
+    try {
+        // Trova l'arco dal database
+        const edge = await findEdgeById(req.body.edgeId);
+        if (!edge) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+        }
+        // Calcola il nuovo peso dell'arco utilizzando la media esponenziale
+        const updatedWeight = ALPHA * edge.weight + (1 - ALPHA) * req.body.newWeight;
+
+        // Aggiorna il peso dell'arco nel database
+        await updateEdgeWeightInDB(edge.id, updatedWeight);
+        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
+        await edge.save();
+        // Rispondi con successo e i dettagli dell'aggiornamento
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+/**
+ * Retrieves and returns the pending updates for a user.
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A JSON response containing the pending updates.
+ */
 export const viewPendingUpdates = async (req: Request, res: Response) => {
     try {
         const receiverId: any = await findUser(req.body.email);
@@ -24,7 +66,13 @@ export const viewPendingUpdates = async (req: Request, res: Response) => {
     }
 };
 
-// Approva una richiesta di aggiornamento specifica
+/**
+ * Approves an update request.
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A status message indicating the result of the approval.
+ */
 export const approveUpdate = async (req: Request, res: Response) => {
     try {
         const { updateId } = req.params;
@@ -41,7 +89,14 @@ export const approveUpdate = async (req: Request, res: Response) => {
     }
 };
 
-// Rifiuta una richiesta di aggiornamento specifica
+
+/**
+ * Rejects an update request.
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A status message indicating the result of the rejection.
+ */
 export const rejectUpdate = async (req: Request, res: Response) => {
     try {
         const { updateId } = req.params;
@@ -58,8 +113,12 @@ export const rejectUpdate = async (req: Request, res: Response) => {
     }
 };
 
-
-// Visualizza lo storico delle richieste di aggiornamento approvate o rifiutate, filtrato per data
+/**
+ * Retrieves and returns the filtered update history for a user within a specified date range.
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A JSON response containing the filtered update history.
+ */
 export const viewFilteredUpdateHistory = async (req: Request, res: Response) => {
     const userId: any = await findUser(req.body.email);
     const { startDate, endDate } = req.query;
