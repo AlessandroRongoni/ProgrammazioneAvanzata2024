@@ -55,7 +55,7 @@ app.get("/user/tokens", checkJwt,checkUserJwt, (req: Request, res: Response) => 
  * Modifica i token di un utente
  */
 
-app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkTokensBody, (req: Request, res: Response) => {
+app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkTokensBody, (req: Request, res: Response) => {
   updateTokens(req, res);
 });
 
