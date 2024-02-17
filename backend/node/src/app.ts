@@ -107,17 +107,12 @@ app.get("/updates/graph/pending", checkJwt, checkGraphExistence, (req: Request, 
 });
 
 
-
-
 /** Rotta per visualizzare gli aggiornamenti pendenti per un utente
 
 */
 app.get("/updates/user/pending", checkJwt, (req: Request, res: Response) => {
   viewPendingUpdatesForUser(req, res);
 });
-
-
-
 
 
 
