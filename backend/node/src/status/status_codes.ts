@@ -34,6 +34,7 @@ export enum Messages400 {
     EdgeNotFound = "Non è possibile trovare l'arco specificato",
     GraphValidation = "La struttura del grafo non è valida",
     WeightValidation = "Nuovo peso inserito non valido",
+    EdgeNotInn = "l'arco non appartiene al grafo",
     NoNodes = "deve essere presente ALMENO un nodo",
     NoEdges = "devono essere presenti anche gli archi",
     NoTokens = "Tokens insufficienti per creare il grafo, contattare l\'admin",

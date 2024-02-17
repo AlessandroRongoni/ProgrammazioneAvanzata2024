@@ -8,9 +8,9 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate} from "./middleware/graph_middleware";
+import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkPendingUpdatesExist} from "./middleware/graph_middleware";
 import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
-import { updateEdgeWeight } from "./controllers/updateController";
+import { updateEdgeWeight, viewPendingUpdates } from "./controllers/updateController";
 
 dotenv.config();
 const app = express();
@@ -85,7 +85,7 @@ app.get("/graph/edges", checkJwt, (req: Request, res: Response) => {
  * Rotta per modificare i pesi di un arco di un determinato grafo (DA RIVEDERE)
  * 
  */
-app.put("/graph/update/edge", checkJwt,checkEdgeBelonging, validateEdgeWeightsUpdate, checkUserTokensUpdate, checkGraphOwnership, updateEdgeWeight, (req: Request, res: Response) => {
+app.put("/graph/update/edge", jsonParser, checkJwt, checkEdgeBelonging, validateEdgeWeightsUpdate, checkUserTokensUpdate, checkGraphOwnership, (req: Request, res: Response) => {
   updateEdgeWeight(req,res);
 });
 
@@ -94,6 +94,11 @@ app.put("/graph/update/edge", checkJwt,checkEdgeBelonging, validateEdgeWeightsUp
  */
 app.get("/user/all",checkJwt,checkIsAdmin, (req: Request, res: Response) => {
   getAllUsers(req, res);
+});
+
+// Rotta per visualizzare gli aggiornamenti pendenti per un utente
+app.get("/updates/pending", checkJwt, checkPendingUpdatesExist, (req: Request, res: Response) => {
+  viewPendingUpdates(req, res);
 });
 
 

@@ -26,12 +26,8 @@ export async function updateEdgeWeight(req: Request, res: Response) {
     try {
         // Trova l'arco dal database
         const edge = await findEdgeById(req.body.edgeId);
-        if (!edge) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
-        }
         // Calcola il nuovo peso dell'arco utilizzando la media esponenziale
         const updatedWeight = ALPHA * edge.weight + (1 - ALPHA) * req.body.newWeight;
-
         // Aggiorna il peso dell'arco nel database
         await updateEdgeWeightInDB(edge.id, updatedWeight);
         statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
@@ -55,9 +51,9 @@ export const viewPendingUpdates = async (req: Request, res: Response) => {
         const receiverId: any = await findUser(req.body.email);
         const pendingUpdates = await findEdgeUpdatesByReceiver(receiverId);
 
-        if (pendingUpdates.length === 0) {
+       /* if (pendingUpdates.length === 0) {
             statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
-        }
+        }*/
 
         res.status(200).json(pendingUpdates);
     } catch (error) {
@@ -77,10 +73,10 @@ export const approveUpdate = async (req: Request, res: Response) => {
     try {
         const { updateId } = req.params;
         const result = await approveEdgeUpdate(parseInt(updateId));
-
+/*
         if (!result) {
             return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
-        }
+        }*/
 
         return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateApprovalSuccess);
     } catch (error) {
@@ -101,10 +97,10 @@ export const rejectUpdate = async (req: Request, res: Response) => {
     try {
         const { updateId } = req.params;
         const result = await rejectEdgeUpdate(parseInt(updateId));
-
+/*
         if (!result) {
             return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
-        }
+        }*/
 
         return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateRejectionSuccess);
     } catch (error) {
@@ -131,7 +127,7 @@ export const viewFilteredUpdateHistory = async (req: Request, res: Response) => 
         // Converte le stringhe delle date in oggetti Date
         const start = new Date(startDate as string);
         const end = new Date(endDate as string);
-
+/*
         // Controlla la validità delle date
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
             return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
@@ -146,12 +142,12 @@ export const viewFilteredUpdateHistory = async (req: Request, res: Response) => 
         if (start > end) {
             return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
         }
-
+*/
         const updateHistory = await findUpdatesByUserAndDate(userId, start, end);
-
+/*
         if (updateHistory.length === 0) {
             statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NoStoric);
-        }
+        }*/
 
         res.status(200).json(updateHistory);
     } catch (error) {
