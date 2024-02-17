@@ -2,7 +2,6 @@ var express = require('express');
 import { Request, Response } from "express";
 var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
-import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import { checkEmail, checkPassword, checkTokensBody, checkUser, checkUserJwt, checkUserNotRegistered } from "./middleware/user_middleware"; // Import the missing checkEmail function
 import { getUserTokens, login, createUser, getAllUsers } from './controllers/userController';
