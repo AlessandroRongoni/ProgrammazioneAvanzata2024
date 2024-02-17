@@ -1,5 +1,5 @@
 import { findUser, checkPassword } from "../db/queries/user_queries";
-import { decodeJwt } from "../services/jwt_service";
+import { decodeJwt } from "../utils/jwt_utils";
 import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500 } from "../status/status_codes";
 import { Request, Response, NextFunction } from "express";
