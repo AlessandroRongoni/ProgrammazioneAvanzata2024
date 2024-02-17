@@ -27,7 +27,7 @@ export enum Messages400 {
     NoAuthHeader = "Bad Request - No authorization header",
     NoTokenJWT = "Bad Request - No JWT",
     InvalidTokenJWT = "Forbidden - Invalid JWT (the key is incorrect)",
-    UpdateRequired = "Bad Request - The request must contain an update",
+    UpdateRequired = "Il valore dell'UpdateId deve essere specificato e diverso da 0",
     UnauthorizedUser = "Non è possibile creare l\'utente perchè è già esistente",
     Unauthorized = "Questo utente non ha le autorizzazioni necessarie a svolgere l\'operazione", //quando uno user prova a fare refillToken
     UserNotFound = "Non è possibile trovare l\'utente specificato",
