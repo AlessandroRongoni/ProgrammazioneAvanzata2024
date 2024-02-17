@@ -2,11 +2,10 @@ var express = require('express');
 import { Request, Response } from "express";
 var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
-import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
-import { checkEmail, checkPassword, checkTokensBody, checkUser, checkUserNotRegistered } from "./middleware/user_middleware"; // Import the missing checkEmail function
+import { checkEmail, checkPassword, checkTokensBody, checkUser, checkUserJwt, checkUserNotRegistered } from "./middleware/user_middleware"; // Import the missing checkEmail function
 import { getUserTokens, login, createUser, getAllUsers } from './controllers/userController';
-import { checkJwt } from "./middleware/jwt_middleware"; // Import the missing checkJwt function
+import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
 import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkPendingUpdatesExist} from "./middleware/graph_middleware";
@@ -31,7 +30,7 @@ app.get("/", (req: Request, res: Response) => {
 /**
  * Effettua il login e restituisce il jwt associato all'utente
  */
-app.post("/login", jsonParser, checkEmail, checkPassword,checkUserNotRegistered,checkUser, (req: Request, res: Response) => {
+app.post("/login", jsonParser, checkEmail, checkPassword,checkUser, (req: Request, res: Response) => {
   login(req, res);
 });
 
@@ -47,7 +46,7 @@ app.post("/register", jsonParser, checkEmail, checkPassword,checkUserNotRegister
 * Restituisce i token associati ad un utente
 */
 
-app.get("/user/tokens", checkJwt, (req: Request, res: Response) => {
+app.get("/user/tokens", checkJwt,checkUserJwt, (req: Request, res: Response) => {
   getUserTokens(req, res);
 });
 
@@ -55,7 +54,7 @@ app.get("/user/tokens", checkJwt, (req: Request, res: Response) => {
  * Modifica i token di un utente
  */
 
-app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkTokensBody, (req: Request, res: Response) => {
+app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkTokensBody, (req: Request, res: Response) => {
   updateTokens(req, res);
 });
 

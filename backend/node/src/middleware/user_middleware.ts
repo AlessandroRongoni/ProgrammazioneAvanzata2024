@@ -2,6 +2,7 @@ import { findUser } from "../db/queries/user_queries";
 import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400 } from "../status/status_codes";
 import { Request, Response, NextFunction } from "express";
+import { getJwtEmail } from "../utils/jwt_utils";
 
 var statusMessage: MessageFactory = new MessageFactory();
 
@@ -92,8 +93,6 @@ export const checkEmail = (req: Request, res: Response, next: NextFunction) => {
  * @param req - Oggetto della richiesta HTTP.
  * @param res - Oggetto della risposta HTTP.
  * @param next - Funzione di callback per passare alla prossima operazione.
- * 
- * 
  */
 export const checkUser = async (req: Request, res: Response, next: NextFunction) => {
     const user: any = await findUser(req.body.email);
@@ -118,5 +117,22 @@ export const checkUserNotRegistered = async (req: Request, res: Response, next: 
         next();
     } else {
         statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnauthorizedUser);
+    }
+};
+
+/**
+ * Controllo se l'utente esiste tramite JWT
+ * 
+ * @param req - Oggetto della richiesta HTTP.
+ * @param res - Oggetto della risposta HTTP.
+ * @param next - Funzione di callback per passare alla prossima operazione.
+ */
+export const checkUserJwt = async (req: Request, res: Response, next: NextFunction) => {
+    let jwtUserEmail = getJwtEmail(req);
+    const user: any = await findUser(jwtUserEmail);
+    if (user.length != 0) {
+        next();
+    } else {
+        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
     }
 };

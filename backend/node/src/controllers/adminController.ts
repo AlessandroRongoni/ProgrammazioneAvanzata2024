@@ -16,18 +16,9 @@ var statusMessage: MessageFactory = new MessageFactory();
  */
 export const updateTokens = async (req: Request, res: Response) => {
     try {
-        const user: any = await findUser(req.body.email);
-        const tokens = req.body.tokens;
-
-        if (user.length != 0) {
-            await updateUserTokensDb(req.body.tokens, req.body.email);
-            let message = JSON.parse(JSON.stringify({ tokens: tokens }));
-            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
-
-        } else {
-            statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UserNotFound);
-        }
-
+        await updateUserTokensDb(req.body.tokens, req.body.email);
+        let message = JSON.parse(JSON.stringify({ tokens: req.body.tokens }));
+        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
     } catch (e) {
         statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.TokensEmpty);
 
