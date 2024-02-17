@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { approveEdgeUpdate, findEdgeUpdatesByReceiver, findUpdatesByUserAndDate, rejectEdgeUpdate } from '../db/queries/update_queries';
 var jwt = require('jsonwebtoken');
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
@@ -21,22 +20,15 @@ export const login = async (req: Request, res: Response) => {
     const email = req.body.email;
     const password = req.body.password;
     try {
-        const user: any = await findUser(req.body.email);
+        const payload = {
+            email: email,
+            password: password,
+        };
 
-        if (user!=null && user.length != 0 && user[0].dataValues.password == password) {
-            const payload = {
-                email: email,
-                password: password,
-            };
-
-            const jwtBearerToken = jwt.sign(payload, PRIVATE_KEY);
-            let message = JSON.parse(JSON.stringify({ jwt: jwtBearerToken }));
-            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
-        }
-        else {
-            statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UserNotFound);
-
-        }
+        const jwtBearerToken = jwt.sign(payload, PRIVATE_KEY);
+        let message = JSON.parse(JSON.stringify({ jwt: jwtBearerToken }));
+        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+    
     } catch (e) {
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
 
@@ -53,15 +45,11 @@ export const login = async (req: Request, res: Response) => {
  */
 export const getUserTokens = async (req: Request, res: Response) => {
     try {
-        let jwtUserEmail = getJwtEmail(req);
-        const user: any = await findUser(jwtUserEmail);
-        if (user.length != 0) {
-            const tokens = parseFloat(user[0].dataValues.tokens);
-            let message = JSON.parse(JSON.stringify({ tokens: tokens }))
-            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
-        } else {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
-        }
+        let jwtPlayerEmail = getJwtEmail(req);
+        const user: any = await findUser(jwtPlayerEmail);
+        const tokens = parseFloat(user[0].dataValues.tokens);
+        let message = JSON.parse(JSON.stringify({ tokens: tokens }))
+        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
     } catch (error) {
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
