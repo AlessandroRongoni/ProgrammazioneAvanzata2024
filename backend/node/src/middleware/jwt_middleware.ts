@@ -1,4 +1,4 @@
-import { decodeJwt } from "../services/jwt_service"
+import { decodeJwt } from "../utils/jwt_utils"
 import { Request, Response, NextFunction } from "express";
 import { CustomStatusCodes, Messages400 } from "../status/status_codes";
 import { MessageFactory } from "../status/messages_factory";

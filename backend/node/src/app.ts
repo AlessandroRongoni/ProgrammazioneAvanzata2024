@@ -4,12 +4,10 @@ var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
-import { checkEmail } from "./middleware/email_middleware"; // Import the missing checkEmail function
-import { checkPassword } from "./middleware/password_middleware"; // Import the missing checkPassword function
+import { checkEmail, checkPassword, checkTokensBody, checkUser, checkUserNotRegistered } from "./middleware/user_middleware"; // Import the missing checkEmail function
 import { getUserTokens, login, createUser, getAllUsers } from './controllers/userController';
 import { checkJwt } from "./middleware/jwt_middleware"; // Import the missing checkJwt function
 import { checkIsAdmin } from "./middleware/admin_middleware";
-import { checkTokensBody } from "./middleware/tokens_middleware";
 import { updateTokens } from "./controllers/adminController";
 import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate} from "./middleware/graph_middleware";
 import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
@@ -33,7 +31,7 @@ app.get("/", (req: Request, res: Response) => {
 /**
  * Effettua il login e restituisce il jwt associato all'utente
  */
-app.post("/login", jsonParser, checkEmail, checkPassword, (req: Request, res: Response) => {
+app.post("/login", jsonParser, checkEmail, checkPassword,checkUserNotRegistered,checkUser, (req: Request, res: Response) => {
   login(req, res);
 });
 
@@ -41,7 +39,7 @@ app.post("/login", jsonParser, checkEmail, checkPassword, (req: Request, res: Re
  * Registra un nuovo utente
  */
 
-app.post("/register", jsonParser, checkEmail, checkPassword, (req: Request, res: Response) => {
+app.post("/register", jsonParser, checkEmail, checkPassword,checkUserNotRegistered, (req: Request, res: Response) => {
   createUser(req, res);
 });
 
