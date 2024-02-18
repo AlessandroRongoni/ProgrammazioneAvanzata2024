@@ -8,7 +8,7 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkEdgeBelonging, checkGraphOwnership, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkGraphExistence, checkUpdateExistence, checkUpdatePending, checkOwner} from "./middleware/graph_middleware";
+import { checkEdgeBelonging, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkGraphExistence, checkUpdateExistence, checkUpdatePending, checkOwner, checkAllEdgesBelongingAndCorrectWeights} from "./middleware/graph_middleware";
 import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
 import { answerUpdate, updateEdgeWeight, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 
@@ -81,13 +81,6 @@ app.get("/graph/edges", checkJwt,checkGraphExistence, (req: Request, res: Respon
     getGraphEdges(req,res);
   });
 
-/**
- * Rotta per modificare i pesi di un arco di un determinato grafo (DA RIVEDERE)
- * 
- */
-app.put("/graph/update/edge", jsonParser, checkJwt, checkEdgeBelonging, validateEdgeWeightsUpdate, checkUserTokensUpdate, checkGraphOwnership, (req: Request, res: Response) => {
-  updateEdgeWeight(req,res);
-});
 
 /**
  * Rotta per ottenere tutti gli utenti
@@ -118,15 +111,47 @@ app.get("/updates/user/pending", checkJwt,(req: Request, res: Response) => {
 // Rotte per approvare o rifiutare una richiesta di aggiornamento
 /**
  * body:{
- *       "updateId": "1",
- *       "answer": true/false
+ *      "request":[
+ *          {
+ *            "updateId": "1",
+ *            "answer": true/false
+ *          },
+ *           {
+ *            "updateId": "2",
+ *            "answer": true/false
+ *          },
+ *        ]
  * }
   */
 app.put("/update/answer", jsonParser, checkJwt,checkUpdateExistence, checkOwner, checkUpdatePending, (req: Request, res: Response) => {
   answerUpdate(req,res);
 });
 
-       
+/**
+ * Rotta per aggiornare uno o più archi di un grafo
+ * {
+  "graphId": 1,
+  "updates": [
+    {
+      "edgeId": 123,
+      "newWeight": 5.5
+    },
+    {
+      "edgeId": 124,
+      "newWeight": 3.2
+    }
+  ]
+}
+ */       
+app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights,checkUserTokensUpdate, (req: Request, res: Response) => {
+  updateEdgeWeight(req,res);
+});
+
+
+
+
+
+
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);
 });

@@ -9,66 +9,6 @@ import {findUpdateById, findUpdatesByEdgeId, findUpdatesByUserAndDate, requestEd
 var statusMessage: MessageFactory = new MessageFactory();
 
 
-
-//Verifica che l'utente che effettua la richiesta per la modifica sia il proprietario del grafo specificato
-export const checkGraphOwnership = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const jwtUserEmail = getJwtEmail(req);
-        if (!jwtUserEmail) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.Unauthorized);
-        }
-        const graphId = req.body.graphId;
-        const graph = await findGraphById(graphId);
-        console.log("graphId: ", graphId);
-        if (!graph) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphNotFound);
-        }
-        const ownerGraph = await findUserById(graph.user_id);
-        console.log("ownerGraph: ", ownerGraph.email);
-        if (!(ownerGraph.email == jwtUserEmail)) {
-            console.log("Sono dentro")
-            const RequesterId = await findUser(jwtUserEmail);
-            const RichiestaUpdate = requestEdgeUpdate(req.body.edgeId,RequesterId.id,ownerGraph.id, req.body.weight);
-            if (!RichiestaUpdate) {
-                statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateRequestNotFound);
-            }
-            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UpdateNotification);
-        }
-        console.log("Avanti savoia")
-        next();
-    } catch (error) {
-    statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-}
-};
-
-
-
-
-//Controlla se l'utente autenticato ha abbastanza token per completare l'operazione
-export const checkUserTokensUpdate = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let jwtUserEmail = getJwtEmail(req);
-        if (!jwtUserEmail) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoAuthHeader);
-        }
-        const user = await findUser(jwtUserEmail);
-        if (!user) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
-        }
-        if (user.tokens <= 0 || user.tokens < 0.025) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoTokens);
-        }
-        const newTokens = subtractTokensByEmail(jwtUserEmail, 0.025);
-        if (!newTokens) {
-            statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages400.InvalidToken);
-        }
-        console.log("Tutto bene fin qui!");
-        next();
-    } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-}
-};
-
 //Controlla se l'utente autenticato ha abbastanza token per completare l'operazione SERGY MODIFICA
 export const checkUserTokensCreate = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -120,28 +60,28 @@ export const validateEdgeWeightsCreation = (req: Request, res: Response, next: N
  */
 export const validateGraphStructure = (req: Request, res: Response, next: NextFunction) => {
     const { nodes, edges } = req.body;
+    try{
+        // Verifica la presenza dei nodi e degli archi
+        if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoNodes);
+        }
+    
+        if (!edges || !Array.isArray(edges)) {
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoEdges);
+        }
+    
+        // Verifica la validità dei pesi degli archi
+        const invalidEdges = edges.filter((edge: { weight: number; }) => typeof edge.weight !== 'number' || edge.weight < 0);
+        if (invalidEdges.length > 0) {
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+        }
+    
+        next();
 
-    // Verifica la presenza dei nodi e degli archi
-    if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoNodes);
+    }catch (error) {
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
-
-    if (!edges || !Array.isArray(edges)) {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoEdges);
-    }
-
-    // Verifica la validità dei pesi degli archi
-    const invalidEdges = edges.filter((edge: { weight: number; }) => typeof edge.weight !== 'number' || edge.weight < 0);
-    if (invalidEdges.length > 0) {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
-    }
-
-    next();
 };
-
-
-
-
 
 
 /**
@@ -157,21 +97,6 @@ export const checkEdgeBelonging = async (req: Request, res: Response, next: Next
         }
         if (edge.graph_id != graphId) {
             statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
-        }
-        next();
-    } catch (error) {
-        console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};
-
-//Middleware per verificare l'esistenza di un grafo
-export const verifyGraphExists = async (req: Request, res: Response, next: NextFunction) => {
-    const  graphId  = req.body.graphId;
-    try {
-        const graph = await findGraphById(graphId);
-        if (!graph) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.GraphNotFound);
         }
         next();
     } catch (error) {
@@ -326,4 +251,73 @@ export const checkOwner = async (req: Request, res: Response, next: NextFunction
         return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 
+};
+
+
+
+/**
+ * Controllo se tutti gli archi passati appartengono al grafo
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const checkAllEdgesBelongingAndCorrectWeights = async (req: Request, res: Response, next: NextFunction) => {
+    const { graphId, updates } = req.body;
+    try {
+        updates.forEach(async (update: { edgeId: any; newWeight: any; }) => {
+            const { edgeId, newWeight } = update;
+            const edge = await findEdgeById(edgeId);
+            if (!edge) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotFound);
+            }
+            if (edge.graph_id != graphId) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
+            }
+            if (newWeight.length === 0) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightIsRequired);
+            
+            }
+            if (newWeight < 0 || typeof newWeight !== 'number' || !newWeight) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+            }
+        });
+        next();
+    }catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+
+};
+
+/**
+ * Controllo per vedere se un utente ha abbastanza tokens per fare upgrade
+ * 
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ * 
+ */
+export const checkUserTokensUpdate = async (req: Request, res: Response, next: NextFunction) => {
+    let jwtUserEmail = getJwtEmail(req);
+    const { graphId, updates } = req.body;
+    try {
+        const user = await findUser(jwtUserEmail);
+        if (user[0].dataValues.tokens <= 0) { 
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoTokensUpdate);
+        }
+        const totalEdges = updates.length;
+        console.log("Total edges: ", totalEdges);
+        const costoUpgrade = totalEdges * 0.025;
+        if (user[0].dataValues.tokens < costoUpgrade) {
+            res.status(200).json({ message: "Costo operazione: " + costoUpgrade + ", tokens utente: " + user[0].dataValues.tokens + " - Non hai abbastanza tokens per fare l'upgrade" });
+           
+        }
+        await subtractTokensByEmail(jwtUserEmail, costoUpgrade);
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
 };

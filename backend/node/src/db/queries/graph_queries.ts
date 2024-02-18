@@ -39,7 +39,7 @@ export async function findAllGraphs(): Promise<any> {
 export async function findEdgesByGraphId(graphId: number): Promise<any> {
     return await EdgeModel.findAll({
         where: {
-            graph_id: graphId,
+            graph_id: graphId
         }
     });
 }
@@ -48,7 +48,6 @@ export async function findEdgesByGraphId(graphId: number): Promise<any> {
 export async function findEdgeById(edgeId: number): Promise<any> {
     return await EdgeModel.findByPk(edgeId);
 }
-
 
 
 export async function createGraphQuery(userId: number, name: string, description: string): Promise<any> {

@@ -60,6 +60,8 @@ export enum Messages400 {
     NoStoric = "Non c'è uno storico di richieste per te.",
     AllRequestAlreadyAwnsered = "Non ci sono richieste di aggiornamento pendenti per te.",
     NotOwner = "Non sei il proprietario del grafo",
+    WeightIsRequired= "Il peso dell'arco è obbligatorio",
+    NoTokensUpdate = "Non hai abbastanza tokens per fare l'upgrade",
     PasswordNotMatch = "La password inserita non corrisponde a quella nel DB"
 }
 

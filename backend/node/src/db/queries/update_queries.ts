@@ -181,8 +181,9 @@ export async function findPendingUpdatesByGraphId(graphId: number): Promise<any>
  * @param newWeight - Il nuovo peso da assegnare all'arco.
  * @returns Una promessa che rappresenta l'esito dell'operazione di creazione della richiesta di aggiornamento.
  */
-export async function requestEdgeUpdate(edgeId: number, requesterId: number, receiverId: number, newWeight: number): Promise<any> {
+export async function requestEdgeUpdate(graphId:number, edgeId: number, requesterId: number, receiverId: number, newWeight: number): Promise<any> {
     return await UpdateModel.create({
+        graph_id: graphId,
         edge_id: edgeId,
         requester_id: requesterId,
         receiver_id: receiverId,
@@ -198,7 +199,12 @@ export async function requestEdgeUpdate(edgeId: number, requesterId: number, rec
  */
 export async function updateEdgeWeightInDB(edgeId: number, updatedWeight: number): Promise<void> {
     try {
-        const result = await EdgeModel.update({ weight: updatedWeight }, { where: { edge_id: edgeId } });
+        const result = await EdgeModel.update({ weight: updatedWeight },
+             { where:
+                 { 
+                    edge_id: edgeId
+                 } 
+            });
         console.log('Update result:', result);
         // Gestire qui eventuali risposte specifiche, come la verifica del numero di righe effettivamente aggiornate.
     } catch (error) {
