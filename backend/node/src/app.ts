@@ -10,7 +10,7 @@ import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
 import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent} from "./middleware/graph_middleware";
 import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
-import { answerUpdate, updateEdgeWeight, updatesHistoryGraph, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
+import { answerUpdate, updateEdgeWeight, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 
 dotenv.config();
 const app = express();
@@ -162,10 +162,6 @@ app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdge
   "status": "accepted" // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
   }
 */
-app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
-  updatesHistoryGraph(req,res);
-});
-
 
 
 
