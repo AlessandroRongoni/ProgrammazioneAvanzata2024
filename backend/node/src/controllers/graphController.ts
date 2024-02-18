@@ -18,7 +18,7 @@ var statusMessage: MessageFactory = new MessageFactory();
     {"start": "A", "end": "B", "weight": 5},
     {"start": "B", "end": "C", "weight": 3}
   ]
-}DA RIVEDERE per gli id sballati E FARE I CORRETTI MIDDLWARE
+}DA RIVEDERE per gli id sballati E FARE I CORRETTI MIDDLWARE VEDERE NOME GRAFO SE ESISTE, I nodi devono avere solo un arco tra di loro ecc.
 */ 
 export async function createGraph(req: Request, res: Response) {
     try {
