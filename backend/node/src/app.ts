@@ -60,8 +60,19 @@ app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkToken
 
 /**
  * Rotta per la creazione di un grafo
+ * MIGLIROAMENTO DEI MIDDLE E NON FUNZIONA BENE
+ * 
+{
+  "name": "Mio Grafo",
+  "description": "Descrizione del grafo",
+  "nodes": ["A", "B", "C"],
+  "edges": [
+    {"startNode": "A", "endNode": "B", "weight": 5},
+    {"startNode": "B", "endNode": "C", "weight": 3}
+  ]
+}
  */
-app.post("/graph", jsonParser, checkJwt, checkUserTokensCreate, validateGraphStructure, (req: Request, res: Response) => {
+app.post("/graph", jsonParser, checkJwt, validateGraphStructure, checkUserTokensCreate, (req: Request, res: Response) => {
   createGraph(req,res);
 });
 
@@ -163,7 +174,7 @@ app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdge
   "status": "accepted" // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
   }
 
-  DEVO CREARE I MIDDLEWARE PER IL FILTRO
+  DEVO CREARE I MIDDLEWARE PER IL FILTRO DEL HISTORY
 */
 app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
   viewFilteredUpdateHistory(req,res);
