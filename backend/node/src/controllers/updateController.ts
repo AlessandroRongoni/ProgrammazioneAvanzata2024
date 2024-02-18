@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { approveEdgeUpdate, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByReceiverInPending, findUpdatesByUserAndDate, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
+import { approveEdgeUpdate, filterUpdates, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByReceiverInPending, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
 import { updateEdgeWeightInDB } from '../db/queries/update_queries';
 import { findEdgeById, findGraphById } from '../db/queries/graph_queries';
 
@@ -115,43 +115,16 @@ export const viewPendingUpdatesForUser = async (req: Request, res: Response) => 
  * @returns A JSON response containing the filtered update history.
  */
 export const viewFilteredUpdateHistory = async (req: Request, res: Response) => {
-    const userId: any = await findUser(req.body.email);
-    const { startDate, endDate } = req.query;
+    const { graphId, dateFilter, status } = req.body;
 
     try {
-        if (!startDate || !endDate) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoDate);
-        }
-
-        // Converte le stringhe delle date in oggetti Date
-        const start = new Date(startDate as string);
-        const end = new Date(endDate as string);
-/*
-        // Controlla la validità delle date
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
-        }
-
-        // Verifica che la data di inizio non coincida con quella di fine
-        if (start.getTime() === end.getTime()) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDateSame);
-        }
-
-        // Verifica che la data di inizio preceda quella di fine
-        if (start > end) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
-        }
-*/
-        const updateHistory = await findUpdatesByUserAndDate(userId, start, end);
-/*
-        if (updateHistory.length === 0) {
-            statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NoStoric);
-        }*/
-
-        res.status(200).json(updateHistory);
+        const startDate = dateFilter?.from ? new Date(dateFilter.from) : undefined;
+        const endDate = dateFilter?.to ? new Date(dateFilter.to) : undefined;
+        const updates = await filterUpdates(graphId, startDate, endDate, status);
+        res.json(updates);
     } catch (error) {
-        console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        console.error("Error fetching filtered updates:", error);
+        res.status(500).send("Error fetching filtered updates");
     }
 };
 

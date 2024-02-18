@@ -4,7 +4,7 @@ import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500 } from "../status/status_codes";
 import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
-import {findUpdateById, findUpdatesByUserAndDate } from '../db/queries/update_queries';
+import {findUpdateById } from '../db/queries/update_queries';
 
 var statusMessage: MessageFactory = new MessageFactory();
 
@@ -104,61 +104,6 @@ export const checkEdgeBelonging = async (req: Request, res: Response, next: Next
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
-
-
-export const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
-    const startDate = req.query.startDate;
-    const endDate = req.body.endDate
-
-    if (!startDate || !endDate) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoDate);
-    }
-
-    const start = new Date(startDate as string);
-    const end = new Date(endDate as string);
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
-    }
-
-    if (start.getTime() === end.getTime()) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDateSame);
-    }
-
-    if (start > end) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
-    }
-
-    next();
-};
-
-export const verifyLoadUpdateHistory = async (req: Request, res: Response, next: NextFunction) => {
-    const userId: any = await findUser(req.body.email);
-    const { startDate, endDate } = req.query;
-
-    // Assicurati che startDate e endDate siano stringhe
-    if (typeof startDate !== 'string' || typeof endDate !== 'string') {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoDate);
-    }
-
-    // Converti le stringhe delle date in oggetti Date
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    try {
-        const updateHistory = await findUpdatesByUserAndDate(userId, start, end);
-
-        if (updateHistory.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NoStoric);
-        }
-
-        next();
-    } catch (error) {
-        console.error(error);
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};
-
 
 
 /**

@@ -148,14 +148,70 @@ export async function findUpdatesBetweenDates(startDate: Date, endDate: Date): P
  * @param endDate - Data di fine del filtro.
  * @returns Una promessa che rappresenta l'elenco degli aggiornamenti richiesti per l'utente specificato, filtrati per data.
  */
-export async function findUpdatesByUserAndDate(userId: number, startDate: Date, endDate: Date): Promise<any> {
+export async function findUpdatesByModelAndBetweenDate(graph_Id: number, startDate: Date, endDate: Date): Promise<any> {
     return await UpdateModel.findAll({
         where: {
-            receiver_id: userId,
+            graph_Id: graph_Id,
             createdAt: {
                 [Op.between]: [startDate, endDate]
             }
         }
+    });
+}
+
+// Filtra gli aggiornamenti per un modello specifico a partire da una data di inizio
+export async function findUpdatesByModelAndStartDate(graph_Id: number, startDate: Date): Promise<any> {
+    return await UpdateModel.findAll({
+        where: {
+            graph_Id: graph_Id,
+            createdAt: {
+                [Op.gte]: startDate
+            }
+        }
+    });
+}
+
+// Filtra gli aggiornamenti per un modello specifico fino a una data di fine
+export async function findUpdatesByModelAndEndDate(graph_Id: number, endDate: Date): Promise<any> {
+    return await UpdateModel.findAll({
+        where: {
+            graph_Id: graph_Id,
+            createdAt: {
+                [Op.lte]: endDate
+            }
+        }
+    });
+}
+
+
+import { WhereOptions } from 'sequelize'; // Assicurati di importare WhereOptions da sequelize
+
+// Funzione per filtrare gli aggiornamenti basandosi su varie condizioni
+export async function filterUpdates(graphId: number, startDate?: Date, endDate?: Date, approved?: string) {
+    let whereCondition: WhereOptions = { // Usa WhereOptions per una maggiore flessibilità
+        graph_id: graphId,
+    };
+
+    // Gestisce il filtro per le date
+    if (startDate && endDate) {
+        whereCondition['createdat'] = { [Op.between]: [startDate, endDate] }; // Assicurati di usare 'createdAt' se è il nome corretto della colonna
+    } else if (startDate) {
+        whereCondition['createdat'] = { [Op.gte]: startDate };
+    } else if (endDate) {
+        whereCondition['createdat'] = { [Op.lte]: endDate };
+    }
+
+    // Gestisce il filtro per lo stato dell'approvazione
+    if (approved !== undefined) {
+        whereCondition['approved'] = approved === 'accepted' ? true : approved === 'rejected' ? false : { [Op.or]: [true, false] };
+    } else {
+        // Esclude gli aggiornamenti con stato null
+        whereCondition['approved'] = { [Op.or]: [true, false] };
+    }
+
+
+    return await UpdateModel.findAll({
+        where: whereCondition
     });
 }
 

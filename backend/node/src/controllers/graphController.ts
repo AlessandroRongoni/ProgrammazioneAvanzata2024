@@ -3,7 +3,8 @@ import { Request, Response } from "express";
 import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { findAllGraphs, findEdgeById, findEdgesByGraphId } from '../db/queries/graph_queries';
+import { addEdgesToGraph, createGraphQuery, findAllGraphs, findEdgeById, findEdgesByGraphId, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { calculateCost } from '../utils/graph_utils';
 var jwt = require('jsonwebtoken');
 var statusMessage: MessageFactory = new MessageFactory();
 
@@ -21,8 +22,33 @@ var statusMessage: MessageFactory = new MessageFactory();
 */ 
 
 export async function createGraph(req: Request, res: Response) {
-    
-};
+    try {
+        // Accede direttamente ai dati della richiesta tramite req.body
+        const { name, description, nodes, edges } = req.body;
+
+        let jwtUserEmail = getJwtEmail(req)
+
+        // Cerca l'utente tramite email
+        const user = await findUser(jwtUserEmail);
+
+        // Calcola il costo per la creazione del grafo
+        const cost = calculateCost('create', { nodes: nodes.length, edges: edges.length });
+        // Deduce i token dall'utente
+
+        subtractTokensByEmail(jwtUserEmail, cost)
+
+        // Crea il grafo //+ controlli nome/descrizione non possono esistere più nomi uguali
+        const graph = await createGraphQuery(user[0].dataValues.user_id, name, description);
+
+        // Aggiungi gli archi al grafo
+        await addEdgesToGraph(graph.id, edges);
+
+        return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelCreationSuccess);
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.ImpossibileCreation);
+    }
+}
 
 
 
