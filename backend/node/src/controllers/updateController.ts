@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { approveEdgeUpdate, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByReceiverInPending, findUpdatesByUserAndDate, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
+import { approveEdgeUpdate, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByReceiverInPending, findUpdatesByUserAndDate, getFilteredUpdates, getFilteredUpdatesBetween, getFilteredUpdatesFrom, getFilteredUpdatesTo, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
 import { updateEdgeWeightInDB } from '../db/queries/update_queries';
 import { findEdgeById, findGraphById } from '../db/queries/graph_queries';
 
@@ -190,19 +190,14 @@ export const viewPendingUpdatesForModel = async (req: Request, res: Response) =>
  */
 export const answerUpdate = async (req: Request, res: Response) => {
     try {
-        console.log("HO PASSATO I CONTROLLI");
         const { request } = req.body;
         for (let i = 0; i < request.length; i++) {
-            console.log("SONO NEL FOR");
             const updateId = request[i].updateId;
             const answer = request[i].answer;
             const update = await findUpdateById(updateId);
             const edge = await findEdgeById(update.edge_id);
-            console.log("HO TROVATO L'UPDATE E L'ARCO");
             const newWeight = update.new_weight;
-            console.log("newWeight: ", newWeight);
             const oldWeight = edge.weight;
-            console.log("oldWeight: ", oldWeight);
             if (answer) {
                 const updatedWeight = ALPHA * oldWeight + (1 - ALPHA) * newWeight;
                 await updateEdgeWeightInDB(update.edge_id, updatedWeight);
@@ -213,6 +208,54 @@ export const answerUpdate = async (req: Request, res: Response) => {
         }
         statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.RequestAwnsered);
     } catch (error) {
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+
+/**
+ * Rimanda la lista di tutti gli update filtrando per data (se presente)
+ * (inferiore a, superiore a, compresa tra) distinguendo per stato ovvero accettato / rigettato
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns A JSON response containing the filtered update history.
+ * 
+ */
+export const updatesHistoryGraph = async (req: Request, res: Response) => {
+    try {
+        const graphId = req.body.graphId;
+        const status = req.body.status;
+        if(!req.body.dateFilter.from && !req.body.dateFilter.to){
+            console.log("Nessuna data");
+            //se le date non sono specificate, restituisco tutti gli update del grafo con status passato
+            const updates = await getFilteredUpdates(graphId, status);
+            let message = JSON.parse(JSON.stringify({ updates: updates}));
+            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        }
+        if(req.body.dateFilter.from && !req.body.dateFilter.to){
+            console.log("Data di inizio");
+            //se la data di inizio è specificata, restituisco tutti gli update del grafo con status passato e data maggiore di from
+            const updates = await getFilteredUpdatesFrom(graphId, status, req.body.dateFilter.from);
+            let message = JSON.parse(JSON.stringify({ updates: updates}));
+            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        }
+        if(!req.body.dateFilter.from && req.body.dateFilter.to){
+            console.log("Data di fine");
+            //se la data di fine è specificata, restituisco tutti gli update del grafo con status passato e data minore di to
+            const updates = await getFilteredUpdatesTo(graphId, status, req.body.dateFilter.to);
+            let message = JSON.parse(JSON.stringify({ updates: updates}));
+            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        }
+        if(req.body.dateFilter.from && req.body.dateFilter.to){
+            console.log("Data di inizio e di fine");
+            //se le date sono specificate, restituisco tutti gli update del grafo con status passato e data compresa tra from e to
+            const updates = await getFilteredUpdatesBetween(graphId, status, req.body.dateFilter.from, req.body.dateFilter.to);
+            let message = JSON.parse(JSON.stringify({ updates: updates}));
+            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        }
+    } catch (error) {
+        console.log("Sono nell'errore")
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };

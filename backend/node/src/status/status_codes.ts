@@ -63,6 +63,7 @@ export enum Messages400 {
     NoTokensUpdate = "Non hai abbastanza tokens per fare l'upgrade",
     PasswordNotMatch = "La password inserita non corrisponde a quella nel DB.",
     UpdateNotDifferent = "Non puoi accettare o rifiutare la stessa richiesta di aggiornamento.",
+    NoUpdates = "Non ci sono aggiornamenti per questo grafo.",
 }
 
 export enum Messages500 {

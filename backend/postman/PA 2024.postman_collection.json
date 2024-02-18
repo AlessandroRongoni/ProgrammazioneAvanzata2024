@@ -54,6 +54,34 @@
 			"response": []
 		},
 		{
+			"name": "Login Daniele",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"daniele@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Login Alessandro",
 			"request": {
 				"method": "POST",
@@ -88,7 +116,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"raw": "{\n    \"email\":\"prova@op.it\",\n    \"password\":\"opti2024!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -148,7 +176,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODAxMjUzOH0.OSXrvsyQvvpm2xI-qOp_LE7q4kx8I9HBdfRkEuCo2Ww",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InByb3ZhQG9wLml0IiwicGFzc3dvcmQiOiJvcHRpMjAyNCEiLCJpYXQiOjE3MDgxNzE3MjV9.GtDl-VHAqpOoPS9ZXhcdIfKj0Dc8T8XWYz13l_jImkI",
 							"type": "string"
 						}
 					]
@@ -222,87 +250,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Tokens Gabriele",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImdhYnJpZWxlQG9wLml0IiwicGFzc3dvcmQiOiJvcHRpMjAyNCEiLCJpYXQiOjE3MDgwMTg5NjJ9.ch2p20yErChRZ6jVGEkDqENohvIR18u-YZ8aA2HFqIc",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/user/tokens",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"user",
-						"tokens"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Recharge Admin",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODAxMzI0Nn0.iY_Gj5CUNZWVLZ8rXo1fR5rn-biHWkV2x4SDzPJYstA",
-							"type": "string"
-						}
-					]
-				},
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"email\":\"gabriele@op.it\",\n    \"tokens\": 68\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/recharge",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"recharge"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Lista Grafi",
+			"name": "Graphs List",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -331,7 +279,7 @@
 			"response": []
 		},
 		{
-			"name": "Archi di un grafo",
+			"name": "Edges of Graph",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -350,7 +298,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\": 2\n}",
+					"raw": "{\n    \"graphId\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -373,48 +321,18 @@
 			"response": []
 		},
 		{
-			"name": "Update di un arco",
+			"name": "User List",
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZXNzYW5kcm9Ab3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODExODI2NH0.st7nleJ74YWlIjAacyNEQ7WA5BkQ8AytMbgwpLTEgtk",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODI0OTQxOH0.WbSe07WGZftGLc47sAlvNZwI16B-hDsWgS2cW5jkd7o",
 							"type": "string"
 						}
 					]
 				},
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"graphId\":1,\n    \"edgeId\": 1,\n    \"newWeight\":2.0\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/graph/update/edge",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"graph",
-						"update",
-						"edge"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Lista Utenti",
-			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -427,6 +345,239 @@
 					"path": [
 						"user",
 						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pending per Modello",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZXNzYW5kcm9Ab3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODE3ODA5Nn0.rK0GV8rOJAWrhRmJRFDhpl6269zTJqctnOAZx5-W0d4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"graphId\":1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/updates/graph/pending",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"updates",
+						"graph",
+						"pending"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Request Pending for User",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODIyNDA3OX0.mvO5CfyUovAzM9p3-5vl-e-mMLSpVV1bcM6v4mP-TrA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/updates/user/pending",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"updates",
+						"user",
+						"pending"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Recharge Admin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODAxMzI0Nn0.iY_Gj5CUNZWVLZ8rXo1fR5rn-biHWkV2x4SDzPJYstA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"tokens\": 100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/recharge",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"recharge"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Approve/Reject request update",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODI0OTQxOH0.WbSe07WGZftGLc47sAlvNZwI16B-hDsWgS2cW5jkd7o",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"request\":[\n                {\n                    \"updateId\": 41,\n                    \"answer\": false\n                },\n                {\n                    \"updateId\":42,\n                    \"answer\":true\n\n                }\n        ]\n }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/update/answer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"update",
+						"answer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Edges",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODI0OTQxOH0.WbSe07WGZftGLc47sAlvNZwI16B-hDsWgS2cW5jkd7o",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"graphId\":1,\n    \"updates\":[\n        {\n            \"edgeId\":5,\n            \"newWeight\":3\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/update/edges",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"update",
+						"edges"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List of Updates from GraphId",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODI0OTQxOH0.WbSe07WGZftGLc47sAlvNZwI16B-hDsWgS2cW5jkd7o",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"graphId\": 3,\n  \"dateFilter\": {\n    // formato data YYYY-MM-DD\n    \"from\": \"2024-01-01\", //inserire la data da cui partire (Superiore a...)\n    \"to\": \"2024-12-31\" //inserire la data finale (Inferiore a...)\n    //inserirle entrambe per avere un intervallo di tempo (Da...a...)\n  },\n  \"status\": \"rejected\"\n  // Valori possibili: \"accepted\", \"rejected\", o lasciare vuoto/null per non filtrare per stato\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/updates/history/graph",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"updates",
+						"history",
+						"graph"
 					]
 				}
 			},

@@ -10,7 +10,7 @@ import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
 import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent} from "./middleware/graph_middleware";
 import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
-import { answerUpdate, updateEdgeWeight, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
+import { answerUpdate, updateEdgeWeight, updatesHistoryGraph, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 
 dotenv.config();
 const app = express();
@@ -90,7 +90,8 @@ app.get("/user/all",checkJwt,checkIsAdmin, (req: Request, res: Response) => {
   getAllUsers(req, res);
 });
 
-/** Rotta per visualizzare gli aggiornamenti pendenti per un modello
+/** 
+ * Rotta per visualizzare gli aggiornamenti pendenti per un modello
 body:{
   *        "graphId": "1",
   * }
@@ -100,8 +101,8 @@ app.get("/updates/graph/pending", checkJwt, checkGraphExistence, (req: Request, 
 });
 
 
-/** Rotta per visualizzare gli aggiornamenti pendenti per un utente
-
+/** 
+ * Rotta per visualizzare gli aggiornamenti pendenti per un utente
 */
 app.get("/updates/user/pending", checkJwt,(req: Request, res: Response) => {
   viewPendingUpdatesForUser(req, res);
@@ -147,6 +148,23 @@ app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdge
   updateEdgeWeight(req,res);
 });
 
+/** 
+ * Rotta che dato un modello consenta di restituire l’elenco degli 
+ * aggiornamenti effettuati nel corso del tempo filtrando opzionalmente per 
+ * data (inferiore a, superiore a, compresa tra) distinguendo 
+ * per stato ovvero accettato / rigettato 
+ * {
+  "graphId": 1,
+  "dateFilter": {
+    "from": "2023-01-01",
+    "to": "2023-12-31"
+  },
+  "status": "accepted" // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
+  }
+*/
+app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
+  updatesHistoryGraph(req,res);
+});
 
 
 
@@ -155,4 +173,3 @@ app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdge
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);
 });
-
