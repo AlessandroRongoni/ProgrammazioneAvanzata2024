@@ -161,6 +161,8 @@ app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdge
   },
   "status": "accepted" // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
   }
+
+  DEVO CREARE I MIDDLEWARE PER IL FILTRO
 */
 app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
   viewFilteredUpdateHistory(req,res);
