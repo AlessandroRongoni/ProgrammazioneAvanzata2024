@@ -1,13 +1,12 @@
 import { getJwtEmail } from '../utils/jwt_utils';
 import { Request, Response } from "express";
-import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
+import { findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { approveEdgeUpdate, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByEdgeId, findUpdatesByReceiverInPending, findUpdatesByUserAndDate, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
+import { approveEdgeUpdate, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByReceiverInPending, findUpdatesByUserAndDate, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
 import { updateEdgeWeightInDB } from '../db/queries/update_queries';
 import { findEdgeById, findGraphById } from '../db/queries/graph_queries';
-import { stat } from 'fs';
-var jwt = require('jsonwebtoken');
+
 var statusMessage: MessageFactory = new MessageFactory();
 const ALPHA = parseFloat(process.env.ALPHA || "0.8"); 
 /**

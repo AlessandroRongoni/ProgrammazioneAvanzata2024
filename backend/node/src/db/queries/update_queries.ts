@@ -1,5 +1,4 @@
 // Importa la richiesta Express per gestire le richieste HTTP
-import { Request } from "express";
 import { Op } from 'sequelize';
 // Importa il modello degli utenti
 import { UserModel } from '../../models/UserModel';

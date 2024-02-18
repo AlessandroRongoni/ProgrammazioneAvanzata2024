@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { findAllGraphs, findEdgeById, findEdgesByGraphId, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { findEdgeById, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
 import { MessageFactory } from "../status/messages_factory";
-import { CustomStatusCodes, Messages400, Messages500, Messages200 } from "../status/status_codes";
+import { CustomStatusCodes, Messages400, Messages500 } from "../status/status_codes";
 import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
-import {findUpdateById, findUpdatesByEdgeId, findUpdatesByUserAndDate, requestEdgeUpdate } from '../db/queries/update_queries';
+import {findUpdateById, findUpdatesByUserAndDate } from '../db/queries/update_queries';
 
 var statusMessage: MessageFactory = new MessageFactory();
 
