@@ -42,7 +42,7 @@ export async function createGraph(req: Request, res: Response) {
         const id_newGraph = await findGraphById(graph.graph_id)
         console.log(graph.graph_id)
 
-        for(let i=0; i<req.body.edges.lenght; i++){
+        for(let i=0; i<req.body.edges.length; i++){
         // Aggiungi gli archi al grafo
         console.log("e siamo dentro")
         await addEdgesToGraph(graph.graph_id, edges[i].startNode, edges[i].endNode, edges[i].weight);
