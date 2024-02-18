@@ -58,7 +58,6 @@ export async function updateEdgeWeight(req: Request, res: Response) {
                 await updateEdgeWeightInDB(edge.edge_id, updatedWeight);
                 //creo una row upgrade con richiedente e ricevitore lo stesso autore, da vedere se mettere il peso aggiornato o il peso nuovo richiesto
                 const richiestaAggiornamento = await requestEdgeUpdate(graph.graph_id,edge.edge_id, requester[0].dataValues.user_id, graph.user_id, newWeight);
-            
                 //Visto che sono il creatore già approvo la modifica
                 await approveEdgeUpdate(richiestaAggiornamento.update_id);
                 

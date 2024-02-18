@@ -252,8 +252,7 @@ export const checkUserTokensUpdate = async (req: Request, res: Response, next: N
         const totalEdges = updates.length;
         const costoUpgrade = totalEdges * 0.025;
         if (user[0].dataValues.tokens < costoUpgrade) {
-            res.status(200).json({ message: "Costo operazione: " + costoUpgrade + ", tokens utente: " + user[0].dataValues.tokens + " - Non hai abbastanza tokens per fare l'upgrade" });
-           
+            return res.status(200).json({ message: "Costo operazione: " + costoUpgrade + ", tokens utente: " + user[0].dataValues.tokens + " - Non hai abbastanza tokens per fare l'upgrade" });
         }
         await subtractTokensByEmail(jwtUserEmail, costoUpgrade);
         next();
