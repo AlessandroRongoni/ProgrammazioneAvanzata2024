@@ -9,8 +9,11 @@ import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
 import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure} from "./middleware/graph_middleware";
-import {createGraph, getAllGraphs, getGraphEdges } from "./controllers/graphController";
+import {createGraph, getAllGraphs, getGraphEdges, CalculatePath } from "./controllers/graphController";
 import { answerUpdate, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
+import { calculateCost } from "./utils/graph_utils";
+import Graph = require("node-dijkstra")
+
 
 dotenv.config();
 const app = express();
@@ -75,6 +78,10 @@ app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkToken
 app.post("/graph", jsonParser, checkJwt, validateGraphStructure, checkUserTokensCreate, (req: Request, res: Response) => {
   createGraph(req,res);
 });
+
+app.post("/graph/calculatecost", jsonParser, checkJwt, (req: Request, res: Response) =>{
+  CalculatePath(req,res);
+})
 
 
 
@@ -185,3 +192,7 @@ app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);
 });
+function calculatePath(req: Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>) {
+  throw new Error("Function not implemented.");
+}
+

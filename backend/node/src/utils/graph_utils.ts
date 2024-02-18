@@ -20,3 +20,16 @@ export function calculateCost(action: 'create' | 'update', details: { nodes?: nu
 }
 
 
+export function prepareGraphData(edges: any) {
+    const graphData: { [key: string]: { [key: string]: number } } = {};
+  
+    edges.forEach((edge: any) => {
+      if (!graphData[edge.start_node]) {
+        graphData[edge.start_node] = {};
+      }
+      graphData[edge.start_node][edge.end_node] = edge.weight;
+    });
+  
+    return graphData;
+  }
+

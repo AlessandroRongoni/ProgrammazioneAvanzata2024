@@ -4,7 +4,9 @@ import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
 import { addEdgesToGraph, createGraphQuery, findAllGraphs, findEdgeById, findEdgesByGraphId, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
-import { calculateCost } from '../utils/graph_utils';
+import { calculateCost, prepareGraphData } from '../utils/graph_utils';
+import Graph = require("node-dijkstra")
+
 var jwt = require('jsonwebtoken');
 var statusMessage: MessageFactory = new MessageFactory();
 
@@ -90,3 +92,30 @@ export const getGraphEdges = async (req: Request,res: Response) => {
     }
 };
 
+
+
+export const CalculatePath = async (req: Request, res: Response) => {
+    const { graphId, startNode, endNode } = req.body;
+
+    try {
+        const edges = await findEdgesByGraphId(graphId);
+        const graphData = prepareGraphData(edges);
+
+        const routeGraph = new Graph(graphData);
+        const result = routeGraph.path(startNode, endNode, { cost: true });
+
+        // Verifica che il risultato sia di tipo PathResult
+        if (!Array.isArray(result) && result.path && result.cost !== undefined) {
+            res.json({
+                path: result.path,
+                cost: result.cost,
+                message: 'Path calculated successfully'
+            });
+        } else {
+            return res.status(404).json({ message: 'Path not found' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error calculating path' });
+    }
+};
