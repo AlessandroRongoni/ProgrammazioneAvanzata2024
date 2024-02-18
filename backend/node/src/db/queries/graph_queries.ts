@@ -59,16 +59,14 @@ export async function createGraphQuery(userId: number, name: string, description
 }
 
 
-export async function addEdgesToGraph(graphId: number, edges: { startNode: string, endNode: string, weight: number }[]): Promise<any> {
-    const edgePromises = edges.map(edge => {
+export async function addEdgesToGraph(graphId: number, startNode: string, endNode: string, weight: number): Promise<any> {
         return EdgeModel.create({
             graph_id: graphId,
-            start_node: edge.startNode,
-            end_node: edge.endNode,
-            weight: edge.weight
+            start_node: startNode,
+            end_node: endNode,
+            weight: weight
         });
-    });
-    return await Promise.all(edgePromises);
+
 }
 
 //Query per sottrarre tokens all'utente per email
