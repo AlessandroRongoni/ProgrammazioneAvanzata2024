@@ -8,7 +8,7 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkEdgeBelonging, checkUserTokensCreate, checkUserTokensUpdate, validateEdgeWeightsCreation, validateEdgeWeightsUpdate, checkGraphExistence, checkUpdateExistence, checkUpdatePending, checkOwner, checkAllEdgesBelongingAndCorrectWeights} from "./middleware/graph_middleware";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent} from "./middleware/graph_middleware";
 import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
 import { answerUpdate, updateEdgeWeight, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 
@@ -123,7 +123,7 @@ app.get("/updates/user/pending", checkJwt,(req: Request, res: Response) => {
  *        ]
  * }
   */
-app.put("/update/answer", jsonParser, checkJwt,checkUpdateExistence, checkOwner, checkUpdatePending, (req: Request, res: Response) => {
+app.put("/update/answer", jsonParser, checkJwt,checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending,checkUpdatesAreDifferent, (req: Request, res: Response) => {
   answerUpdate(req,res);
 });
 

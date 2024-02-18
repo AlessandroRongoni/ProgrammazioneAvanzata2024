@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { approveEdgeUpdate, findPendingUpdatesByGraphId, findUpdatesByEdgeId, findUpdatesByReceiverInPending, findUpdatesByUserAndDate, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
+import { approveEdgeUpdate, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByEdgeId, findUpdatesByReceiverInPending, findUpdatesByUserAndDate, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
 import { updateEdgeWeightInDB } from '../db/queries/update_queries';
 import { findEdgeById, findGraphById } from '../db/queries/graph_queries';
 import { stat } from 'fs';
@@ -48,30 +48,34 @@ export async function updateEdgeWeight(req: Request, res: Response) {
         if (requester[0].dataValues.user_id === graph.user_id) {
             //se è il proprietario del grafo
             for (let i = 0; i < req.body.updates.length; i++) {
+                
                 const edge = await findEdgeById(req.body.updates[i].edgeId);
                 const newWeight = req.body.updates[i].newWeight;
                 const oldWeight = edge.weight;
                 //calcolo il nuovo peso con la formula di aggiornamento
                 const updatedWeight = ALPHA * oldWeight + (1 - ALPHA) * newWeight;
+                
                 //aggiorno il peso dell'arco nel db
                 await updateEdgeWeightInDB(edge.edge_id, updatedWeight);
                 //creo una row upgrade con richiedente e ricevitore lo stesso autore, da vedere se mettere il peso aggiornato o il peso nuovo richiesto
                 const richiestaAggiornamento = await requestEdgeUpdate(graph.graph_id,edge.edge_id, requester[0].dataValues.user_id, graph.user_id, newWeight);
+            
                 //Visto che sono il creatore già approvo la modifica
                 await approveEdgeUpdate(richiestaAggiornamento.update_id);
+                
             }
-            console.log("Sono dopo il for")
             statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
         } else {
             //se non è il proprietario del grafo crea una richiesta in pending
             for (let i = 0; i < req.body.updates.length; i++) {
+                
                 const edge = await findEdgeById(req.body.updates[i].edgeId);
                 const newWeight = req.body.updates[i].newWeight;
                 // const oldWeight = edge[0].dataValues.weight; DA VEDERE QUALE PESO VUOLE IN UPDATE
                 // const updatedWeight = ALPHA * oldWeight + (1 - ALPHA) * req.body.update[i].newWeight;
                 await requestEdgeUpdate(graph.graph_id, edge.edge_id, requester[0].dataValues.user_id, graph.user_id, newWeight);
-                statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UpdateNotification);
             }
+            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UpdateNotification);
         }
         
     } catch (error) {
@@ -187,17 +191,29 @@ export const viewPendingUpdatesForModel = async (req: Request, res: Response) =>
  */
 export const answerUpdate = async (req: Request, res: Response) => {
     try {
-        const { updateId, answer } = req.body;
-        const result = await findUpdatesByEdgeId(updateId);
-        if (answer) {
-            await approveEdgeUpdate(updateId);
-            return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateApprovalSuccess);
-        } else {
-            await rejectEdgeUpdate(updateId);
-            return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.WeightUpdateRejectionSuccess);
+        console.log("HO PASSATO I CONTROLLI");
+        const { request } = req.body;
+        for (let i = 0; i < request.length; i++) {
+            console.log("SONO NEL FOR");
+            const updateId = request[i].updateId;
+            const answer = request[i].answer;
+            const update = await findUpdateById(updateId);
+            const edge = await findEdgeById(update.edge_id);
+            console.log("HO TROVATO L'UPDATE E L'ARCO");
+            const newWeight = update.new_weight;
+            console.log("newWeight: ", newWeight);
+            const oldWeight = edge.weight;
+            console.log("oldWeight: ", oldWeight);
+            if (answer) {
+                const updatedWeight = ALPHA * oldWeight + (1 - ALPHA) * newWeight;
+                await updateEdgeWeightInDB(update.edge_id, updatedWeight);
+                await approveEdgeUpdate(updateId);
+            } else {
+                await rejectEdgeUpdate(updateId);
+            }
         }
+        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.RequestAwnsered);
     } catch (error) {
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
-
 };

@@ -265,26 +265,23 @@ export const checkOwner = async (req: Request, res: Response, next: NextFunction
 export const checkAllEdgesBelongingAndCorrectWeights = async (req: Request, res: Response, next: NextFunction) => {
     const { graphId, updates } = req.body;
     try {
-        updates.forEach(async (update: { edgeId: any; newWeight: any; }) => {
-            const { edgeId, newWeight } = update;
-            const edge = await findEdgeById(edgeId);
+        for (let i = 0; i < updates.length; i++) {
+            console.log("Sono nel for")
+            const edge = await findEdgeById(updates[i].edgeId);
             if (!edge) {
                 return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotFound);
             }
             if (edge.graph_id != graphId) {
                 return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
             }
-            if (newWeight.length === 0) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightIsRequired);
-            
-            }
-            if (newWeight < 0 || typeof newWeight !== 'number' || !newWeight) {
+            if (updates[i].newWeight < 0 || typeof updates[i].newWeight !== 'number' || !updates[i].newWeight) {
+                console.log("Sono nell'if weight validation")
                 return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
             }
-        });
+        }
+        console.log("Ho passato la validazione dei pesi e degli archi")
         next();
     }catch (error) {
-        console.error(error);
         return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 
@@ -308,13 +305,114 @@ export const checkUserTokensUpdate = async (req: Request, res: Response, next: N
             return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoTokensUpdate);
         }
         const totalEdges = updates.length;
-        console.log("Total edges: ", totalEdges);
         const costoUpgrade = totalEdges * 0.025;
         if (user[0].dataValues.tokens < costoUpgrade) {
             res.status(200).json({ message: "Costo operazione: " + costoUpgrade + ", tokens utente: " + user[0].dataValues.tokens + " - Non hai abbastanza tokens per fare l'upgrade" });
            
         }
         await subtractTokensByEmail(jwtUserEmail, costoUpgrade);
+        next();
+    } catch (error) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+/** Controllo se esistono tutti gli upgrade passati
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const checkUpdatesExistence = async (req: Request, res: Response, next: NextFunction) => {
+    const {request} = req.body;
+    try {
+        for(let i = 0; i < request.length; i++){
+            const update = await findUpdateById(request[i].updateId);
+            if (!update) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateNotFound);
+            }
+            if (update.update_id <= 0 || isNaN(update.update_id)) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber);
+    
+            }
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+
+/**
+ * Controllo se gli upgrade corrispondono ad un grafo 
+ * a cui, chi fa la richiesta, è proprietario
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const checkOwnerGraphs = async (req: Request, res: Response, next: NextFunction) => {
+    const {request} = req.body;
+    let JwtUserEmail = getJwtEmail(req);
+    try {
+        for(let i = 0; i < request.length; i++){
+            const updates = await findUpdateById(request[i].updateId);
+            const receiver = await findUserById(updates.receiver_id);
+            if (receiver[0].dataValues.email != JwtUserEmail) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotOwner);
+            }
+        }
+        next();
+    } catch (error) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+
+};
+
+/** 
+ * Controllo se tutti  gli Update hanno lo stato approved NULL
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const checkUpdatesArePending = async (req: Request, res: Response, next: NextFunction) => {
+    const {request} = req.body;
+    try {
+        for(let i = 0; i < request.length; i++){
+            const update = await findUpdateById(request[i].updateId);
+            if (update.approved != null) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAlreadyAwnsered);
+            }
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+
+/**
+ * Controllo che gli updateID siano diversi tra loro quando
+ * passati nella richiesta
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ * 
+ */
+export const checkUpdatesAreDifferent = async (req: Request, res: Response, next: NextFunction) => {
+    const {request} = req.body;
+    try {
+        for(let i = 0; i < request.length; i++){
+            for(let j = i + 1; j < request.length; j++){
+                if(request[i].updateId === request[j].updateId){
+                    return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateNotDifferent);
+                }
+            }
+        }
         next();
     } catch (error) {
         console.error(error);

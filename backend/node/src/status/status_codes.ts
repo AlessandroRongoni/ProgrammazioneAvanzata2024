@@ -7,18 +7,17 @@ export enum CustomStatusCodes {
 }
 
 export enum Messages200 {
-    ModelCreationSuccess = "Modello creato con successo",
-    ModelUpdateSuccess = "Modello aggiornato con successo",
-    UpdateNotification = "Richiesta di aggiornamento inviata con successo",
-    WeightUpdateApprovalSuccess = "Richiesta di aggiornamento dei pesi accettata con successo",
-    WeightUpdateRejectionSuccess = "Richiesta di aggiornamento dei pesi rifiutata con successo",
-    ModelExecutionSuccess = "Modello eseguito con successo",
+    ModelCreationSuccess = "Modello creato con successo.",
+    ModelUpdateSuccess = "Modello aggiornato con successo.",
+    UpdateNotification = "Richiesta di aggiornamento inviata con successo.",
+    WeightUpdateApprovalSuccess = "Richiesta di aggiornamento dei pesi accettata con successo.",
+    WeightUpdateRejectionSuccess = "Richiesta di aggiornamento dei pesi rifiutata con successo.",
+    ModelExecutionSuccess = "Modello eseguito con successo.",
     JwtCreated = "Jwt creato correttamente!",
-    UserCreateSuccess = "Utente creato con successo",
-    RefillDoneSuccess = "Ok, i token sono stati distribuiti con successo",
-    PdfSuccess = "File PDF scaricato con successo."
-
-
+    UserCreateSuccess = "Utente creato con successo.",
+    RefillDoneSuccess = "Ok, i token sono stati distribuiti con successo.",
+    PdfSuccess = "File PDF scaricato con successo.",
+    RequestAwnsered = "Richieste risposte con successo."
 }
 export enum Messages300 {
 
@@ -35,15 +34,15 @@ export enum Messages400 {
     EdgeNotFound = "Non è possibile trovare l'arco specificato",
     GraphValidation = "La struttura del grafo non è valida",
     WeightValidation = "Nuovo peso inserito non valido",
-    EdgeNotInn = "l'arco non appartiene al grafo",
-    NoNodes = "deve essere presente ALMENO un nodo",
-    NoEdges = "devono essere presenti anche gli archi",
+    EdgeNotInn = "L'arco non appartiene al grafo",
+    NoNodes = "Deve essere presente ALMENO un nodo",
+    NoEdges = "Devono essere presenti anche gli archi",
     NoTokens = "Tokens insufficienti per creare il grafo, contattare l\'admin",
     InvalidToken = "I Token inseriti devono essere dei valori double compresi tra 0 e 1000",
     EmailCheck = "Il formato dell'email inserita non è corretto",
     PasswordCheck = "La password deve contenere almeno 8 caratteri ed un numero, un carattere speciale, un carattere maiuscolo e uno minuscolo",
     SameUser = "Non puoi creare lo stesso utente più volte",
-    NoDate = "non hai inserito la data di inizio o di fine",
+    NoDate = "Non hai inserito la data di inizio o di fine",
     InvalidDateSame = "La data di inizio non può coincidere con quella di fine",
     InvalidDate = "La data di fine deve precedere quella di inizio",
     NegativeTokens = "Non puoi inserire un numero di token negativo",
@@ -62,12 +61,13 @@ export enum Messages400 {
     NotOwner = "Non sei il proprietario del grafo",
     WeightIsRequired= "Il peso dell'arco è obbligatorio",
     NoTokensUpdate = "Non hai abbastanza tokens per fare l'upgrade",
-    PasswordNotMatch = "La password inserita non corrisponde a quella nel DB"
+    PasswordNotMatch = "La password inserita non corrisponde a quella nel DB.",
+    UpdateNotDifferent = "Non puoi accettare o rifiutare la stessa richiesta di aggiornamento.",
 }
 
 export enum Messages500 {
-    ImpossibileCreation = "Non è possibile creare il grafo",
-    InternalServerError = "Errore interno al server",
-    PdfUnable = "Impossibile generare file pdf"
+    ImpossibileCreation = "Non è possibile creare il grafo.",
+    InternalServerError = "Errore interno al server.",
+    PdfUnable = "Impossibile generare file pdf."
 
 }
