@@ -18,7 +18,7 @@ var statusMessage: MessageFactory = new MessageFactory();
     {"start": "A", "end": "B", "weight": 5},
     {"start": "B", "end": "C", "weight": 3}
   ]
-}DA RIVEDERE E FARE I CORRETTI MIDDLWARE
+}DA RIVEDERE per gli id sballati E FARE I CORRETTI MIDDLWARE
 */ 
 export async function createGraph(req: Request, res: Response) {
     try {
@@ -53,7 +53,6 @@ export async function createGraph(req: Request, res: Response) {
         return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.ImpossibileCreation);
     }
 }
-
 
 
 /**
