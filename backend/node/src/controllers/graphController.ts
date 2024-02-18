@@ -18,9 +18,8 @@ var statusMessage: MessageFactory = new MessageFactory();
     {"start": "A", "end": "B", "weight": 5},
     {"start": "B", "end": "C", "weight": 3}
   ]
-}
+}DA RIVEDERE E FARE I CORRETTI MIDDLWARE
 */ 
-
 export async function createGraph(req: Request, res: Response) {
     try {
         // Accede direttamente ai dati della richiesta tramite req.body
