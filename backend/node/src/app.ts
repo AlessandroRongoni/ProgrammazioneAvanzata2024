@@ -8,8 +8,8 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent} from "./middleware/graph_middleware";
-import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure} from "./middleware/graph_middleware";
+import {createGraph, getAllGraphs, getGraphEdges } from "./controllers/graphController";
 import { answerUpdate, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 
 dotenv.config();
@@ -61,9 +61,10 @@ app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkToken
 /**
  * Rotta per la creazione di un grafo
  */
-app.post("/graph", checkJwt, checkUserTokensCreate, (req: Request, res: Response) => {
-
+app.post("/graph", jsonParser, checkJwt, checkUserTokensCreate, validateGraphStructure, (req: Request, res: Response) => {
+  createGraph(req,res);
 });
+
 
 
 /**
