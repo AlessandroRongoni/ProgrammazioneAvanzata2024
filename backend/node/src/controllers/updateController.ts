@@ -7,6 +7,7 @@ import { approveEdgeUpdate, filterUpdates, findPendingUpdatesByGraphId, findUpda
 import { updateEdgeWeightInDB } from '../db/queries/update_queries';
 import { findEdgeById, findGraphById } from '../db/queries/graph_queries';
 
+
 var statusMessage: MessageFactory = new MessageFactory();
 const ALPHA = parseFloat(process.env.ALPHA || "0.8"); 
 /**
@@ -184,4 +185,53 @@ export const answerUpdate = async (req: Request, res: Response) => {
     }
 };
 
+export const getUpdatesInFormat = async (req: Request, res: Response) => {
+    const { graphId, dateFilter: { from, to }, status, format } = req.body;
+    const startDate = from ? new Date(from) : undefined;
+    const endDate = to ? new Date(to) : undefined;
 
+    try {
+        const updates = await filterUpdates(graphId, startDate, endDate, status);
+        switch (format.toLowerCase()) {
+            case 'csv':
+                const { stringify } = require('csv-stringify/sync');
+                const csvData = stringify(updates, { header: true });
+                res.header('Content-Type', 'text/csv');
+                res.attachment('updates.csv');
+                return res.send(csvData);
+                break;
+            case 'pdf':
+                const PDFDocument = require('pdfkit');
+                const doc = new PDFDocument();
+                let pdfBuffers: Buffer[] = [];
+                doc.on('data', pdfBuffers.push.bind(pdfBuffers));
+                doc.on('end', () => {
+                    const pdfData = Buffer.concat(pdfBuffers);
+                    res.header('Content-Type', 'application/pdf');
+                    res.attachment('updates.pdf');
+                    return res.send(pdfData);
+                });
+            
+                // Qui dovresti aggiungere i dati nel documento PDF
+                updates.forEach((update: any) => {
+                    doc.text(JSON.stringify(update));
+                });
+            
+                doc.end();
+                break;
+            case 'xml':
+                const { js2xml } = require('xml-js');
+                const xmlData = js2xml({ updates }, { compact: true, spaces: 4 });
+                res.header('Content-Type', 'application/xml');
+                res.attachment('updates.xml');
+                return res.send(xmlData);
+                break;
+            case 'json':
+            default:
+                return res.json(updates);
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error fetching filtered updates' });
+    }
+};
