@@ -363,3 +363,27 @@ export const checkUpdatesAreDifferent = async (req: Request, res: Response, next
         return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
+
+
+/** 
+ * Validazione delle risposte che possono solo essere true o false
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+
+export const checkValidationAnswer = (req: Request, res: Response, next: NextFunction) => {
+    const {request} = req.body;
+    try {
+        for(let i = 0; i < request.length; i++){
+            if(request[i].answer !== true && request[i].answer !== false){
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAnswerValidation);
+            }
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
