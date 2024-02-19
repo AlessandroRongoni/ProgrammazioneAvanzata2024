@@ -8,7 +8,7 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateDateRange, validateStatus, validateNodes, checkEdgesExistence, checkNodesExistence} from "./middleware/graph_middleware";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateDateRange, validateStatus, validateNodes, checkEdgesExistence, checkNodesExistence, validateFormat} from "./middleware/graph_middleware";
 import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 import Graph from "node-dijkstra";
@@ -208,7 +208,7 @@ app.get("/updates/history/graph", jsonParser, checkJwt, checkGraphExistence, val
   "format": "json" // Valori possibili: "json", "csv", "xml"
 }
  */
-app.get("/updates/format", checkJwt, (req: Request, res: Response) => {
+app.get("/updates/format", checkJwt, checkGraphExistence, validateDateRange, validateStatus, validateFormat, (req: Request, res: Response) => {
   getUpdatesInFormat(req,res);
 });
 

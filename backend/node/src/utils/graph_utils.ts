@@ -1,6 +1,8 @@
 import { Express } from "express";
+import { MessageFactory } from "../status/messages_factory";
 import Graph from "node-dijkstra";
 import dotenv from "dotenv";
+import { Messages400 } from "../status/status_codes";
 
 dotenv.config();
 const nodeCost = process.env.CREATE_COST_NODES ? parseFloat(process.env.CREATE_COST_NODES) : 0.10; // Costo per nodo, usato solo nella creazione
@@ -59,4 +61,8 @@ export async function calculatePathWithGraphData(graphData: { [key: string]: { [
 export function calculatePathUtility(graphData: { [key: string]: { [key: string]: number } }, startNode: string, endNode: string) {
   const routeGraph = new Graph(graphData);
   return routeGraph.path(startNode, endNode, { cost: true });
+}
+
+export function getUnsupportedFormatMessage(format: string, allowedFormats: string[]): string {
+  return Messages400.UnsupportedFormat.replace('{{format}}', format).replace('{{allowedFormats}}', allowedFormats.join(', '));
 }

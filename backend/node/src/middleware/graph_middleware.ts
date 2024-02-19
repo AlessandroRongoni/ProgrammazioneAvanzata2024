@@ -6,7 +6,7 @@ import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
 import {findUpdateById } from '../db/queries/update_queries';
 import dotenv = require('dotenv');
-import { calculateCost } from '../utils/graph_utils';
+import { calculateCost, getUnsupportedFormatMessage } from '../utils/graph_utils';
 import { GraphModel } from '../models/GraphModel';
 import { stat } from 'fs';
 import { EdgeModel } from '../models/EdgeModel';
@@ -577,6 +577,31 @@ export const validateStatus = (req: Request, res: Response, next: NextFunction) 
         return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.AllowStatus);
     }
 
+
+    next();
+};
+
+/**
+ * Middleware per validare il formato di risposta specificato nella richiesta.
+ * @param {Request} req - L'oggetto richiesta.
+ * @param {Response} res - L'oggetto risposta.
+ * @param {NextFunction} next - La funzione next per passare al prossimo middleware.
+ */
+export const validateFormat = (req: Request, res: Response, next: NextFunction) => {
+    let { format } = req.body;
+    const allowedFormats = ['csv', 'pdf', 'json', 'xml'];
+
+    // Imposta un formato predefinito se il campo 'format' è vuoto o non specificato
+    if (!format || format.trim() === '') {
+        format = 'json'; // Predefinito a JSON
+        req.body.format = format; // Aggiorna il corpo della richiesta con il formato predefinito
+    }
+
+    // Se il formato specificato non è uno dei valori consentiti, restituisce un errore
+    if (!allowedFormats.includes(format.toLowerCase())) {
+        const errorMessage = getUnsupportedFormatMessage(format, allowedFormats);
+        return res.status(CustomStatusCodes.BAD_REQUEST).json({ message: errorMessage });
+        }
 
     next();
 };

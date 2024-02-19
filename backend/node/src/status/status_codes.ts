@@ -44,6 +44,7 @@ export enum Messages400 {
     NoTokens = "Tokens insufficienti per creare il grafo, contattare l\'admin",
     InvalidToken = "I Token inseriti devono essere dei valori double compresi tra 0 e 1000",
     InvalidNodes = "il valore del nodo deve essere una stringa",
+    UnsupportedFormat = " il formato '{{format}}' non è supportato, perfavore inserisci: {{allowedFormats}}.",
     EmailCheck = "Il formato dell'email inserita non è corretto",
     PasswordCheck = "La password deve contenere almeno 8 caratteri ed un numero, un carattere speciale, un carattere maiuscolo e uno minuscolo",
     SameUser = "Non puoi creare lo stesso utente più volte",
