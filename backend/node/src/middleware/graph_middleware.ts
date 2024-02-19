@@ -1,11 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import { findEdgeById, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { findEdgeById, findGraphById, findGraphByName, subtractTokensByEmail } from '../db/queries/graph_queries';
 import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500 } from "../status/status_codes";
 import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
 import {findUpdateById } from '../db/queries/update_queries';
-
+import dotenv = require('dotenv');
+import { calculateCost } from '../utils/graph_utils';
+import { GraphModel } from '../models/GraphModel';
+import { stat } from 'fs';
+dotenv.config();
+var update_cost_per_edge = parseFloat(process.env.UPDATE_COST_PER_EDGE!) || 0.025;
 var statusMessage: MessageFactory = new MessageFactory();
 
 
@@ -20,8 +25,11 @@ export const checkUserTokensCreate = async (req: Request, res: Response, next: N
         if (!user) {
             statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
         }
-        if (user.tokens <= 0 || user.tokens < 0.025) { //invece di 0.025 va il caloclo del total cost con calculateCost
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoTokens);
+        const totalNodes = req.body.nodes.length;
+        const totalEdges = req.body.edges.length;
+        const totalCost = calculateCost(totalNodes, totalEdges); 
+        if (user.tokens <= 0 || user.tokens < totalCost) {
+            statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokens);
         }
         next();
     } catch (error) {
@@ -247,14 +255,14 @@ export const checkUserTokensUpdate = async (req: Request, res: Response, next: N
     try {
         const user = await findUser(jwtUserEmail);
         if (user[0].dataValues.tokens <= 0) { 
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoTokensUpdate);
+            return statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokensUpdate);
         }
         const totalEdges = updates.length;
-        const costoUpgrade = totalEdges * 0.025;
+        const costoUpgrade = totalEdges * update_cost_per_edge;
         if (user[0].dataValues.tokens < costoUpgrade) {
-            return res.status(200).json({ message: "Costo operazione: " + costoUpgrade + ", tokens utente: " + user[0].dataValues.tokens + " - Non hai abbastanza tokens per fare l'upgrade" });
+            res.status(200).json({ message: "Costo operazione: " + costoUpgrade + ", tokens utente: " + user[0].dataValues.tokens});
+            return statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokensUpdate);
         }
-        await subtractTokensByEmail(jwtUserEmail, costoUpgrade);
         next();
     } catch (error) {
         return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
@@ -270,6 +278,9 @@ export const checkUserTokensUpdate = async (req: Request, res: Response, next: N
 export const checkUpdatesExistence = async (req: Request, res: Response, next: NextFunction) => {
     const {request} = req.body;
     try {
+        if (!request || request.length === 0) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.RequestNotFound);
+        }
         for(let i = 0; i < request.length; i++){
             const update = await findUpdateById(request[i].updateId);
             if (!update) {
@@ -383,7 +394,32 @@ export const checkValidationAnswer = (req: Request, res: Response, next: NextFun
         }
         next();
     } catch (error) {
-        console.error(error);
         return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+
+export const validateGraphNameAndDescription = async (req: Request, res:Response, next: NextFunction) => {
+    const { name, description } = req.body;
+    // Controllo che il nome sia fornito e sia una stringa non vuota
+    if (typeof name !== 'string' || name.trim() === '') {
+        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphValidation);
+    }
+
+    // Controllo che la descrizione sia una stringa e non superi i 250 caratteri
+    if (typeof description !== 'string' || description.length > 250) {
+        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionValidation);
+    }
+
+    try {
+        // Verifica l'unicità del nome nel database
+        const existingGraph = await findGraphByName(name);
+        if (existingGraph) {
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphNameNotUnique);
+        }
+        // Se non ci sono errori, passa al middleware/route successivo
+        next();
+    } catch (error) {
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };

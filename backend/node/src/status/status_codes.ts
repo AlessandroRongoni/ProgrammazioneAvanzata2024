@@ -64,7 +64,10 @@ export enum Messages400 {
     PasswordNotMatch = "La password inserita non corrisponde a quella nel DB.",
     UpdateNotDifferent = "Non puoi accettare o rifiutare la stessa richiesta di aggiornamento.",
     NoUpdates = "Non ci sono aggiornamenti per questo grafo.",
-    UpdateAnswerValidation = "La risposta deve essere true o false."
+    UpdateAnswerValidation = "La risposta deve essere true o false.",
+    RequestNotFound = "Body non valido, inserisci almeno l'ID Upgrade di una richiesta.",
+    GraphNameNotUnique = "Esiste già un grafo con questo nome.",
+    DescriptionValidation = "La descrizione non può essere più lunga di 250 caratteri.",
 }
 
 export enum Messages500 {

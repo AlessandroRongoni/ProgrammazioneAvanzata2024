@@ -8,7 +8,7 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer} from "./middleware/graph_middleware";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateGraphNameAndDescription} from "./middleware/graph_middleware";
 import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 import Graph from "node-dijkstra";
@@ -74,7 +74,7 @@ app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkToken
   ]
 }
  */
-app.post("/graph", jsonParser, checkJwt, validateGraphStructure, checkUserTokensCreate, (req: Request, res: Response) => {
+app.post("/graph", jsonParser, checkJwt, validateGraphStructure, validateGraphNameAndDescription, checkUserTokensCreate, (req: Request, res: Response) => {
   createGraph(req,res);
 });
 
