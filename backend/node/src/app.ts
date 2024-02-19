@@ -9,7 +9,7 @@ import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
 import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure} from "./middleware/graph_middleware";
-import {createGraph, getAllGraphs, getGraphEdges, CalculatePath } from "./controllers/graphController";
+import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 import { calculateCost } from "./utils/graph_utils";
 import Graph = require("node-dijkstra")
@@ -191,10 +191,12 @@ app.get("/updates/format", checkJwt, (req: Request, res: Response) => {
   getUpdatesInFormat(req,res);
 });
 
+app.post("/simulate", jsonParser, checkJwt, (req: Request, res: Response) => {
+  simulateGraph(req, res);
+});
+
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);
 });
-function calculatePath(req: Request<import("express-serve-static-core").ParamsDictionary, any, any, import("qs").ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>) {
-  throw new Error("Function not implemented.");
-}
+
 

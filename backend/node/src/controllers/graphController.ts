@@ -4,7 +4,7 @@ import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
 import { addEdgesToGraph, createGraphQuery, findAllGraphs, findEdgeById, findEdgesByGraphId, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
-import { calculateCost, prepareGraphData } from '../utils/graph_utils';
+import { calculateCost, prepareGraphData, calculatePathWithGraphData, calculatePathUtility } from '../utils/graph_utils';
 import Graph = require("node-dijkstra")
 
 var jwt = require('jsonwebtoken');
@@ -20,7 +20,42 @@ var statusMessage: MessageFactory = new MessageFactory();
     {"start": "A", "end": "B", "weight": 5},
     {"start": "B", "end": "C", "weight": 3}
   ]
-}DA RIVEDERE per gli id sballati E FARE I CORRETTI MIDDLWARE
+}
+{
+  "name": "Mio Grafo23456",
+  "description": "Descrizione del grafo con 16 nodi e connessioni multiple per testare percorsi ottimali e simulazioni.",
+  "nodes": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"],
+  "edges": [
+    {"startNode": "A", "endNode": "B", "weight": 1},
+    {"startNode": "B", "endNode": "C", "weight": 2},
+    {"startNode": "C", "endNode": "D", "weight": 1.5},
+    {"startNode": "D", "endNode": "E", "weight": 2.5},
+    {"startNode": "E", "endNode": "F", "weight": 2},
+    {"startNode": "F", "endNode": "G", "weight": 1},
+    {"startNode": "G", "endNode": "H", "weight": 2.5},
+    {"startNode": "H", "endNode": "I", "weight": 1},
+    {"startNode": "I", "endNode": "J", "weight": 1.5},
+    {"startNode": "J", "endNode": "K", "weight": 2},
+    {"startNode": "K", "endNode": "L", "weight": 1},
+    {"startNode": "L", "endNode": "M", "weight": 2.5},
+    {"startNode": "M", "endNode": "N", "weight": 2},
+    {"startNode": "N", "endNode": "O", "weight": 1.5},
+    {"startNode": "O", "endNode": "P", "weight": 2},
+    {"startNode": "P", "endNode": "A", "weight": 2.5},
+    {"startNode": "A", "endNode": "E", "weight": 2},
+    {"startNode": "B", "endNode": "F", "weight": 1.5},
+    {"startNode": "C", "endNode": "G", "weight": 2},
+    {"startNode": "D", "endNode": "H", "weight": 1},
+    {"startNode": "E", "endNode": "I", "weight": 2.5},
+    {"startNode": "F", "endNode": "J", "weight": 2},
+    {"startNode": "G", "endNode": "K", "weight": 1.5},
+    {"startNode": "H", "endNode": "L", "weight": 2},
+    {"startNode": "I", "endNode": "M", "weight": 1},
+    {"startNode": "J", "endNode": "N", "weight": 2.5},
+    {"startNode": "K", "endNode": "O", "weight": 2},
+    {"startNode": "L", "endNode": "P", "weight": 1.5}
+  ]
+}
 */ 
 export async function createGraph(req: Request, res: Response) {
     try {
@@ -119,3 +154,59 @@ export const CalculatePath = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Error calculating path' });
     }
 };
+
+interface PathResult {
+    cost: number;
+    configuration: number | null; // Assumo che configuration sia un numero, adattalo al tuo caso d'uso
+    path: string[]; // Specifica che path è un array di stringhe
+  }
+
+  // Modifica della funzione simulateGraph per utilizzare calculatePathUtility
+ // Modifica della funzione simulateGraph per utilizzare calculatePathUtility
+export const simulateGraph = async (req: Request, res: Response) => {
+    const { graphId, edgeId, startNode, endNode, startWeight, endWeight, step } = req.body;
+
+    try {
+        if (startWeight >= endWeight || step <= 0) {
+            return res.status(400).json({ message: 'Invalid simulation parameters' });
+        }
+
+        const edges = await findEdgesByGraphId(graphId);
+        if (!edges) {
+            return res.status(404).json({ message: 'Edges not found' });
+        }
+
+        let results = [];
+        let bestResult: PathResult = { cost: Infinity, configuration: null, path: [] };
+
+        for (let weight = startWeight; weight <= endWeight; weight += step) {
+            const simulatedEdges = edges.map((edge: any) => {
+                if (edge.edge_id === edgeId) {
+                    return { ...edge, weight };
+                }
+                return edge;
+            });
+
+            const graphData = prepareGraphData(simulatedEdges);
+            const pathResult = calculatePathUtility(graphData, startNode, endNode);
+
+
+
+
+            if (typeof pathResult === 'object' && 'cost' in pathResult) {
+                results.push({ weight, cost: pathResult.cost, path: pathResult.path });
+
+                if (pathResult.cost < bestResult.cost) {
+                    bestResult = { cost: pathResult.cost, configuration: weight, path: pathResult.path };
+                }
+            }
+        }
+
+        res.json({ results, bestResult });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error during simulation' });
+    }
+};
+
+
