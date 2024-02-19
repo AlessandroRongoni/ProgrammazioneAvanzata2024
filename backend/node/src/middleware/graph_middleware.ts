@@ -9,6 +9,7 @@ import dotenv = require('dotenv');
 import { calculateCost } from '../utils/graph_utils';
 import { GraphModel } from '../models/GraphModel';
 import { stat } from 'fs';
+import { EdgeModel } from '../models/EdgeModel';
 dotenv.config();
 var update_cost_per_edge = parseFloat(process.env.UPDATE_COST_PER_EDGE!) || 0.025;
 var statusMessage: MessageFactory = new MessageFactory();
@@ -19,46 +20,45 @@ export const checkUserTokensCreate = async (req: Request, res: Response, next: N
     try {
         let jwtUserEmail = getJwtEmail(req);
         if (!jwtUserEmail) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoAuthHeader);
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoAuthHeader);
         }
         const user = await findUser(jwtUserEmail);
         if (!user) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
         }
         const totalNodes = req.body.nodes.length;
         const totalEdges = req.body.edges.length;
         const totalCost = calculateCost(totalNodes, totalEdges); 
         if (user.tokens <= 0 || user.tokens < totalCost) {
-            statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokens);
+            return statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokens);
         }
         next();
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-}
+       return  statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
 };
 
 //Valida i pesi degli archi inviati nella richiesta. Verifica che l'array edges sia presente, che sia un array, e che tutti gli archi abbiano pesi validi (numerici e non negativi)
-export const validateEdgeWeightsUpdate = (req: Request, res: Response, next: NextFunction) => {
+export const validateEdgeWeightsUpdate = async (req: Request, res: Response, next: NextFunction) => {
     const new_weight = req.body.newWeight;
     try{
         if (!new_weight || new_weight < 0 || typeof new_weight !== 'number') {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
         }
         next();
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
 
 //RICORDATI SERGY DI AGGIUNGERE IL MIDDLEWARE PER LA CREAZIONE DEI GRAFI
-export const validateEdgeWeightsCreation = (req: Request, res: Response, next: NextFunction) => {
+export const validateEdgeWeightsCreation = async (req: Request, res: Response, next: NextFunction) => {
     const edges = req.body;
 
     if (!edges || !Array.isArray(edges) || edges.some(edge => typeof edge.weight !== 'number' || edge.weight < 0)) {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
     }
-
     next();
 };
 
@@ -66,24 +66,112 @@ export const validateEdgeWeightsCreation = (req: Request, res: Response, next: N
  * Middleware per validare la struttura di un grafo.
  * Verifica la presenza e la correttezza dei nodi, degli archi e dei pesi degli archi.
  */
-export const validateGraphStructure = (req: Request, res: Response, next: NextFunction) => {
-    const { nodes, edges } = req.body;
+export const validateGraphStructure = async (req: Request, res: Response, next: NextFunction) => {
+    const { nodes, edges, name, description } = req.body;
     try{
+        console.log("Sono nel middleware")
+        if (typeof name !== 'string' || name.trim() === '' || name.length > 30) {
+            console.log("Sono nell'if name")
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphValidation);
+        }
+        console.log("Sono passato name")
+        // Controllo che la descrizione sia una stringa e non superi i 250 caratteri
+        if (typeof description !== 'string' || description.length > 250) {
+            console.log("Sono nell'if description")
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionValidation);
+        }
+        console.log("Sono passato description")
+        // Verifica l'unicità del nome nel database
+        const existingGraph = await findGraphByName(name);
+        console.log("Sono passato existingGraph")
+        console.log(existingGraph)
+        if (existingGraph.length !== 0) {
+            console.log("Sono nell'if existingGraph")
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphNameNotUnique);
+        }
+        console.log("Sono passato if existingGraph")
         // Verifica la presenza dei nodi e degli archi
         if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoNodes);
+            console.log("Sono nell'if nodes")
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoNodes);
         }
     
         if (!edges || !Array.isArray(edges)) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoEdges);
+            console.log("Sono nell'if edges")
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoEdges);
         }
-    
+        // Verifica che non ci siano nodi duplicati
+        for(let i = 0; i < nodes.length; i++){
+            console.log("Sono nel for")
+            const node = nodes[i];
+            if (typeof node !== 'string' || node.trim() === '') {
+                console.log("Sono nell'if nodes")
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotACorrectNodes);
+            }
+            console.log("Sono passato nodes")
+            if (nodes.indexOf(node) !== i) {
+                console.log("Sono nell'if nodes.indexOf")
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DuplicateNodes);
+            }
+            console.log("Sono passato nodes.indexOf")
+        }
+        //Verifica che gli startNode e gli endNode abbiamo nomi che corrispondono a nodi esistenti
+        for (let i = 0; i < edges.length; i++) {
+            console.log("Sono nel for")
+            const edge = edges[i];
+            if (nodes.indexOf(edge.startNode) === -1 || nodes.indexOf(edge.endNode) === -1) {
+                console.log("Sono nell'if nodes.indexOf")
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotCorrispondingNodes);
+            }
+            console.log("Sono passato nodes.indexOf")
+        }
         // Verifica la validità dei pesi degli archi
-        const invalidEdges = edges.filter((edge: { weight: number; }) => typeof edge.weight !== 'number' || edge.weight < 0);
-        if (invalidEdges.length > 0) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+        console.log("Sono passato edges")
+        for (let i = 0; i < edges.length; i++) {
+            console.log("Sono nel for")
+            const edge = edges[i];
+            if (typeof edge.weight !== 'number' || edge.weight <= 0) {
+                console.log("Sono nell'if weight validation")
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+            }
+            if (typeof edge.startNode !== 'string' || edge.startNode.length == 0||typeof edge.endNode !== 'string' || edge.endNode.length == 0 || edge.startNode === edge.endNode) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotACorrectEdge);
+            }
         }
-    
+        // Verifica che non ci siano archi duplicati A-->B e di nuovo A-->B
+        console.log("Sono passato invalidEdges")
+        const edgeSet = new Set();
+        for (const edge of edges) {
+            console.log("Sono nel for")
+            const edgeString = `${edge.startNode}-${edge.endNode}`;
+            if (edgeSet.has(edgeString)) {
+                console.log("Sono nell'if edgeSet")
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DuplicateEdges);
+            }
+            console.log("Sono passato edgeSet")
+            edgeSet.add(edgeString);
+        }
+        //Verifica che non ci sono archi reciproci
+        for (let i = 0; i < edges.length; i++) {
+            console.log("Sono nel for")
+            const edge = edges[i];
+            for (let j = i + 1; j < edges.length; j++) {
+                console.log("Sono nel for")
+                const otherEdge = edges[j];
+                if (edge.startNode === otherEdge.endNode && edge.endNode === otherEdge.startNode) {
+                    console.log("Sono nell'if reciproci")
+                    return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotACorrectEdge);
+                }
+                console.log("Sono passato reciproci")
+            }
+        }
+        //verifica che ci siano n-1 archi, dove n è il numero di nodi
+        if(edges.length !== nodes.length - 1){
+            console.log("Sono nell'if edges.length")
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphValidation);
+        }
+        console.log("Sono passato il for")
+        console.log("vado avanti")
         next();
 
     }catch (error) {
@@ -101,15 +189,14 @@ export const checkEdgeBelonging = async (req: Request, res: Response, next: Next
         const edgeId = req.body.edgeId;
         const edge = await findEdgeById(edgeId);
         if (!edge) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotFound);
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotFound);
         }
         if (edge.graph_id != graphId) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
         }
         next();
     } catch (error) {
-        console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -398,28 +485,3 @@ export const checkValidationAnswer = (req: Request, res: Response, next: NextFun
     }
 };
 
-
-export const validateGraphNameAndDescription = async (req: Request, res:Response, next: NextFunction) => {
-    const { name, description } = req.body;
-    // Controllo che il nome sia fornito e sia una stringa non vuota
-    if (typeof name !== 'string' || name.trim() === '') {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphValidation);
-    }
-
-    // Controllo che la descrizione sia una stringa e non superi i 250 caratteri
-    if (typeof description !== 'string' || description.length > 250) {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionValidation);
-    }
-
-    try {
-        // Verifica l'unicità del nome nel database
-        const existingGraph = await findGraphByName(name);
-        if (existingGraph) {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphNameNotUnique);
-        }
-        // Se non ci sono errori, passa al middleware/route successivo
-        next();
-    } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};

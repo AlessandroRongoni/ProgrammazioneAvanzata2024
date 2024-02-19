@@ -79,7 +79,7 @@ export async function subtractTokensByEmail(email: string, tokens: number): Prom
 
 //Query per cercare un grafo in base al nome
 export async function findGraphByName(name: string): Promise<any> {
-    return await GraphModel.findOne({
+    return await GraphModel.findAll({
         where: {
             name: name
         }

@@ -57,12 +57,10 @@ var statusMessage: MessageFactory = new MessageFactory();
   ]
 }
 */ 
-export async function createGraph(req: Request, res: Response) {
+export const createGraph = async (req: Request, res: Response) => {
     // Accede direttamente ai dati della richiesta tramite req.body
     const { name, description, nodes, edges } = req.body;
-    
     let jwtUserEmail = getJwtEmail(req)
-    
     // Cerca l'utente tramite email
     const user = await findUser(jwtUserEmail);
     const totalCost = calculateCost(nodes.length, edges.length);
@@ -76,7 +74,7 @@ export async function createGraph(req: Request, res: Response) {
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.ImpossibileCreation);
     }
     finally{
-        await subtractTokensByEmail(jwtUserEmail, totalCost)
+        await subtractTokensByEmail(jwtUserEmail, totalCost);
     }
     statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelCreationSuccess);
 };
