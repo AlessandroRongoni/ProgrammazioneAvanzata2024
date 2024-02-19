@@ -44,6 +44,9 @@ export enum Messages400 {
     NoTokens = "Tokens insufficienti per creare il grafo, contattare l\'admin",
     InvalidToken = "I Token inseriti devono essere dei valori double compresi tra 0 e 1000",
     InvalidNodes = "il valore del nodo deve essere una stringa",
+    InvalidSimulationValue = "i parametri di simulazione devono essere numeri",
+    InvalidSimulationReverse = "La data di fine deve precedere quella di inizio",
+    NegativeOrNullStep = "lo step deve essere un numero positivo e mai uguale a zero",
     UnsupportedFormat = " il formato '{{format}}' non è supportato, perfavore inserisci: {{allowedFormats}}.",
     EmailCheck = "Il formato dell'email inserita non è corretto",
     PasswordCheck = "La password deve contenere almeno 8 caratteri ed un numero, un carattere speciale, un carattere maiuscolo e uno minuscolo",
@@ -88,6 +91,7 @@ export enum Messages400 {
 export enum Messages500 {
     ImpossibileCreation = "Non è possibile creare il grafo.",
     InternalServerError = "Errore interno al server.",
-    PdfUnable = "Impossibile generare file pdf."
+    PdfUnable = "Impossibile generare file pdf.",
+    ErrorSimulation = "Errore durante la simulazione"
 
 }

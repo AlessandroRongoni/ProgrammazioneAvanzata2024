@@ -605,3 +605,21 @@ export const validateFormat = (req: Request, res: Response, next: NextFunction) 
 
     next();
 };
+
+export const validateSimulationParameters = (req: Request, res: Response, next: NextFunction) => {
+    const { startWeight, endWeight, step } = req.body;
+
+    if (typeof startWeight !== 'number' || typeof endWeight !== 'number' || typeof step !== 'number') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidSimulationValue);
+    }
+
+    if (startWeight >= endWeight) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidSimulationReverse);
+    }
+    if (step <= 0) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NegativeOrNullStep);
+    }
+
+
+    next();
+};
