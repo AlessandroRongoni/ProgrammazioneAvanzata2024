@@ -11,8 +11,7 @@ import { updateTokens } from "./controllers/adminController";
 import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure} from "./middleware/graph_middleware";
 import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
-import { calculateCost } from "./utils/graph_utils";
-import Graph = require("node-dijkstra")
+import Graph from "node-dijkstra";
 
 
 dotenv.config();
