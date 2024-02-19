@@ -8,7 +8,7 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateDateRange, validateStatus} from "./middleware/graph_middleware";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateDateRange, validateStatus, validateNodes, checkEdgesExistence, checkNodesExistence} from "./middleware/graph_middleware";
 import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 import Graph from "node-dijkstra";
@@ -91,7 +91,8 @@ app.post("/graph", jsonParser, checkJwt, validateGraphStructure, checkUserTokens
   createGraph(req,res);
 });
 
-app.post("/graph/calculatecost", jsonParser, checkJwt, (req: Request, res: Response) =>{
+
+app.post("/graph/calculatecost", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, checkEdgesExistence,  (req: Request, res: Response) =>{
   CalculatePath(req,res);
 })
 

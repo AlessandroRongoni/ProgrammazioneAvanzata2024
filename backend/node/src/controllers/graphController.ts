@@ -135,7 +135,7 @@ export const CalculatePath = async (req: Request, res: Response) => {
                 message: 'Path calculated successfully'
             });
         } else {
-            return res.status(404).json({ message: 'Path not found' });
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.PathNotFound);
         }
     } catch (error) {
         console.error(error);

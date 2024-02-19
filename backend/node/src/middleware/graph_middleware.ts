@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { findEdgeById, findGraphById, findGraphByName, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { findEdgeById, findEdgesByGraphId, findGraphById, findGraphByName, findNodesByGraphId, subtractTokensByEmail } from '../db/queries/graph_queries';
 import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500 } from "../status/status_codes";
 import { getJwtEmail } from '../utils/jwt_utils';
@@ -223,6 +223,47 @@ export const checkGraphExistence = async (req: Request, res: Response, next: Nex
     }
 };
 
+// Middleware per validare l'ID del grafo e i nodi di partenza e arrivo
+export const validateNodes = async (req: Request, res: Response, next: NextFunction) => {
+    const { graphId, startNode, endNode } = req.body;
+
+    if (!startNode || typeof startNode !== 'string' || !endNode || typeof endNode !== 'string') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.InvalidNodes);
+    }
+    
+    next();
+  };
+
+  export const checkNodesExistence = async (req: Request, res: Response, next: NextFunction) => {
+    const { graphId, startNode, endNode } = req.body;
+
+    try {
+        // Verifica l'esistenza di startNode e endNode nel database
+        const nodes = await findNodesByGraphId(graphId);
+        const startNodeExists = nodes.some((node: any) => node === startNode);
+        const endNodeExists = nodes.some((node: any) => node === endNode);
+
+        if (!startNodeExists || !endNodeExists) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NodeNotFound);
+        }
+
+        next();
+    } catch (error) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
+    }
+};
+
+  // Middleware per controllare l'esistenza degli archi nel grafo
+export const checkEdgesExistence = async (req: Request, res: Response, next: NextFunction) => {
+    const { graphId } = req.body;
+  
+    const edges = await findEdgesByGraphId(graphId);
+    if (!edges || edges.length === 0) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+    }
+      next();
+  };
 
 /** Controllo se esiste l'update passando l'id
  * @param req
