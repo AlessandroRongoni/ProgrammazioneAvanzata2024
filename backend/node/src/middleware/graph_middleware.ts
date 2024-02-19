@@ -485,3 +485,54 @@ export const checkValidationAnswer = (req: Request, res: Response, next: NextFun
     }
 };
 
+export const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
+    const { dateFilter } = req.body;
+    let startDate, endDate;
+
+    // Controlla che le date siano stringhe
+    if (dateFilter?.from && typeof dateFilter.from !== 'string') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DateString);
+    }
+    if (dateFilter?.to && typeof dateFilter.to !== 'string') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DateString);
+    }
+
+    // Gestisce i casi in cui le date sono stringhe vuote convertendole in undefined
+    if (dateFilter?.from?.trim() !== '') {
+        startDate = new Date(dateFilter.from);
+    }
+    if (dateFilter?.to?.trim() !== '') {
+        endDate = new Date(dateFilter.to);
+    }
+
+    // Controlla la validità delle date convertite
+    if ((startDate && isNaN(startDate.getTime())) || (endDate && isNaN(endDate.getTime()))) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
+    }
+    
+    // Assicura che la data di inizio non sia successiva alla data di fine
+    if (startDate && endDate && startDate > endDate) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDateReverse);
+        
+    }
+
+    next();
+};
+
+export const validateStatus = (req: Request, res: Response, next: NextFunction) => {
+    const { status } = req.body;
+
+     // Verifica che status sia una stringa
+     if (status && typeof status !== 'string') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.StatusString);
+        
+    }
+
+    // Permette solo "accepted", "rejected", o una stringa vuota come valori validi per lo stato
+    if (status && status.trim() !== '' && status !== 'accepted' && status !== 'rejected') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.AllowStatus);
+    }
+
+
+    next();
+};
