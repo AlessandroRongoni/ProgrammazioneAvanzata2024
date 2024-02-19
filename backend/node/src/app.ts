@@ -8,11 +8,10 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure} from "./middleware/graph_middleware";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer} from "./middleware/graph_middleware";
 import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
-import { calculateCost } from "./utils/graph_utils";
-import Graph = require("node-dijkstra")
+import Graph from "node-dijkstra";
 
 
 dotenv.config();
@@ -122,6 +121,7 @@ app.get("/updates/graph/pending", checkJwt, checkGraphExistence, (req: Request, 
 
 /** 
  * Rotta per visualizzare gli aggiornamenti pendenti per un utente
+ * JWT necessario
 */
 app.get("/updates/user/pending", checkJwt,(req: Request, res: Response) => {
   viewPendingUpdatesForUser(req, res);
@@ -143,7 +143,7 @@ app.get("/updates/user/pending", checkJwt,(req: Request, res: Response) => {
  *        ]
  * }
   */
-app.put("/update/answer", jsonParser, checkJwt,checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending,checkUpdatesAreDifferent, (req: Request, res: Response) => {
+app.put("/update/answer", jsonParser, checkJwt,checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending,checkUpdatesAreDifferent, checkValidationAnswer, (req: Request, res: Response) => {
   answerUpdate(req,res);
 });
 
@@ -187,14 +187,31 @@ app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
   viewFilteredUpdateHistory(req,res);
 });
 
+/**
+ * Rotta per ottenere gli aggiornamenti in formato
+ * {
+  "graphId": 1,
+  "format": "json" // Valori possibili: "json", "csv", "xml"
+}
+ */
 app.get("/updates/format", checkJwt, (req: Request, res: Response) => {
   getUpdatesInFormat(req,res);
 });
 
+/**
+ * Rotta per simulare un grafo
+ * {
+  "graphId": 1,
+  "startNode": "A",
+  "endNode": "B"
+}
+ */
 app.post("/simulate", jsonParser, checkJwt, (req: Request, res: Response) => {
   simulateGraph(req, res);
 });
 
+
+// Start the server
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);
 });

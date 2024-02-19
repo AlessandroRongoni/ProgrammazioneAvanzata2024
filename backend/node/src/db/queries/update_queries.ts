@@ -194,11 +194,11 @@ export async function filterUpdates(graphId: number, startDate?: Date, endDate?:
 
     // Gestisce il filtro per le date
     if (startDate && endDate) {
-        whereCondition['createdat'] = { [Op.between]: [startDate, endDate] }; // Assicurati di usare 'createdAt' se è il nome corretto della colonna
+        whereCondition['updatedat'] = { [Op.between]: [startDate, endDate] }; // Assicurati di usare 'createdAt' se è il nome corretto della colonna
     } else if (startDate) {
-        whereCondition['createdat'] = { [Op.gte]: startDate };
+        whereCondition['updatedat'] = { [Op.gte]: startDate };
     } else if (endDate) {
-        whereCondition['createdat'] = { [Op.lte]: endDate };
+        whereCondition['updatedat'] = { [Op.lte]: endDate };
     }
 
     // Gestisce il filtro per lo stato dell'approvazione

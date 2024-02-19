@@ -5,11 +5,12 @@ import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
 import { approveEdgeUpdate, filterUpdates, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByReceiverInPending, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
 import { updateEdgeWeightInDB } from '../db/queries/update_queries';
-import { findEdgeById, findGraphById } from '../db/queries/graph_queries';
+import { findEdgeById, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
 
 
 var statusMessage: MessageFactory = new MessageFactory();
 const ALPHA = parseFloat(process.env.ALPHA || "0.8"); 
+const update_cost_per_edge = parseFloat(process.env.UPDATE_COST_EDGES || "0.025");
 /**
  * Updates the weight of an edge. (DA FINIRE)
  * 
@@ -38,23 +39,24 @@ const ALPHA = parseFloat(process.env.ALPHA || "0.8");
 }
 */
 export async function updateEdgeWeight(req: Request, res: Response) {
+    //Vedo chi fa la richiesta
+    const jwtUserEmail = getJwtEmail(req);
+    const updates = req.body.updates;
     try {
-        //Vedo chi fa la richiesta
-        const jwtUserEmail = getJwtEmail(req);
         //trovo l'utente che fa la richiesta per usare il suo id
         const requester = await findUser(jwtUserEmail); // Trova l'utente che ha fatto la richiesta
         const graph = await findGraphById(req.body.graphId); // Trova il grafo dal database
         //verifico se l'utente che ha fatto la richiesta è il proprietario del grafo
+
         if (requester[0].dataValues.user_id === graph.user_id) {
             //se è il proprietario del grafo
-            for (let i = 0; i < req.body.updates.length; i++) {
+            for (let i = 0; i < updates.length; i++) {
                 
                 const edge = await findEdgeById(req.body.updates[i].edgeId);
                 const newWeight = req.body.updates[i].newWeight;
                 const oldWeight = edge.weight;
                 //calcolo il nuovo peso con la formula di aggiornamento
                 const updatedWeight = ALPHA * oldWeight + (1 - ALPHA) * newWeight;
-                
                 //aggiorno il peso dell'arco nel db
                 await updateEdgeWeightInDB(edge.edge_id, updatedWeight);
                 //creo una row upgrade con richiedente e ricevitore lo stesso autore, da vedere se mettere il peso aggiornato o il peso nuovo richiesto
@@ -63,6 +65,7 @@ export async function updateEdgeWeight(req: Request, res: Response) {
                 await approveEdgeUpdate(richiestaAggiornamento.update_id);
                 
             }
+            
             statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
         } else {
             //se non è il proprietario del grafo crea una richiesta in pending
@@ -80,6 +83,10 @@ export async function updateEdgeWeight(req: Request, res: Response) {
     } catch (error) {
         console.log("Sono nell'errore")
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }finally{
+        const totalEdges = updates.length;
+        const costoUpgrade = totalEdges * update_cost_per_edge;
+        await subtractTokensByEmail(jwtUserEmail, costoUpgrade );
     }
 };
 
