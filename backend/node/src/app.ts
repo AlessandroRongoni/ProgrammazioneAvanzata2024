@@ -8,9 +8,11 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent} from "./middleware/graph_middleware";
-import {getAllGraphs, getGraphEdges } from "./controllers/graphController";
-import { answerUpdate, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer} from "./middleware/graph_middleware";
+import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
+import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
+import Graph from "node-dijkstra";
+
 
 dotenv.config();
 const app = express();
@@ -60,10 +62,26 @@ app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkToken
 
 /**
  * Rotta per la creazione di un grafo
+ * MIGLIROAMENTO DEI MIDDLE E NON FUNZIONA BENE
+ * 
+{
+  "name": "Mio Grafo",
+  "description": "Descrizione del grafo",
+  "nodes": ["A", "B", "C"],
+  "edges": [
+    {"startNode": "A", "endNode": "B", "weight": 5},
+    {"startNode": "B", "endNode": "C", "weight": 3}
+  ]
+}
  */
-app.post("/graph", checkJwt, checkUserTokensCreate, (req: Request, res: Response) => {
-
+app.post("/graph", jsonParser, checkJwt, validateGraphStructure, checkUserTokensCreate, (req: Request, res: Response) => {
+  createGraph(req,res);
 });
+
+app.post("/graph/calculatecost", jsonParser, checkJwt, (req: Request, res: Response) =>{
+  CalculatePath(req,res);
+})
+
 
 
 /**
@@ -103,6 +121,7 @@ app.get("/updates/graph/pending", checkJwt, checkGraphExistence, (req: Request, 
 
 /** 
  * Rotta per visualizzare gli aggiornamenti pendenti per un utente
+ * JWT necessario
 */
 app.get("/updates/user/pending", checkJwt,(req: Request, res: Response) => {
   viewPendingUpdatesForUser(req, res);
@@ -124,7 +143,7 @@ app.get("/updates/user/pending", checkJwt,(req: Request, res: Response) => {
  *        ]
  * }
   */
-app.put("/update/answer", jsonParser, checkJwt,checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending,checkUpdatesAreDifferent, (req: Request, res: Response) => {
+app.put("/update/answer", jsonParser, checkJwt,checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending,checkUpdatesAreDifferent, checkValidationAnswer, (req: Request, res: Response) => {
   answerUpdate(req,res);
 });
 
@@ -161,13 +180,40 @@ app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdge
   },
   "status": "accepted" // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
   }
+
+  DEVO CREARE I MIDDLEWARE PER IL FILTRO DEL HISTORY
 */
 app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
   viewFilteredUpdateHistory(req,res);
 });
 
+/**
+ * Rotta per ottenere gli aggiornamenti in formato
+ * {
+  "graphId": 1,
+  "format": "json" // Valori possibili: "json", "csv", "xml"
+}
+ */
+app.get("/updates/format", checkJwt, (req: Request, res: Response) => {
+  getUpdatesInFormat(req,res);
+});
+
+/**
+ * Rotta per simulare un grafo
+ * {
+  "graphId": 1,
+  "startNode": "A",
+  "endNode": "B"
+}
+ */
+app.post("/simulate", jsonParser, checkJwt, (req: Request, res: Response) => {
+  simulateGraph(req, res);
+});
 
 
+// Start the server
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);
 });
+
+

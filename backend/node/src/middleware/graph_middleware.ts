@@ -252,8 +252,7 @@ export const checkUserTokensUpdate = async (req: Request, res: Response, next: N
         const totalEdges = updates.length;
         const costoUpgrade = totalEdges * 0.025;
         if (user[0].dataValues.tokens < costoUpgrade) {
-            res.status(200).json({ message: "Costo operazione: " + costoUpgrade + ", tokens utente: " + user[0].dataValues.tokens + " - Non hai abbastanza tokens per fare l'upgrade" });
-           
+            return res.status(200).json({ message: "Costo operazione: " + costoUpgrade + ", tokens utente: " + user[0].dataValues.tokens + " - Non hai abbastanza tokens per fare l'upgrade" });
         }
         await subtractTokensByEmail(jwtUserEmail, costoUpgrade);
         next();
@@ -356,6 +355,30 @@ export const checkUpdatesAreDifferent = async (req: Request, res: Response, next
                 if(request[i].updateId === request[j].updateId){
                     return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateNotDifferent);
                 }
+            }
+        }
+        next();
+    } catch (error) {
+        console.error(error);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+};
+
+
+/** 
+ * Validazione delle risposte che possono solo essere true o false
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+
+export const checkValidationAnswer = (req: Request, res: Response, next: NextFunction) => {
+    const {request} = req.body;
+    try {
+        for(let i = 0; i < request.length; i++){
+            if(request[i].answer !== true && request[i].answer !== false){
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAnswerValidation);
             }
         }
         next();

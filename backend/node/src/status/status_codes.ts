@@ -64,6 +64,7 @@ export enum Messages400 {
     PasswordNotMatch = "La password inserita non corrisponde a quella nel DB.",
     UpdateNotDifferent = "Non puoi accettare o rifiutare la stessa richiesta di aggiornamento.",
     NoUpdates = "Non ci sono aggiornamenti per questo grafo.",
+    UpdateAnswerValidation = "La risposta deve essere true o false."
 }
 
 export enum Messages500 {
