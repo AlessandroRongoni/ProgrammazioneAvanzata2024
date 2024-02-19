@@ -24,18 +24,20 @@ export enum Messages300 {
 }
 export enum Messages400 {
     NoAuthHeader = "Bad Request - No authorization header",
+    UnconnectedNodes = "Nodi non connessi",
     NoTokenJWT = "Bad Request - No JWT",
     InvalidTokenJWT = "Forbidden - Invalid JWT (the key is incorrect)",
     UpdateRequired = "Il valore dell'UpdateId deve essere specificato e diverso da 0",
+    NotReciprocal = "Gli archi non devono essere reciproci",
     UnauthorizedUser = "Non è possibile creare l\'utente perchè è già esistente",
     Unauthorized = "Questo utente non ha le autorizzazioni necessarie a svolgere l\'operazione", //quando uno user prova a fare refillToken
     UserNotFound = "Non è possibile trovare l\'utente specificato",
     GraphNotFound = "Non è possibile trovare il grafo specificato",
     EdgeNotFound = "Non è possibile trovare l'arco specificato",
     GraphValidation = "La struttura del grafo non è valida",
-    WeightValidation = "Nuovo peso inserito non valido",
+    WeightValidation = "Peso inserito non valido",
     EdgeNotInn = "L'arco non appartiene al grafo",
-    NoNodes = "Deve essere presente ALMENO un nodo",
+    NoNodes = "Devono essere presenti ALMENO due nodi.",
     NoEdges = "Devono essere presenti anche gli archi",
     NoTokens = "Tokens insufficienti per creare il grafo, contattare l\'admin",
     InvalidToken = "I Token inseriti devono essere dei valori double compresi tra 0 e 1000",
@@ -67,11 +69,13 @@ export enum Messages400 {
     UpdateAnswerValidation = "La risposta deve essere true o false.",
     RequestNotFound = "Body non valido, inserisci almeno l'ID Upgrade di una richiesta.",
     GraphNameNotUnique = "Esiste già un grafo con questo nome.",
-    DescriptionValidation = "La descrizione non può essere più lunga di 250 caratteri.",
+    DescriptionValidation = "La descrizione non può essere più lunga di 150 caratteri.",
     DuplicateEdges = "Non puoi inserire archi duplicati.",
     DuplicateNodes = "Non puoi inserire nodi duplicati.",
     NotACorrectNodes = "Il valore inserito nei nodi deve essere una stringa e non può essere vuoto.",
     NotCorrispondingNodes = "Non puoi inserire archi con nodi non presenti nel grafo.",
+    NameValidaton = "Il nome non può essere più lungo di 50 caratteri e più corto di un carattere.",
+    BadFormat= "Il formato del body non è corretto. Controlla bene i dati inseriti.",
     NotACorrectEdge = "Il valore inserito deve essere una stringa e non può essere vuoto. Inoltre, nodo di partenza e quello di arrivo non possono avere lo stesso nome.",
 }
 
