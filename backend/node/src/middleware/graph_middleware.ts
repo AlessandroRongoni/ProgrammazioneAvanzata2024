@@ -15,30 +15,50 @@ var update_cost_per_edge = parseFloat(process.env.UPDATE_COST_PER_EDGE!) || 0.02
 var statusMessage: MessageFactory = new MessageFactory();
 
 
-//Controlla se l'utente autenticato ha abbastanza token per completare l'operazione SERGY MODIFICA
+
+/**
+ * Middleware function to check user tokens before creating a graph.
+ * 
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ * @returns A Promise that resolves to void.
+ */
 export const checkUserTokensCreate = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let jwtUserEmail = getJwtEmail(req);
+        const jwtUserEmail = getJwtEmail(req);
+
         if (!jwtUserEmail) {
             return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoAuthHeader);
         }
+
         const user = await findUser(jwtUserEmail);
         if (!user) {
             return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
         }
-        const totalNodes = req.body.nodes.length;
-        const totalEdges = req.body.edges.length;
-        const totalCost = calculateCost(totalNodes, totalEdges); 
-        if (user.tokens <= 0 || user.tokens < totalCost) {
+
+        // Calcola il costo totale basato sui nodi e sugli archi forniti nella richiesta
+        const totalCost = calculateCost(req.body.nodes.length, req.body.edges.length);
+
+        if (user[0].dataValues.tokens < totalCost) {
             return statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokens);
         }
+
         next();
     } catch (error) {
-       return  statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
-//Valida i pesi degli archi inviati nella richiesta. Verifica che l'array edges sia presente, che sia un array, e che tutti gli archi abbiano pesi validi (numerici e non negativi)
+
+/**
+ * Middleware per la validazione dell'aggiornamento dei pesi degli archi.
+ * 
+ * @param req - Oggetto della richiesta HTTP.
+ * @param res - Oggetto della risposta HTTP.
+ * @param next - Funzione per passare al middleware successivo.
+ * @returns Una risposta HTTP con uno stato specifico in caso di errore.
+ */
 export const validateEdgeWeightsUpdate = async (req: Request, res: Response, next: NextFunction) => {
     const new_weight = req.body.newWeight;
     try{
@@ -51,8 +71,14 @@ export const validateEdgeWeightsUpdate = async (req: Request, res: Response, nex
     }
 };
 
-
-//RICORDATI SERGY DI AGGIUNGERE IL MIDDLEWARE PER LA CREAZIONE DEI GRAFI
+/**
+ * Validates the creation of edge weights.
+ * 
+ * @param req - The request object.
+ * @param res - The response object.
+ * @param next - The next function.
+ * @returns If the edge weights are invalid, returns a bad request status message. Otherwise, calls the next function.
+ */
 export const validateEdgeWeightsCreation = async (req: Request, res: Response, next: NextFunction) => {
     const edges = req.body;
 
@@ -65,123 +91,98 @@ export const validateEdgeWeightsCreation = async (req: Request, res: Response, n
 /**
  * Middleware per validare la struttura di un grafo.
  * Verifica la presenza e la correttezza dei nodi, degli archi e dei pesi degli archi.
+ * @param req
+ * @param res
+ * @param next
+ * @returns
  */
 export const validateGraphStructure = async (req: Request, res: Response, next: NextFunction) => {
     const { nodes, edges, name, description } = req.body;
-    try{
-        console.log("Sono nel middleware")
-        if (typeof name !== 'string' || name.trim() === '' || name.length > 30) {
-            console.log("Sono nell'if name")
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphValidation);
-        }
-        console.log("Sono passato name")
-        // Controllo che la descrizione sia una stringa e non superi i 250 caratteri
-        if (typeof description !== 'string' || description.length > 250) {
-            console.log("Sono nell'if description")
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionValidation);
-        }
-        console.log("Sono passato description")
-        // Verifica l'unicità del nome nel database
-        const existingGraph = await findGraphByName(name);
-        console.log("Sono passato existingGraph")
-        console.log(existingGraph)
-        if (existingGraph.length !== 0) {
-            console.log("Sono nell'if existingGraph")
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphNameNotUnique);
-        }
-        console.log("Sono passato if existingGraph")
-        // Verifica la presenza dei nodi e degli archi
-        if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
-            console.log("Sono nell'if nodes")
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoNodes);
-        }
-    
-        if (!edges || !Array.isArray(edges)) {
-            console.log("Sono nell'if edges")
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoEdges);
-        }
-        // Verifica che non ci siano nodi duplicati
-        for(let i = 0; i < nodes.length; i++){
-            console.log("Sono nel for")
-            const node = nodes[i];
-            if (typeof node !== 'string' || node.trim() === '') {
-                console.log("Sono nell'if nodes")
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotACorrectNodes);
-            }
-            console.log("Sono passato nodes")
-            if (nodes.indexOf(node) !== i) {
-                console.log("Sono nell'if nodes.indexOf")
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DuplicateNodes);
-            }
-            console.log("Sono passato nodes.indexOf")
-        }
-        //Verifica che gli startNode e gli endNode abbiamo nomi che corrispondono a nodi esistenti
-        for (let i = 0; i < edges.length; i++) {
-            console.log("Sono nel for")
-            const edge = edges[i];
-            if (nodes.indexOf(edge.startNode) === -1 || nodes.indexOf(edge.endNode) === -1) {
-                console.log("Sono nell'if nodes.indexOf")
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotCorrispondingNodes);
-            }
-            console.log("Sono passato nodes.indexOf")
-        }
-        // Verifica la validità dei pesi degli archi
-        console.log("Sono passato edges")
-        for (let i = 0; i < edges.length; i++) {
-            console.log("Sono nel for")
-            const edge = edges[i];
-            if (typeof edge.weight !== 'number' || edge.weight <= 0) {
-                console.log("Sono nell'if weight validation")
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
-            }
-            if (typeof edge.startNode !== 'string' || edge.startNode.length == 0||typeof edge.endNode !== 'string' || edge.endNode.length == 0 || edge.startNode === edge.endNode) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotACorrectEdge);
-            }
-        }
-        // Verifica che non ci siano archi duplicati A-->B e di nuovo A-->B
-        console.log("Sono passato invalidEdges")
-        const edgeSet = new Set();
-        for (const edge of edges) {
-            console.log("Sono nel for")
-            const edgeString = `${edge.startNode}-${edge.endNode}`;
-            if (edgeSet.has(edgeString)) {
-                console.log("Sono nell'if edgeSet")
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DuplicateEdges);
-            }
-            console.log("Sono passato edgeSet")
-            edgeSet.add(edgeString);
-        }
-        //Verifica che non ci sono archi reciproci
-        for (let i = 0; i < edges.length; i++) {
-            console.log("Sono nel for")
-            const edge = edges[i];
-            for (let j = i + 1; j < edges.length; j++) {
-                console.log("Sono nel for")
-                const otherEdge = edges[j];
-                if (edge.startNode === otherEdge.endNode && edge.endNode === otherEdge.startNode) {
-                    console.log("Sono nell'if reciproci")
-                    return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotACorrectEdge);
-                }
-                console.log("Sono passato reciproci")
-            }
-        }
-        //verifica che ci siano n-1 archi, dove n è il numero di nodi
-        if(edges.length !== nodes.length - 1){
-            console.log("Sono nell'if edges.length")
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphValidation);
-        }
-        console.log("Sono passato il for")
-        console.log("vado avanti")
-        next();
 
-    }catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    try {
+        // Controlli sul nome e la descrizione con messaggi specifici
+        if (typeof name !== 'string' || name.trim() === '') {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "Il nome del grafo è richiesto e non può essere vuoto.");
+        }
+        if (name.length > 50) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "Il nome del grafo non può superare i 50 caratteri.");
+        }
+
+        if (typeof description !== 'string') {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "La descrizione deve essere una stringa.");
+        }
+        if (description.length > 150) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "La descrizione non può superare i 150 caratteri.");
+        }
+
+        // Verifica l'unicità del nome nel database con messaggio specifico
+        const existingGraph = await findGraphByName(name);
+        if (existingGraph.length !== 0) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, `Il nome del grafo '${name}' è già in uso.`);
+        }
+
+        // Controlli sui nodi
+        if (!Array.isArray(nodes)) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "I nodi devono essere forniti in un array.");
+        }
+        if (nodes.length === 0) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "L'array dei nodi non può essere vuoto.");
+        }
+        if (new Set(nodes).size !== nodes.length) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "Sono stati rilevati nodi duplicati nell'array dei nodi.");
+        }
+
+        // Controlli sugli archi
+        if (!Array.isArray(edges) || edges.length === 0) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "Gli archi devono essere forniti in un array non vuoto.");
+        }
+
+        const nodeSet = new Set(nodes);
+        const edgeSet = new Set();
+        const connectedNodes = new Set(); // Utilizzato per verificare che tutti i nodi siano collegati
+
+        for (const edge of edges) {
+            const { startNode, endNode, weight } = edge;
+
+            // Controllo per nodi non definiti negli archi
+            if (!nodeSet.has(startNode) || !nodeSet.has(endNode)) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, `L'arco contiene nodi non definiti: '${startNode}' o '${endNode}' non sono presenti nell'elenco dei nodi.`);
+            }
+
+            if (!startNode || !endNode || startNode === endNode || typeof weight !== 'number' || weight <= 0) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, `Arco non valido tra '${startNode}' e '${endNode}': verifica che entrambi i nodi esistano, siano diversi e il peso sia valido.`);
+            }
+
+            const edgeString = `${startNode}->${endNode}`;
+            const reciprocalEdgeString = `${endNode}->${startNode}`;
+            if (edgeSet.has(reciprocalEdgeString)) {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotReciprocal);
+            }
+
+            edgeSet.add(edgeString);
+            connectedNodes.add(startNode);
+            connectedNodes.add(endNode);
+        }
+
+        // Verifica che tutti i nodi siano collegati
+        if (nodeSet.size !== connectedNodes.size) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnconnectedNodes);
+        }
+
+        next();
+    } catch (error) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
 
 /**
- * Controllo per vedere se un arco appartiene al grafo passato nel body (DA RIVEDERE)
+ * Middleware per verificare l'appartenenza di un arco a un grafo.
+ * 
+ * @param req - Oggetto della richiesta HTTP.
+ * @param res - Oggetto della risposta HTTP.
+ * @param next - Funzione per passare al middleware successivo.
+ * @returns Una Promise che rappresenta l'esecuzione asincrona del middleware.
  */
 export const checkEdgeBelonging = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -230,21 +231,23 @@ export const checkGraphExistence = async (req: Request, res: Response, next: Nex
  * @returns
  */
 export const checkUpdateExistence = async (req: Request, res: Response, next: NextFunction) => {
-    const updateId = req.body.updateId;
-    try {
-        if (!updateId) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateRequired);
-        }
-        if (updateId < 0 || isNaN(updateId)) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber);
+    const updateId = Number(req.body.updateId); // Converte in numero, NaN se non è convertibile
 
+    try {
+        // Controlla se updateId non è un numero o è minore di 1 (consentendo solo valori positivi validi)
+        if (isNaN(updateId) || updateId < 1) {
+            return statusMessage.getStatusMessage(
+                CustomStatusCodes.BAD_REQUEST,
+                res,
+                isNaN(updateId) ? Messages400.NotANumber : Messages400.UpdateRequired
+            );
         }
         next();
     } catch (error) {
-        console.error(error);
         return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
+
 
 /** 
  * Controllo se l'Update ha lo stato approved NULL

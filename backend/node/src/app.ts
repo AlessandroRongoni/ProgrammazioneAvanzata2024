@@ -1,5 +1,5 @@
 var express = require('express');
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 import dotenv from 'dotenv';
@@ -22,6 +22,19 @@ const host = process.env.HOST;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+// Middleware per il parsing del JSON
+app.use(express.json());
+
+// Middleware per la gestione degli errori di parsing JSON
+app.use((err:Error, req:Request, res:Response, next:NextFunction) => {
+    if (err instanceof SyntaxError && 'body' in err) {
+        console.error('Errore di parsing JSON!');
+        return res.status(400).send({ message: 'JSON malformato!' }); // Messaggio di errore personalizzato
+    }
+    // Passa al prossimo middleware/gestore di errori se l'errore non è un errore di parsing JSON
+    next(err);
+});
+
 
 /**
  * Home
