@@ -66,3 +66,38 @@ export function calculatePathUtility(graphData: { [key: string]: { [key: string]
 export function getUnsupportedFormatMessage(format: string, allowedFormats: string[]): string {
   return Messages400.UnsupportedFormat.replace('{{format}}', format).replace('{{allowedFormats}}', allowedFormats.join(', '));
 }
+
+// Funzione helper per generare messaggi di errore personalizzati per nodi non definiti
+export function generateUndefinedNodesErrorMessage(startNode: string, endNode: string, nodeSet: Set<string>): string {
+  let errorMessage = "L'arco contiene nodi non definiti: ";
+  const undefinedNodes = [];
+  
+  if (!nodeSet.has(startNode)) {
+      undefinedNodes.push(`'${startNode}'`);
+  }
+  if (!nodeSet.has(endNode)) {
+      undefinedNodes.push(`'${endNode}'`);
+  }
+  
+  errorMessage += undefinedNodes.join(" e ") + " non sono presenti nell'elenco dei nodi.";
+  return errorMessage;
+}
+
+export function validateEdgeErrorMessage(startNode: string, endNode: string, weight: number): string | null {
+  if (!startNode || !endNode) {
+      return "Sia il nodo di partenza che quello di arrivo devono essere specificati.";
+  }
+  if (startNode === endNode) {
+      return "Il nodo di partenza e quello di arrivo non possono essere lo stesso.";
+  }
+  if (typeof weight !== 'number' || weight <= 0) {
+      return "Il peso dell'arco deve essere un numero maggiore di zero.";
+  }
+  // Se tutti i controlli sono passati, l'arco è valido
+  return null;
+}
+
+// Funzione helper per generare un messaggio di errore per nomi di grafi già in uso
+export function generateGraphNameInUseErrorMessage(graphName: string): string {
+  return `Il nome del grafo '${graphName}' è già in uso.`;
+}

@@ -86,12 +86,23 @@ export enum Messages400 {
     NameValidaton = "Il nome non può essere più lungo di 50 caratteri e più corto di un carattere.",
     BadFormat= "Il formato del body non è corretto. Controlla bene i dati inseriti.",
     NotACorrectEdge = "Il valore inserito deve essere una stringa e non può essere vuoto. Inoltre, nodo di partenza e quello di arrivo non possono avere lo stesso nome.",
+    NoGraphName = "Il nome del grafo è richiesto e non può essere vuoto.",
+    GraphLengthLimit = "Il nome del grafo non può superare i 50 caratteri.",
+    DescriptionString = "La descrizione deve essere una stringa.",
+    DescriptionLenghtLimit = "La descrizione non può superare i 150 caratteri.",
+    NodeArray = "L'array dei nodi non può essere vuoto.",
+    DuplicateNode = "Sono stati rilevati nodi duplicati nell'array dei nodi.",
+    EdgeArray = "Gli archi devono essere forniti in un array non vuoto.",
+    StardEndNodeCoincide = "Lo startNode non può coincidere con l'endNode."
+
+    
+
 }
 
 export enum Messages500 {
     ImpossibileCreation = "Non è possibile creare il grafo.",
     InternalServerError = "Errore interno al server.",
-    PdfUnable = "Impossibile generare file pdf.",
+    Unable = "Impossibile generare file pdf/csv/xml/JSON",
     ErrorSimulation = "Errore durante la simulazione"
 
 }

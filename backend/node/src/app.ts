@@ -8,7 +8,7 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateDateRange, validateStatus, validateNodes, checkEdgesExistence, checkNodesExistence, validateFormat, validateSimulationParameters} from "./middleware/graph_middleware";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateDateRange, validateStatus, validateNodes, checkEdgesExistence, checkNodesExistence, validateFormat, validateSimulationParameters, validateStartEndNodes} from "./middleware/graph_middleware";
 import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 import Graph from "node-dijkstra";
@@ -220,7 +220,7 @@ app.get("/updates/format", checkJwt, checkGraphExistence, validateDateRange, val
   "endNode": "B"
 }
  */
-app.post("/simulate", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, checkEdgesExistence, validateSimulationParameters, (req: Request, res: Response) => {
+app.post("/simulate", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, validateStartEndNodes, checkEdgesExistence, validateSimulationParameters, (req: Request, res: Response) => {
   simulateGraph(req, res);
 });
 

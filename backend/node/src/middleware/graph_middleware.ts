@@ -6,7 +6,7 @@ import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
 import {findUpdateById } from '../db/queries/update_queries';
 import dotenv = require('dotenv');
-import { calculateCost, getUnsupportedFormatMessage } from '../utils/graph_utils';
+import { calculateCost, getUnsupportedFormatMessage, generateUndefinedNodesErrorMessage, validateEdgeErrorMessage, generateGraphNameInUseErrorMessage } from '../utils/graph_utils';
 import { GraphModel } from '../models/GraphModel';
 import { stat } from 'fs';
 import { EdgeModel } from '../models/EdgeModel';
@@ -102,39 +102,40 @@ export const validateGraphStructure = async (req: Request, res: Response, next: 
     try {
         // Controlli sul nome e la descrizione con messaggi specifici
         if (typeof name !== 'string' || name.trim() === '') {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "Il nome del grafo è richiesto e non può essere vuoto.");
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoGraphName);
         }
         if (name.length > 50) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "Il nome del grafo non può superare i 50 caratteri.");
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphLengthLimit);
         }
 
         if (typeof description !== 'string') {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "La descrizione deve essere una stringa.");
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionString);
         }
         if (description.length > 150) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "La descrizione non può superare i 150 caratteri.");
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionLenghtLimit);
         }
 
         // Verifica l'unicità del nome nel database con messaggio specifico
         const existingGraph = await findGraphByName(name);
-        if (existingGraph.length !== 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, `Il nome del grafo '${name}' è già in uso.`);
+        if (existingGraph && existingGraph.length > 0) {
+            const errorMessage = generateGraphNameInUseErrorMessage(name);
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, errorMessage);
         }
 
         // Controlli sui nodi
         if (!Array.isArray(nodes)) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "I nodi devono essere forniti in un array.");
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NodeArray);
         }
         if (nodes.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "L'array dei nodi non può essere vuoto.");
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NodeArray);
         }
         if (new Set(nodes).size !== nodes.length) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "Sono stati rilevati nodi duplicati nell'array dei nodi.");
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DuplicateNode);
         }
 
         // Controlli sugli archi
         if (!Array.isArray(edges) || edges.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, "Gli archi devono essere forniti in un array non vuoto.");
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeArray);
         }
 
         const nodeSet = new Set(nodes);
@@ -146,11 +147,14 @@ export const validateGraphStructure = async (req: Request, res: Response, next: 
 
             // Controllo per nodi non definiti negli archi
             if (!nodeSet.has(startNode) || !nodeSet.has(endNode)) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, `L'arco contiene nodi non definiti: '${startNode}' o '${endNode}' non sono presenti nell'elenco dei nodi.`);
+                const errorMessage = generateUndefinedNodesErrorMessage(startNode, endNode, nodeSet);
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, errorMessage)
             }
 
             if (!startNode || !endNode || startNode === endNode || typeof weight !== 'number' || weight <= 0) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, `Arco non valido tra '${startNode}' e '${endNode}': verifica che entrambi i nodi esistano, siano diversi e il peso sia valido.`);
+                const errorMessage = validateEdgeErrorMessage(startNode, endNode, weight);
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, errorMessage!);
+
             }
 
             const edgeString = `${startNode}->${endNode}`;
@@ -190,7 +194,7 @@ export const checkEdgeBelonging = async (req: Request, res: Response, next: Next
         const edgeId = req.body.edgeId;
         const edge = await findEdgeById(edgeId);
         if (!edge) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotFound);
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
         }
         if (edge.graph_id != graphId) {
             return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
@@ -353,7 +357,7 @@ export const checkAllEdgesBelongingAndCorrectWeights = async (req: Request, res:
             console.log("Sono nel for")
             const edge = await findEdgeById(updates[i].edgeId);
             if (!edge) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotFound);
+                return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
             }
             if (edge.graph_id != graphId) {
                 return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
@@ -410,12 +414,12 @@ export const checkUpdatesExistence = async (req: Request, res: Response, next: N
     const {request} = req.body;
     try {
         if (!request || request.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.RequestNotFound);
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.RequestNotFound);
         }
         for(let i = 0; i < request.length; i++){
             const update = await findUpdateById(request[i].updateId);
             if (!update) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateNotFound);
+                return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateNotFound);
             }
             if (update.update_id <= 0 || isNaN(update.update_id)) {
                 return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber);
@@ -622,4 +626,15 @@ export const validateSimulationParameters = (req: Request, res: Response, next: 
 
 
     next();
+};
+
+export const validateStartEndNodes = (req: Request, res: Response, next: NextFunction) => {
+    const { startNode, endNode } = req.body;
+
+    // Controlla se lo startNode è uguale all'endNode
+    if (startNode === endNode) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.StardEndNodeCoincide);
+    }
+
+    next(); // Continua al prossimo middleware se non ci sono errori
 };

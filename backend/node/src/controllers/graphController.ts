@@ -151,7 +151,7 @@ interface PathResult {
 
   // Modifica della funzione simulateGraph per utilizzare calculatePathUtility
  // Modifica della funzione simulateGraph per utilizzare calculatePathUtility
-export const simulateGraph = async (req: Request, res: Response) => {
+ export const simulateGraph = async (req: Request, res: Response) => {
     const { graphId, edgeId, startNode, endNode, startWeight, endWeight, step } = req.body;
 
     try {
@@ -160,11 +160,14 @@ export const simulateGraph = async (req: Request, res: Response) => {
         let bestResult: PathResult = { cost: Infinity, configuration: null, path: [] };
 
         for (let weight = startWeight; weight <= endWeight; weight += step) {
+            const finalWeight = (weight + step > endWeight) ? endWeight : weight;
+            
             const simulatedEdges = edges.map((edge: any) => {
-                if (edge.edge_id === edgeId) {
-                    return { ...edge, weight };
+                const simpleEdge = edge.get ? edge.get({ plain: true }) : edge; // Gestisce sia oggetti Sequelize che normali oggetti JS
+                if (simpleEdge.edge_id === edgeId) {
+                    return { ...simpleEdge, weight }; // Aggiorna il peso per l'arco specificato
                 }
-                return edge;
+                return simpleEdge; // Restituisce l'arco non modificato per gli altri archi
             });
 
             const graphData = prepareGraphData(simulatedEdges);
@@ -176,6 +179,9 @@ export const simulateGraph = async (req: Request, res: Response) => {
                     bestResult = { cost: pathResult.cost, configuration: weight, path: pathResult.path };
                 }
             }
+             // Se il peso corrente è stato impostato a endWeight, termina il ciclo for
+            if (finalWeight === endWeight) break;
+            
         }
         res.json({ results, bestResult });
     } catch (error) {
