@@ -6,6 +6,7 @@ import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../sta
 import { approveEdgeUpdate, filterUpdates, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByReceiverInPending, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
 import { updateEdgeWeightInDB } from '../db/queries/update_queries';
 import { findEdgeById, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { saveAndRespondWithFile } from '../utils/fileGenerationService';
 
 
 var statusMessage: MessageFactory = new MessageFactory();
@@ -192,53 +193,72 @@ export const answerUpdate = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * Ottiene gli aggiornamenti nel formato specificato e li restituisce come risposta.
+ * @param req - L'oggetto di richiesta HTTP.
+ * @param res - L'oggetto di risposta HTTP.
+ * @returns La risposta HTTP con gli aggiornamenti nel formato specificato.
+ */
 export const getUpdatesInFormat = async (req: Request, res: Response) => {
     const { graphId, dateFilter: { from, to }, status, format } = req.body;
     const startDate = from ? new Date(from) : undefined;
     const endDate = to ? new Date(to) : undefined;
-
     try {
         const updates = await filterUpdates(graphId, startDate, endDate, status);
-        switch (format.toLowerCase()) {
-            case 'csv':
-                const { stringify } = require('csv-stringify/sync');
-                const csvData = stringify(updates, { header: true });
-                res.header('Content-Type', 'text/csv');
-                res.attachment('updates.csv');
-                return res.send(csvData);
-                break;
-            case 'pdf':
-                const PDFDocument = require('pdfkit');
-                const doc = new PDFDocument();
-                let pdfBuffers: Buffer[] = [];
-                doc.on('data', pdfBuffers.push.bind(pdfBuffers));
-                doc.on('end', () => {
-                    const pdfData = Buffer.concat(pdfBuffers);
-                    res.header('Content-Type', 'application/pdf');
-                    res.attachment('updates.pdf');
-                    return res.send(pdfData);
-                });
-            
-                // Qui dovresti aggiungere i dati nel documento PDF
-                updates.forEach((update: any) => {
-                    doc.text(JSON.stringify(update));
-                });
-            
-                doc.end();
-                break;
-            case 'xml':
-                const { js2xml } = require('xml-js');
-                const xmlData = js2xml({ updates }, { compact: true, spaces: 4 });
-                res.header('Content-Type', 'application/xml');
-                res.attachment('updates.xml');
-                return res.send(xmlData);
-                break;
-            case 'json':
-            default:
-                return res.json(updates);
-        }
+        await saveAndRespondWithFile(updates, format, res);
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
-        
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
     }
 };
+
+
+// export const getUpdatesInFormat = async (req: Request, res: Response) => {
+//     const { graphId, dateFilter: { from, to }, status, format } = req.body;
+//     const startDate = from ? new Date(from) : undefined;
+//     const endDate = to ? new Date(to) : undefined;
+
+//     try {
+//         const updates = await filterUpdates(graphId, startDate, endDate, status);
+//         switch (format.toLowerCase()) {
+//             case 'csv':
+//                 const { stringify } = require('csv-stringify/sync');
+//                 const csvData = stringify(updates, { header: true });
+//                 res.header('Content-Type', 'text/csv');
+//                 res.attachment('updates.csv');
+//                 return res.send(csvData);
+//                 break;
+//             case 'pdf':
+//                 const PDFDocument = require('pdfkit');
+//                 const doc = new PDFDocument();
+//                 let pdfBuffers: Buffer[] = [];
+//                 doc.on('data', pdfBuffers.push.bind(pdfBuffers));
+//                 doc.on('end', () => {
+//                     const pdfData = Buffer.concat(pdfBuffers);
+//                     res.header('Content-Type', 'application/pdf');
+//                     res.attachment('updates.pdf');
+//                     return res.send(pdfData);
+//                 });
+            
+//                 // Qui dovresti aggiungere i dati nel documento PDF
+//                 updates.forEach((update: any) => {
+//                     doc.text(JSON.stringify(update));
+//                 });
+            
+//                 doc.end();
+//                 break;
+//             case 'xml':
+//                 const { js2xml } = require('xml-js');
+//                 const xmlData = js2xml({ updates }, { compact: true, spaces: 4 });
+//                 res.header('Content-Type', 'application/xml');
+//                 res.attachment('updates.xml');
+//                 return res.send(xmlData);
+//                 break;
+//             case 'json':
+//             default:
+//                 return res.json(updates);
+//         }
+//     } catch (error) {
+//         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
+        
+//     }
+// };
