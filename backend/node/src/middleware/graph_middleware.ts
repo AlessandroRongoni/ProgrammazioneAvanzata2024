@@ -360,7 +360,11 @@ export const checkAllEdgesBelongingAndCorrectWeights = async (req: Request, res:
     const { graphId, updates } = req.body;
     try {
         for (let i = 0; i < updates.length; i++) {
-            console.log("Sono nel for")
+
+            if (typeof updates[i].edgeId !== 'number') {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber); // Assicurati di avere Messages400.EdgeIdValidation definito correttamente
+            }
+
             const edge = await findEdgeById(updates[i].edgeId);
             if (!edge) {
                 return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
@@ -429,6 +433,7 @@ export const checkUpdatesExistence = async (req: Request, res: Response, next: N
             }
             if (update.update_id <= 0 || isNaN(update.update_id)) {
                 return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber);
+                
     
             }
         }
@@ -529,6 +534,11 @@ export const checkValidationAnswer = (req: Request, res: Response, next: NextFun
     const {request} = req.body;
     try {
         for(let i = 0; i < request.length; i++){
+
+            if (typeof request[i].updateId !== 'number') {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber); // Assicurati di avere un messaggio di errore appropriato in Messages400
+            }
+
             if(request[i].answer !== true && request[i].answer !== false){
                 return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAnswerValidation);
             }

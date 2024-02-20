@@ -32,7 +32,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"adriano@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"raw": "{\n    \"email\":\"adriano@op.it\",\n    \"password\":\"Opti2024!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -60,7 +60,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"daniele@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"raw": "{\n    \"email\":\"daniele@op.it\",\n    \"password\":\"Opti2024!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -88,7 +88,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"password\":\"Opti2024!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -144,7 +144,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"prova@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"raw": "{\n    \"email\":\"prova@op.it\",\n    \"password\":\"Opti2024!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -176,7 +176,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InByb3ZhQG9wLml0IiwicGFzc3dvcmQiOiJvcHRpMjAyNCEiLCJpYXQiOjE3MDgxNzE3MjV9.GtDl-VHAqpOoPS9ZXhcdIfKj0Dc8T8XWYz13l_jImkI",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODQyODA3OH0.-EWUgqhqO-xQlzYJTtjZP2uP4skTNGYBUzrsC-H7K-U",
 							"type": "string"
 						}
 					]
@@ -298,7 +298,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\": 70\n}",
+					"raw": "{\n    \"graphId\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -432,7 +432,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODAxMzI0Nn0.iY_Gj5CUNZWVLZ8rXo1fR5rn-biHWkV2x4SDzPJYstA",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODQyODA3OH0.-EWUgqhqO-xQlzYJTtjZP2uP4skTNGYBUzrsC-H7K-U",
 							"type": "string"
 						}
 					]
@@ -479,7 +479,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n      \"request\":[\n                {\n                    \"updateId\": 41,\n                    \"answer\": false\n                },\n                {\n                    \"updateId\":42,\n                    \"answer\":true\n\n                }\n        ]\n }",
+					"raw": "{\n      \"request\":[\n                {\n                    \"updateId\": 13,\n                    \"answer\": 3\n                },\n                {\n                    \"updateId\":2,\n                    \"answer\":true\n\n                }\n        ]\n }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -518,7 +518,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\":1,\n    \"updates\":[\n        {\n            \"edgeId\":89,\n            \"newWeight\":3\n        }\n    ]\n}",
+					"raw": "{\n    \"graphId\":1,\n    \"updates\":[\n        {\n            \"edgeId\":1,\n            \"newWeight\":3\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -642,7 +642,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"graphId\":1001,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"A\"\r\n}",
+					"raw": "{\r\n  \"graphId\":2,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"C\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
