@@ -56,6 +56,33 @@ var statusMessage: MessageFactory = new MessageFactory();
     {"startNode": "L", "endNode": "P", "weight": 1.5}
   ]
 }
+
+{
+  "name": "Grafo Test Simulazione555",
+  "description": "Un grafo di test per la simulazione con un arco dal peso elevato.",
+  "nodes": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"],
+  "edges": [
+    {"startNode": "A", "endNode": "B", "weight": 1},
+    {"startNode": "B", "endNode": "C", "weight": 2},
+    {"startNode": "C", "endNode": "D", "weight": 2},
+    {"startNode": "D", "endNode": "E", "weight": 1},
+    {"startNode": "E", "endNode": "F", "weight": 3},
+    {"startNode": "F", "endNode": "G", "weight": 1},
+    {"startNode": "G", "endNode": "H", "weight": 2},
+    {"startNode": "H", "endNode": "A", "weight": 2},
+    {"startNode": "I", "endNode": "J", "weight": 1},
+    {"startNode": "J", "endNode": "K", "weight": 2},
+    {"startNode": "K", "endNode": "L", "weight": 1},
+    {"startNode": "L", "endNode": "M", "weight": 3},
+    {"startNode": "M", "endNode": "N", "weight": 1},
+    {"startNode": "N", "endNode": "O", "weight": 2},
+    {"startNode": "O", "endNode": "P", "weight": 2},
+    {"startNode": "P", "endNode": "I", "weight": 2},
+    {"startNode": "A", "endNode": "I", "weight": 50}, // Arco con peso esageratamente grosso
+    {"startNode": "E", "endNode": "M", "weight": 1},
+    {"startNode": "B", "endNode": "J", "weight": 1}
+  ]
+}
 */ 
 export const createGraph = async (req: Request, res: Response) => {
     // Accede direttamente ai dati della richiesta tramite req.body
@@ -71,12 +98,14 @@ export const createGraph = async (req: Request, res: Response) => {
             await addEdgesToGraph(graph.graph_id, edges[i].startNode, edges[i].endNode, edges[i].weight);
         }
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.ImpossibileCreation);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.ImpossibileCreation);
+
     }
     finally{
         await subtractTokensByEmail(jwtUserEmail, totalCost);
     }
-    statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelCreationSuccess);
+    return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelCreationSuccess);
+
 };
 
 
@@ -88,9 +117,11 @@ export const getAllGraphs = async (req: Request,res: Response) => {
     try {
         const graphs = await findAllGraphs();
         let message = JSON.parse(JSON.stringify({ graphs: graphs }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
+
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
     }
 };
 
@@ -109,9 +140,11 @@ export const getGraphEdges = async (req: Request,res: Response) => {
         const graphId = req.body.graphId;
         const edges = await findEdgesByGraphId(graphId);
         let message = JSON.parse(JSON.stringify({ edges: edges }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
+        
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
     }
 };
 
@@ -134,10 +167,13 @@ export const CalculatePath = async (req: Request, res: Response) => {
                 message: 'Path calculated successfully.'
             });
         } else {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.PathNotFound);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.PathNotFound);
+
+            
         }
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
     }
 };
 
@@ -184,7 +220,7 @@ interface PathResult {
         res.json({ results, bestResult });
     } catch (error) {
         console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 

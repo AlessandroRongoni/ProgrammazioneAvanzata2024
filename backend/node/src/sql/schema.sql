@@ -64,6 +64,7 @@ INSERT INTO graphs (user_id, name, description) VALUES
     (1, 'Graph 4', 'Description of Graph 4'),
     (2, 'Graph 5', 'Description of Graph 5'),
     (3, 'Graph 6', 'Description of Graph 6');
+    (3, 'GrafoSimulation', 'Un grafo di test per la simulazione con un arco dal peso elevato.');
 
 
 -- Inserimento degli archi per il primo grafo
@@ -129,10 +130,19 @@ INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (6, 'E1', 'F1', 2.1),
     (6, 'F1', 'A1', 1.7);
 
+    INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
+    (1, 'A', 'B', 50),
+    (1, 'A', 'C', 1),
+    (1, 'C', 'D', 1),
+    (1, 'D', 'B', 1);
+
 -- Inserimento di alcune richieste di modifica degli archi con requester_id e receiver_id
 INSERT INTO updates (graph_id, edge_id, requester_id, receiver_id, new_weight, approved) VALUES
     (1, 1, 2, 1, 1.7, NULL), -- Richiesta di modifica per il primo arco da alessandro a daniele
     (1, 4, 2, 1, 2.0, NULL), -- Richiesta di modifica per il quarto arco da alessandro a daniele
     (2, 9, 1, 3, 1.5, NULL); -- Richiesta di modifica per il nono arco da daniele a adriano
+    (2, 10, 1, 3, 1.7, true),
+    (2, 11, 1, 3, 2.0, false),
+    (2, 9, 1, 3, 1.5, NULL);
     
    

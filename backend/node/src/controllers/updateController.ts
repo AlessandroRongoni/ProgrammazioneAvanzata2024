@@ -67,7 +67,8 @@ export async function updateEdgeWeight(req: Request, res: Response) {
                 
             }
             
-            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
+
         } else {
             //se non è il proprietario del grafo crea una richiesta in pending
             for (let i = 0; i < req.body.updates.length; i++) {
@@ -78,12 +79,13 @@ export async function updateEdgeWeight(req: Request, res: Response) {
                 // const updatedWeight = ALPHA * oldWeight + (1 - ALPHA) * req.body.update[i].newWeight;
                 await requestEdgeUpdate(graph.graph_id, edge.edge_id, requester[0].dataValues.user_id, graph.user_id, newWeight);
             }
-            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UpdateNotification);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UpdateNotification);
+
         }
         
     } catch (error) {
         console.log("Sono nell'errore")
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
     }finally{
         const totalEdges = updates.length;
         const costoUpgrade = totalEdges * update_cost_per_edge;
@@ -105,13 +107,15 @@ export const viewPendingUpdatesForUser = async (req: Request, res: Response) => 
         const user = await findUser(jwtUserEmail);
         const pendingUpdates = await findUpdatesByReceiverInPending(user[0].dataValues.user_id);
         if (pendingUpdates.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
+
         }
         let message = JSON.parse(JSON.stringify({ pendingUpdates: pendingUpdates }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
+
     } catch (error) {
         console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 //daje
@@ -133,7 +137,9 @@ export const viewFilteredUpdateHistory = async (req: Request, res: Response) => 
                 // Verifica se ci sono aggiornamenti
                 if (updates.length === 0) {
                     // Restituisce un errore se non ci sono aggiornamenti
-                    return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NoUpdateForGraph);
+                    return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NoUpdateForGraph);
+
+                    
                 }
                 
         res.json(updates);
@@ -157,13 +163,14 @@ export const viewPendingUpdatesForModel = async (req: Request, res: Response) =>
         const pendingUpdates = await findPendingUpdatesByGraphId(graphId);
         console.log(pendingUpdates);
         if (pendingUpdates.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFoundForModel);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFoundForModel);
+
         }
         let message = JSON.parse(JSON.stringify({ pendingUpdates: pendingUpdates }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
     } catch (error) {
         console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -194,9 +201,10 @@ export const answerUpdate = async (req: Request, res: Response) => {
                 await rejectEdgeUpdate(updateId);
             }
         }
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.RequestAwnsered);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.RequestAwnsered);
+
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -215,7 +223,7 @@ export const getUpdatesInFormat = async (req: Request, res: Response) => {
         const details = await findGraphById(graphId);
         await saveAndRespondWithFile(updates, format, res, details);
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
     }
 };
 

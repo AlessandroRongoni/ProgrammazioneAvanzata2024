@@ -20,6 +20,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
     if (jwtDecode && jwtDecode.email && jwtDecode.password) {
         next();
     } else {
-        statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.Unauthorized);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.Unauthorized);
+
     }
 };
