@@ -44,6 +44,35 @@ export async function findEdgesByGraphId(graphId: number): Promise<any> {
     });
 }
 
+/**
+ * Ricerca tutti i nodi unici associati a un dato graphId.
+ * @param graphId L'identificativo del grafo per cui cercare i nodi.
+ * @returns Una promessa che si risolve con l'elenco dei nodi unici trovati.
+ */
+export const findNodesByGraphId = async (graphId: number): Promise<string[]> => {
+    try {
+      const edges = await EdgeModel.findAll({
+        where: { graph_id: graphId },
+        attributes: ['start_node', 'end_node'],
+      });
+  
+      // Crea un set per evitare duplicati
+      const nodesSet = new Set<string>();
+  
+      // Aggiungi sia i nodi di partenza che di arrivo al set
+      edges.forEach((edge: any) => {
+        nodesSet.add(edge.start_node);
+        nodesSet.add(edge.end_node);
+      });
+  
+      // Converti il set in un array e restituiscilo
+      return Array.from(nodesSet);
+    } catch (error) {
+      console.error("Error fetching nodes by graphId:", error);
+      throw error; // Rilancia l'errore per gestirlo ulteriormente o per segnalare il fallimento
+    }
+  };
+
 // Funzione per trovare un arco specifico in base all'ID dell'arco
 export async function findEdgeById(edgeId: number): Promise<any> {
     return await EdgeModel.findByPk(edgeId);

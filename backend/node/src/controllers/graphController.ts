@@ -135,7 +135,7 @@ export const CalculatePath = async (req: Request, res: Response) => {
                 message: 'Path calculated successfully'
             });
         } else {
-            return res.status(404).json({ message: 'Path not found' });
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.PathNotFound);
         }
     } catch (error) {
         console.error(error);
@@ -155,15 +155,7 @@ export const simulateGraph = async (req: Request, res: Response) => {
     const { graphId, edgeId, startNode, endNode, startWeight, endWeight, step } = req.body;
 
     try {
-        if (startWeight >= endWeight || step <= 0) {
-            return res.status(400).json({ message: 'Invalid simulation parameters' });
-        }
-
         const edges = await findEdgesByGraphId(graphId);
-        if (!edges) {
-            return res.status(404).json({ message: 'Edges not found' });
-        }
-
         let results = [];
         let bestResult: PathResult = { cost: Infinity, configuration: null, path: [] };
 
@@ -177,10 +169,6 @@ export const simulateGraph = async (req: Request, res: Response) => {
 
             const graphData = prepareGraphData(simulatedEdges);
             const pathResult = calculatePathUtility(graphData, startNode, endNode);
-
-
-
-
             if (typeof pathResult === 'object' && 'cost' in pathResult) {
                 results.push({ weight, cost: pathResult.cost, path: pathResult.path });
 
@@ -189,11 +177,10 @@ export const simulateGraph = async (req: Request, res: Response) => {
                 }
             }
         }
-
         res.json({ results, bestResult });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error during simulation' });
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 

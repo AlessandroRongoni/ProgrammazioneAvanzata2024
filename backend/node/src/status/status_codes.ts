@@ -34,6 +34,8 @@ export enum Messages400 {
     UserNotFound = "Non è possibile trovare l\'utente specificato",
     GraphNotFound = "Non è possibile trovare il grafo specificato",
     EdgeNotFound = "Non è possibile trovare l'arco specificato",
+    NodeNotFound = "il nodo di partenza o di arrivo non esiste/esistono",
+    PathNotFound = "Percorso non trovato",
     GraphValidation = "La struttura del grafo non è valida",
     WeightValidation = "Peso inserito non valido",
     EdgeNotInn = "L'arco non appartiene al grafo",
@@ -41,12 +43,19 @@ export enum Messages400 {
     NoEdges = "Devono essere presenti anche gli archi",
     NoTokens = "Tokens insufficienti per creare il grafo, contattare l\'admin",
     InvalidToken = "I Token inseriti devono essere dei valori double compresi tra 0 e 1000",
+    InvalidNodes = "il valore del nodo deve essere una stringa",
+    InvalidSimulationValue = "i parametri di simulazione devono essere numeri",
+    InvalidSimulationReverse = "La data di fine deve precedere quella di inizio",
+    NegativeOrNullStep = "lo step deve essere un numero positivo e mai uguale a zero",
+    UnsupportedFormat = " il formato '{{format}}' non è supportato, perfavore inserisci: {{allowedFormats}}.",
     EmailCheck = "Il formato dell'email inserita non è corretto",
     PasswordCheck = "La password deve contenere almeno 8 caratteri ed un numero, un carattere speciale, un carattere maiuscolo e uno minuscolo",
     SameUser = "Non puoi creare lo stesso utente più volte",
-    NoDate = "Non hai inserito la data di inizio o di fine",
-    InvalidDateSame = "La data di inizio non può coincidere con quella di fine",
-    InvalidDate = "La data di fine deve precedere quella di inizio",
+    DateString = "La data deve essere una stringa",
+    InvalidDate = "Il formato della/delle data/e non è nel formato corretto",
+    InvalidDateReverse = "La data di fine deve precedere quella di inizio",
+    StatusString = "lo stato deve essere una stringa",
+    AllowStatus= "Gli unici valori accettati sono 'accepted' 'rejected' o la stringa vuota",
     NegativeTokens = "Non puoi inserire un numero di token negativo",
     NotANumber = "Il valore inserito deve essere numerico",
     IsANumber = "Il valore inserito non deve essere numerico",
@@ -82,6 +91,7 @@ export enum Messages400 {
 export enum Messages500 {
     ImpossibileCreation = "Non è possibile creare il grafo.",
     InternalServerError = "Errore interno al server.",
-    PdfUnable = "Impossibile generare file pdf."
+    PdfUnable = "Impossibile generare file pdf.",
+    ErrorSimulation = "Errore durante la simulazione"
 
 }

@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { findEdgeById, findGraphById, findGraphByName, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { findEdgeById, findEdgesByGraphId, findGraphById, findGraphByName, findNodesByGraphId, subtractTokensByEmail } from '../db/queries/graph_queries';
 import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500 } from "../status/status_codes";
 import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
 import {findUpdateById } from '../db/queries/update_queries';
 import dotenv = require('dotenv');
-import { calculateCost } from '../utils/graph_utils';
+import { calculateCost, getUnsupportedFormatMessage } from '../utils/graph_utils';
 import { GraphModel } from '../models/GraphModel';
 import { stat } from 'fs';
 import { EdgeModel } from '../models/EdgeModel';
@@ -223,6 +223,47 @@ export const checkGraphExistence = async (req: Request, res: Response, next: Nex
     }
 };
 
+// Middleware per validare l'ID del grafo e i nodi di partenza e arrivo
+export const validateNodes = async (req: Request, res: Response, next: NextFunction) => {
+    const { graphId, startNode, endNode } = req.body;
+
+    if (!startNode || typeof startNode !== 'string' || !endNode || typeof endNode !== 'string') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.InvalidNodes);
+    }
+    
+    next();
+  };
+
+  export const checkNodesExistence = async (req: Request, res: Response, next: NextFunction) => {
+    const { graphId, startNode, endNode } = req.body;
+
+    try {
+        // Verifica l'esistenza di startNode e endNode nel database
+        const nodes = await findNodesByGraphId(graphId);
+        const startNodeExists = nodes.some((node: any) => node === startNode);
+        const endNodeExists = nodes.some((node: any) => node === endNode);
+
+        if (!startNodeExists || !endNodeExists) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NodeNotFound);
+        }
+
+        next();
+    } catch (error) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
+    }
+};
+
+  // Middleware per controllare l'esistenza degli archi nel grafo
+export const checkEdgesExistence = async (req: Request, res: Response, next: NextFunction) => {
+    const { graphId } = req.body;
+  
+    const edges = await findEdgesByGraphId(graphId);
+    if (!edges || edges.length === 0) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+    }
+      next();
+  };
 
 /** Controllo se esiste l'update passando l'id
  * @param req
@@ -488,3 +529,97 @@ export const checkValidationAnswer = (req: Request, res: Response, next: NextFun
     }
 };
 
+export const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
+    const { dateFilter } = req.body;
+    let startDate, endDate;
+
+    // Controlla che le date siano stringhe
+    if (dateFilter?.from && typeof dateFilter.from !== 'string') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DateString);
+    }
+    if (dateFilter?.to && typeof dateFilter.to !== 'string') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DateString);
+    }
+
+    // Gestisce i casi in cui le date sono stringhe vuote convertendole in undefined
+    if (dateFilter?.from?.trim() !== '') {
+        startDate = new Date(dateFilter.from);
+    }
+    if (dateFilter?.to?.trim() !== '') {
+        endDate = new Date(dateFilter.to);
+    }
+
+    // Controlla la validità delle date convertite
+    if ((startDate && isNaN(startDate.getTime())) || (endDate && isNaN(endDate.getTime()))) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
+    }
+    
+    // Assicura che la data di inizio non sia successiva alla data di fine
+    if (startDate && endDate && startDate > endDate) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDateReverse);
+        
+    }
+
+    next();
+};
+
+export const validateStatus = (req: Request, res: Response, next: NextFunction) => {
+    const { status } = req.body;
+
+     // Verifica che status sia una stringa
+     if (status && typeof status !== 'string') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.StatusString);
+        
+    }
+
+    // Permette solo "accepted", "rejected", o una stringa vuota come valori validi per lo stato
+    if (status && status.trim() !== '' && status !== 'accepted' && status !== 'rejected') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.AllowStatus);
+    }
+
+
+    next();
+};
+
+/**
+ * Middleware per validare il formato di risposta specificato nella richiesta.
+ * @param {Request} req - L'oggetto richiesta.
+ * @param {Response} res - L'oggetto risposta.
+ * @param {NextFunction} next - La funzione next per passare al prossimo middleware.
+ */
+export const validateFormat = (req: Request, res: Response, next: NextFunction) => {
+    let { format } = req.body;
+    const allowedFormats = ['csv', 'pdf', 'json', 'xml'];
+
+    // Imposta un formato predefinito se il campo 'format' è vuoto o non specificato
+    if (!format || format.trim() === '') {
+        format = 'json'; // Predefinito a JSON
+        req.body.format = format; // Aggiorna il corpo della richiesta con il formato predefinito
+    }
+
+    // Se il formato specificato non è uno dei valori consentiti, restituisce un errore
+    if (!allowedFormats.includes(format.toLowerCase())) {
+        const errorMessage = getUnsupportedFormatMessage(format, allowedFormats);
+        return res.status(CustomStatusCodes.BAD_REQUEST).json({ message: errorMessage });
+        }
+
+    next();
+};
+
+export const validateSimulationParameters = (req: Request, res: Response, next: NextFunction) => {
+    const { startWeight, endWeight, step } = req.body;
+
+    if (typeof startWeight !== 'number' || typeof endWeight !== 'number' || typeof step !== 'number') {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidSimulationValue);
+    }
+
+    if (startWeight >= endWeight) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidSimulationReverse);
+    }
+    if (step <= 0) {
+        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NegativeOrNullStep);
+    }
+
+
+    next();
+};

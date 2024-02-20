@@ -8,7 +8,7 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer} from "./middleware/graph_middleware";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateDateRange, validateStatus, validateNodes, checkEdgesExistence, checkNodesExistence, validateFormat, validateSimulationParameters} from "./middleware/graph_middleware";
 import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
 import Graph from "node-dijkstra";
@@ -91,7 +91,8 @@ app.post("/graph", jsonParser, checkJwt, validateGraphStructure, checkUserTokens
   createGraph(req,res);
 });
 
-app.post("/graph/calculatecost", jsonParser, checkJwt, (req: Request, res: Response) =>{
+
+app.post("/graph/calculatecost", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, checkEdgesExistence,  (req: Request, res: Response) =>{
   CalculatePath(req,res);
 })
 
@@ -196,7 +197,7 @@ app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdge
 
   DEVO CREARE I MIDDLEWARE PER IL FILTRO DEL HISTORY
 */
-app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
+app.get("/updates/history/graph", jsonParser, checkJwt, checkGraphExistence, validateDateRange, validateStatus,  (req: Request, res: Response) => {
   viewFilteredUpdateHistory(req,res);
 });
 
@@ -207,7 +208,7 @@ app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
   "format": "json" // Valori possibili: "json", "csv", "xml"
 }
  */
-app.get("/updates/format", checkJwt, (req: Request, res: Response) => {
+app.get("/updates/format", checkJwt, checkGraphExistence, validateDateRange, validateStatus, validateFormat, (req: Request, res: Response) => {
   getUpdatesInFormat(req,res);
 });
 
@@ -219,7 +220,7 @@ app.get("/updates/format", checkJwt, (req: Request, res: Response) => {
   "endNode": "B"
 }
  */
-app.post("/simulate", jsonParser, checkJwt, (req: Request, res: Response) => {
+app.post("/simulate", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, checkEdgesExistence, validateSimulationParameters, (req: Request, res: Response) => {
   simulateGraph(req, res);
 });
 
