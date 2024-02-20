@@ -360,7 +360,11 @@ export const checkAllEdgesBelongingAndCorrectWeights = async (req: Request, res:
     const { graphId, updates } = req.body;
     try {
         for (let i = 0; i < updates.length; i++) {
-            console.log("Sono nel for")
+
+            if (typeof updates[i].edgeId !== 'number') {
+                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber); // Assicurati di avere Messages400.EdgeIdValidation definito correttamente
+            }
+
             const edge = await findEdgeById(updates[i].edgeId);
             if (!edge) {
                 return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
