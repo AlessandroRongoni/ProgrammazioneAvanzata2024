@@ -238,7 +238,6 @@ export const getUpdatesInFormat = async (req: Request, res: Response) => {
                 return res.json(updates);
         }
     } catch (error) {
-        console.error(error);
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
         
     }
