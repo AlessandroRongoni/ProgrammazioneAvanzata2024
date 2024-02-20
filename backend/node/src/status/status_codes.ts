@@ -41,6 +41,7 @@ export enum Messages400 {
     EdgeNotInn = "L'arco non appartiene al grafo",
     NoNodes = "Devono essere presenti ALMENO due nodi.",
     NoEdges = "Devono essere presenti anche gli archi",
+    InvalidGraphId = "l'id del grafo inserito deve essere un numero, non una stringa!",
     NoTokens = "Tokens insufficienti per creare il grafo, contattare l\'admin",
     InvalidToken = "I Token inseriti devono essere dei valori double compresi tra 0 e 1000",
     InvalidNodes = "il valore del nodo deve essere una stringa",
