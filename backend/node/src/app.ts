@@ -198,7 +198,6 @@ app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdge
   "status": "accepted" // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
   }
 
-  DEVO CREARE I MIDDLEWARE PER IL FILTRO DEL HISTORY
 */
 app.get("/updates/history/graph", jsonParser, checkJwt, checkGraphExistence, validateDateRange, validateStatus,  (req: Request, res: Response) => {
   viewFilteredUpdateHistory(req,res);
