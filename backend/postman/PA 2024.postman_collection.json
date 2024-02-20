@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "8e13b6d6-c776-48d6-8abc-873d86f03036",
+		"_postman_id": "a2385364-2859-4bcf-b7ee-d0129c6af55b",
 		"name": "PA 2024",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "14352422",
-		"_collection_link": "https://univpm-oop-team.postman.co/workspace/UNIVPM-OOP-Project~f51769f6-3894-4092-916b-1ef637b52a06/collection/14352422-8e13b6d6-c776-48d6-8abc-873d86f03036?action=share&source=collection_link&creator=14352422"
+		"_exporter_id": "32939762"
 	},
 	"item": [
 		{
@@ -624,7 +623,10 @@
 			"response": []
 		},
 		{
-			"name": "Calculatecost",
+			"name": "Calculate minimal path",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -636,7 +638,7 @@
 						}
 					]
 				},
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
@@ -662,7 +664,7 @@
 			"response": []
 		},
 		{
-			"name": "SaveUpdateFormat",
+			"name": "Save Update Format",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -704,6 +706,9 @@
 		},
 		{
 			"name": "Simulation",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -715,11 +720,11 @@
 						}
 					]
 				},
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"graphId\": 70,\r\n  \"edgeId\": 91,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"J\",\r\n  \"startWeight\": 0.5,\r\n  \"endWeight\": 50,\r\n  \"step\": 1\r\n}",
+					"raw": "{\r\n  \"graphId\": 2,\r\n  \"edgeId\": 91,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"B\",\r\n  \"startWeight\": 0.5,\r\n  \"endWeight\": 50,\r\n  \"step\": 1\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
