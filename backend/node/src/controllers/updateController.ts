@@ -205,7 +205,8 @@ export const getUpdatesInFormat = async (req: Request, res: Response) => {
     const endDate = to ? new Date(to) : undefined;
     try {
         const updates = await filterUpdates(graphId, startDate, endDate, status);
-        await saveAndRespondWithFile(updates, format, res);
+        const details = await findGraphById(graphId);
+        await saveAndRespondWithFile(updates, format, res, details);
     } catch (error) {
         return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
     }

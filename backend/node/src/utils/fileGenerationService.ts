@@ -12,7 +12,8 @@ if (!fs.existsSync(filesDir)){
 export const saveAndRespondWithFile = async (
   updates: any[],
   format: string,
-  res: Response
+  res: Response,
+  graphInfo: { graph_id: number; name: string; description: string;}
 ) => {
   switch (format.toLowerCase()) {
     case 'csv':
@@ -25,27 +26,30 @@ export const saveAndRespondWithFile = async (
       res.attachment('updates.csv');
       return res.send(csvData);
 
-    case 'pdf':
-      const PDFDocument = require('pdfkit');
-      const doc = new PDFDocument();
-      let pdfBuffers: Buffer[] = [];
-      doc.on('data', pdfBuffers.push.bind(pdfBuffers));
-      doc.on('end', () => {
-        const pdfData = Buffer.concat(pdfBuffers);
-        // Usa filesDir per salvare il file PDF
-        const pdfFilePath = path.join(filesDir, 'updates.pdf');
-        fs.writeFileSync(pdfFilePath, pdfData);
-        res.header('Content-Type', 'application/pdf');
-        res.attachment('updates.pdf');
-        res.send(pdfData);
-      });
-
-      doc.fontSize(24).text('Aggiornamenti svolti in questo grafo:', { align: 'center' });
-      updates.forEach((update) => {
-        doc.moveDown().text(JSON.stringify(update, null, 2));
-      });
-      doc.end();
-      break;
+      case 'pdf':
+        const PDFDocument = require('pdfkit');
+        const doc = new PDFDocument();
+        let pdfBuffers: Buffer[] = [];
+        doc.on('data', pdfBuffers.push.bind(pdfBuffers));
+        doc.on('end', () => {
+          const pdfData = Buffer.concat(pdfBuffers);
+          const pdfFilePath = path.join(filesDir, 'updates.pdf');
+          fs.writeFileSync(pdfFilePath, pdfData);
+          res.header('Content-Type', 'application/pdf');
+          res.attachment('updates.pdf');
+          res.send(pdfData);
+        });
+      
+        doc.fontSize(16).text(`Informazioni sul Grafo`, { align: 'center' });
+        doc.fontSize(12).moveDown().text(`ID: ${graphInfo.graph_id}`, { align: 'left' });
+        doc.text(`Nome: ${graphInfo.name}`, { align: 'left' });
+        doc.text(`Descrizione: ${graphInfo.description}`, { align: 'left' });
+        doc.moveDown().fontSize(14).text('Aggiornamenti svolti in questo grafo:', { align: 'center' });
+        updates.forEach((update, index) => {
+          doc.fontSize(10).moveDown().text(`Update ${index + 1}: ${JSON.stringify(update, null, 2)}`, { align: 'left' });
+        });
+        doc.end();
+        break;      
 
     case 'xml':
       const { js2xml } = require('xml-js');

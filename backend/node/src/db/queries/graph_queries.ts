@@ -115,4 +115,11 @@ export async function findGraphByName(name: string): Promise<any> {
     });
 }
 
-
+//QUery per contare il numero di archi di un grafo
+export async function countEdgesByGraphId(graphId: number): Promise<any> {
+    return await EdgeModel.count({
+        where: {
+            graph_id: graphId
+        }
+    });
+}
