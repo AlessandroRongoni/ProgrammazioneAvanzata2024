@@ -129,6 +129,13 @@ export const viewFilteredUpdateHistory = async (req: Request, res: Response) => 
         const startDate = dateFilter?.from ? new Date(dateFilter.from) : undefined;
         const endDate = dateFilter?.to ? new Date(dateFilter.to) : undefined;
         const updates = await filterUpdates(graphId, startDate, endDate, status);
+
+                // Verifica se ci sono aggiornamenti
+                if (updates.length === 0) {
+                    // Restituisce un errore se non ci sono aggiornamenti
+                    return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NoUpdateForGraph);
+                }
+                
         res.json(updates);
     } catch (error) {
         console.error("Error fetching filtered updates:", error);
