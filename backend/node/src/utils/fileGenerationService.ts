@@ -13,7 +13,7 @@ export const saveAndRespondWithFile = async (
   updates: any[],
   format: string,
   res: Response,
-  graphInfo: { graph_id: number; name: string; description: string;}
+  graphInfo: { graph_id: number; user_id:number, name: string; description: string;}
 ) => {
   switch (format.toLowerCase()) {
     case 'csv':
@@ -39,9 +39,9 @@ export const saveAndRespondWithFile = async (
           res.attachment('updates.pdf');
           res.send(pdfData);
         });
-      
         doc.fontSize(16).text(`Informazioni sul Grafo`, { align: 'center' });
         doc.fontSize(12).moveDown().text(`ID: ${graphInfo.graph_id}`, { align: 'left' });
+        doc.text(`USER ID: ${graphInfo.user_id}`, { align: 'left' });
         doc.text(`Nome: ${graphInfo.name}`, { align: 'left' });
         doc.text(`Descrizione: ${graphInfo.description}`, { align: 'left' });
         doc.moveDown().fontSize(14).text('Aggiornamenti svolti in questo grafo:', { align: 'center' });
@@ -53,7 +53,7 @@ export const saveAndRespondWithFile = async (
 
     case 'xml':
       const { js2xml } = require('xml-js');
-      const xmlData = js2xml({ updates }, { compact: true, spaces: 4 });
+      const xmlData = js2xml({graphInfo, updates }, { compact: true, spaces: 4 });
       // Usa filesDir per salvare il file XML
       const xmlFilePath = path.join(filesDir, 'updates.xml');
       fs.writeFileSync(xmlFilePath, xmlData);
@@ -62,6 +62,6 @@ export const saveAndRespondWithFile = async (
       return res.send(xmlData);
 
     default:
-      res.json(updates);
+      res.json([graphInfo, updates]);
   }
 };
