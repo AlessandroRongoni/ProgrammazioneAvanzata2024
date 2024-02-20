@@ -7,7 +7,6 @@ import { getJwtEmail } from "../utils/jwt_utils";
 var statusMessage: MessageFactory = new MessageFactory();
 
 const isNonNegativeNumber = (value: any): boolean => !isNaN(value) && value >= 0;
-const isPasswordValid = (password: string): boolean => /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/.test(password);
 const isEmailValid = (email: string): boolean => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
 
 export const checkTokensBody = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,23 +19,37 @@ export const checkTokensBody = async (req: Request, res: Response, next: NextFun
 };
 
 export const checkPassword = (req: Request, res: Response, next: NextFunction) => {
-    const { password } = req.body;
-    if (!password) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordEmpty);
-    }
-    if (isPasswordValid(password)) {
-        next();
+    const password = req.body.password;
+    const expression: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/i;
+
+    if (password.length != 0) {
+        if (isNaN(password)) {
+            let checker: boolean = expression.test(password);
+            if (checker) {
+                next();
+            } else {
+                statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordCheck);
+            }
+        } else {
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.IsANumber);
+        }
     } else {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordCheck);
+
+        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordEmpty);
     }
 };
 
 export const checkPasswordMatch = async (req: Request, res: Response, next: NextFunction) => {
-    const user = await findUser(req.body.email);
-    if (user && user.password === req.body.password) {
-        next();
+    const user: any = await findUser(req.body.email);
+    if (user.length != 0) {
+        if (user[0].password == req.body.password) {
+            next();
+        } else {
+            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordNotMatch);
+        }
+        
     } else {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, user ? Messages400.PasswordNotMatch : Messages400.UserNotFound);
+        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
     }
 };
 
@@ -53,8 +66,8 @@ export const checkEmail = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const checkUser = async (req: Request, res: Response, next: NextFunction) => {
-    const user = await findUser(req.body.email);
-    if (user) {
+    const user: any = await findUser(req.body.email);
+    if (user.length != 0) {
         next();
     } else {
         statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
@@ -62,8 +75,8 @@ export const checkUser = async (req: Request, res: Response, next: NextFunction)
 };
 
 export const checkUserNotRegistered = async (req: Request, res: Response, next: NextFunction) => {
-    const user = await findUser(req.body.email);
-    if (!user) {
+    const user: any = await findUser(req.body.email);
+    if (user.length == 0) {
         next();
     } else {
         statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnauthorizedUser);
@@ -72,8 +85,8 @@ export const checkUserNotRegistered = async (req: Request, res: Response, next: 
 
 export const checkUserJwt = async (req: Request, res: Response, next: NextFunction) => {
     let jwtUserEmail = getJwtEmail(req);
-    const user = await findUser(jwtUserEmail);
-    if (user) {
+    const user: any = await findUser(jwtUserEmail);
+    if (user.length != 0) {
         next();
     } else {
         statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);

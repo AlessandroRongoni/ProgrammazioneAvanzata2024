@@ -49,7 +49,7 @@ export enum Messages400 {
     NegativeOrNullStep = "lo step deve essere un numero positivo e mai uguale a zero",
     UnsupportedFormat = " il formato '{{format}}' non è supportato, perfavore inserisci: {{allowedFormats}}.",
     EmailCheck = "Il formato dell'email inserita non è corretto",
-    PasswordCheck = "La password deve contenere almeno 8 caratteri ed un numero, un carattere speciale, un carattere maiuscolo e uno minuscolo",
+    PasswordCheck = "La password deve contenere almeno 8 caratteri ed un numero, un carattere speciale, un carattere maiuscolo o minuscolo",
     SameUser = "Non puoi creare lo stesso utente più volte",
     DateString = "La data deve essere una stringa",
     InvalidDate = "Il formato della/delle data/e non è nel formato corretto",

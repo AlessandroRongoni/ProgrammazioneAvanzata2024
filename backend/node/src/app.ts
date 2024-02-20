@@ -92,7 +92,11 @@ app.post("/graph", jsonParser, checkJwt, validateGraphStructure, checkUserTokens
 });
 
 
-app.post("/graph/calculatecost", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, checkEdgesExistence,  (req: Request, res: Response) =>{
+
+/**
+ * Rotta per calcolare il percorso minimo tra due nodi di un grafo
+ */
+app.get("/graph/calculatecost", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, checkEdgesExistence,  (req: Request, res: Response) =>{
   CalculatePath(req,res);
 })
 
