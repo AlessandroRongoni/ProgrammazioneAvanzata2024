@@ -113,7 +113,7 @@ export const viewPendingUpdatesForUser = async (req: Request, res: Response) => 
         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
-
+//daje
 
 /**
  * Retrieves and returns the filtered update history for a user within a specified date range.
@@ -239,6 +239,7 @@ export const getUpdatesInFormat = async (req: Request, res: Response) => {
         }
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: 'Error fetching filtered updates' });
+        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
+        
     }
 };
