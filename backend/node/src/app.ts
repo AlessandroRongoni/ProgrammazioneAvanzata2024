@@ -75,7 +75,6 @@ app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkToken
 
 /**
  * Rotta per la creazione di un grafo
- * MIGLIROAMENTO DEI MIDDLE E NON FUNZIONA BENE
  * 
 {
   "name": "Mio Grafo",
