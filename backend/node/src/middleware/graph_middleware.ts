@@ -215,6 +215,12 @@ export const checkEdgeBelonging = async (req: Request, res: Response, next: Next
  */
 export const checkGraphExistence = async (req: Request, res: Response, next: NextFunction) => {
     const graphId = req.body.graphId;
+
+        // Verifica che graphId sia un numero
+        if (isNaN(Number(graphId))) {
+            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidGraphId);
+        }
+
     try {
         const graph = await findGraphById(graphId);
         if (!graph) {
