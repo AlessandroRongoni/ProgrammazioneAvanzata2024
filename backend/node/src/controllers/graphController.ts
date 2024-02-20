@@ -119,7 +119,6 @@ export const getGraphEdges = async (req: Request,res: Response) => {
 
 export const CalculatePath = async (req: Request, res: Response) => {
     const { graphId, startNode, endNode } = req.body;
-
     try {
         const edges = await findEdgesByGraphId(graphId);
         const graphData = prepareGraphData(edges);
@@ -132,14 +131,13 @@ export const CalculatePath = async (req: Request, res: Response) => {
             res.json({
                 path: result.path,
                 cost: result.cost,
-                message: 'Path calculated successfully'
+                message: 'Path calculated successfully.'
             });
         } else {
             return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.PathNotFound);
         }
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error calculating path' });
+        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
