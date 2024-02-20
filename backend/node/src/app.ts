@@ -223,7 +223,7 @@ app.get("/updates/format", checkJwt, checkGraphExistence, validateDateRange, val
   "endNode": "B"
 }
  */
-app.post("/simulate", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, validateStartEndNodes, checkEdgesExistence, validateSimulationParameters, (req: Request, res: Response) => {
+app.get("/simulate", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, validateStartEndNodes, checkEdgesExistence, validateSimulationParameters, (req: Request, res: Response) => {
   simulateGraph(req, res);
 });
 
