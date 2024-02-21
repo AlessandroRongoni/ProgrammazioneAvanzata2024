@@ -14,13 +14,22 @@ sequelize.authenticate().then(() => {
 });
 
 
+/**
+ * Modello per rappresentare un aggiornamento nel sistema.
+ */
 export const UpdateModel = sequelize.define('updates', {
+    /**
+     * Identificatore univoco dell'aggiornamento.
+     */
     update_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
     },
+    /**
+     * Identificatore del grafo a cui l'aggiornamento fa riferimento.
+     */
     graph_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -29,6 +38,9 @@ export const UpdateModel = sequelize.define('updates', {
             key: 'graph_id',
         }
     },
+    /**
+     * Identificatore dell'arco a cui l'aggiornamento fa riferimento.
+     */
     edge_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -37,6 +49,9 @@ export const UpdateModel = sequelize.define('updates', {
             key: 'edge_id',
         }
     },
+    /**
+     * Identificatore dell'utente che ha richiesto l'aggiornamento.
+     */
     requester_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -45,6 +60,9 @@ export const UpdateModel = sequelize.define('updates', {
             key: 'user_id',
         }
     },
+    /**
+     * Identificatore dell'utente che riceverà l'aggiornamento.
+     */
     receiver_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -53,20 +71,27 @@ export const UpdateModel = sequelize.define('updates', {
             key: 'user_id',
         }
     },
+    /**
+     * Nuovo peso dell'arco dopo l'aggiornamento.
+     */
     new_weight: {
         type: DataTypes.FLOAT,
         allowNull: false
     },
+    /**
+     * Flag che indica se l'aggiornamento è stato approvato o meno.
+     * Può essere null se l'aggiornamento è in attesa di approvazione.
+     */
     approved: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        defaultValue: null // Potrebbe essere null se l'aggiornamento è in attesa di approvazione
+        defaultValue: null
     }
 }, {
     modelName: 'UpdateModel',
-    timestamps: true, // Per tracciare createdAt e l'eventuale updatedAt
+    timestamps: true,
     freezeTableName: true,
-    createdAt: 'createdat', 
+    createdAt: 'createdat',
     updatedAt: 'updatedat'
 });
 

@@ -1,11 +1,8 @@
 import { updateUserTokensDb } from '../db/queries/admin_queries';
-import { findUser } from '../db/queries/user_queries';
 import { Request, Response } from "express";
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages400 } from '../status/status_codes';
 
-
-var statusMessage: MessageFactory = new MessageFactory();
 /**
  * Aggiorna i token dell'utente.
  * Richiama il servizio updateUserTokensService per l'aggiornamento dei token.
@@ -22,7 +19,5 @@ export const updateTokens = async (req: Request, res: Response) => {
 
     } catch (e) {
         return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.TokensEmpty);
-
-
     }
 };

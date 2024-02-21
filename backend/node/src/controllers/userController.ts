@@ -2,11 +2,10 @@ import { getJwtEmail } from '../utils/jwt_utils';
 import { Request, Response } from "express";
 import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
-import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
+import { CustomStatusCodes, Messages200, Messages500 } from '../status/status_codes';
 var jwt = require('jsonwebtoken');
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-var statusMessage: MessageFactory = new MessageFactory();
 
 /**
  * Gestisce la richiesta di login dell'utente.

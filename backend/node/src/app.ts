@@ -11,7 +11,6 @@ import { updateTokens } from "./controllers/adminController";
 import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateDateRange, validateStatus, validateNodes, checkEdgesExistence, checkNodesExistence, validateFormat, validateSimulationParameters, validateStartEndNodes} from "./middleware/graph_middleware";
 import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
-import Graph from "node-dijkstra";
 
 
 dotenv.config();
@@ -25,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Middleware per il parsing del JSON
 app.use(express.json());
 
-// Middleware per la gestione degli errori di parsing JSON
+//Gestione degli errori di parsing JSON
 app.use((err:Error, req:Request, res:Response, next:NextFunction) => {
     if (err instanceof SyntaxError && 'body' in err) {
         console.error('Errore di parsing JSON!');
@@ -42,6 +41,8 @@ app.use((err:Error, req:Request, res:Response, next:NextFunction) => {
 app.get("/", (req: Request, res: Response) => {
   res.send("Effettua il login per usare l'applicazione");
 });
+
+
 /**
  * Effettua il login e restituisce il jwt associato all'utente
  */
