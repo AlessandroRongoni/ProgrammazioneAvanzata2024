@@ -7,10 +7,6 @@ import { addEdgesToGraph, createGraphQuery, findAllGraphs, findEdgesByGraphId, f
 import { calculateCost, prepareGraphData, calculatePathUtility } from '../utils/graph_utils';
 import Graph from "node-dijkstra";
 
-var jwt = require('jsonwebtoken');
-var statusMessage: MessageFactory = new MessageFactory();
-
-
 /*
 {
   "name": "Mio Grafo",
@@ -84,6 +80,13 @@ var statusMessage: MessageFactory = new MessageFactory();
   ]
 }
 */ 
+/**
+ * Crea un nuovo grafo.
+ * 
+ * @param req - La richiesta HTTP.
+ * @param res - La risposta HTTP.
+ * @returns La risposta HTTP con lo stato e il messaggio appropriati.
+ */
 export const createGraph = async (req: Request, res: Response) => {
     // Accede direttamente ai dati della richiesta tramite req.body
     const { name, description, nodes, edges } = req.body;
@@ -101,17 +104,21 @@ export const createGraph = async (req: Request, res: Response) => {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.ImpossibileCreation);
 
     }
+    // Sottrai i token solo se graphCost non è null
     finally{
         await subtractTokensByEmail(jwtUserEmail, totalCost);
     }
     return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelCreationSuccess);
-
 };
 
 
+
 /**
- * Ottiene tutti i grafi.
- * Richiama il middleware getGraphslist per ottenere tutti i grafi registrati.
+ * Restituisce tutti i grafi.
+ * 
+ * @param req - La richiesta HTTP.
+ * @param res - La risposta HTTP.
+ * @returns La risposta HTTP con i grafici o un messaggio di errore.
  */
 export const getAllGraphs = async (req: Request,res: Response) => {
     try {
@@ -149,6 +156,13 @@ export const getGraphEdges = async (req: Request,res: Response) => {
 
 
 
+/**
+ * Calcola il percorso all'interno di un grafo.
+ * 
+ * @param req - La richiesta HTTP.
+ * @param res - La risposta HTTP.
+ * @returns Una promessa che si risolve con il percorso calcolato, il costo, il tempo impiegato e un messaggio di successo, oppure un messaggio di errore.
+ */
 export const CalculatePath = async (req: Request, res: Response) => {
     const { graphId, startNode, endNode } = req.body;
 
@@ -189,6 +203,7 @@ export const CalculatePath = async (req: Request, res: Response) => {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
 
     }
+    // Sottrai i token solo se graphCost non è null
     finally{
         if (graphCost !== null) {
         await subtractTokensByEmail(jwtUserEmail, graphCost);
@@ -196,14 +211,23 @@ export const CalculatePath = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * Rappresenta il risultato di un percorso.
+ */
 interface PathResult {
     cost: number;
     configuration: number | null; // Assumo che configuration sia un numero, adattalo al tuo caso d'uso
     path: string[]; // Specifica che path è un array di stringhe
   }
 
-  // Modifica della funzione simulateGraph per utilizzare calculatePathUtility
- // Modifica della funzione simulateGraph per utilizzare calculatePathUtility
+
+/**
+ * Simula un grafo e calcola il percorso ottimale in base ai parametri specificati.
+ * 
+ * @param req - L'oggetto di richiesta HTTP.
+ * @param res - L'oggetto di risposta HTTP.
+ * @returns Una risposta JSON contenente i risultati della simulazione e il miglior percorso.
+ */
  export const simulateGraph = async (req: Request, res: Response) => {
     const { graphId, edgeId, startNode, endNode, startWeight, endWeight, step } = req.body;
 
@@ -238,7 +262,6 @@ interface PathResult {
         }
         res.json({ results, bestResult });
     } catch (error) {
-        console.error(error);
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };

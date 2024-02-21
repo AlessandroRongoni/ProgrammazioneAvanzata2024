@@ -8,8 +8,6 @@ import { updateEdgeWeightInDB } from '../db/queries/update_queries';
 import { findEdgeById, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
 import { saveAndRespondWithFile } from '../utils/fileGenerationService';
 
-
-var statusMessage: MessageFactory = new MessageFactory();
 const ALPHA = parseFloat(process.env.ALPHA || "0.8"); 
 const update_cost_per_edge = parseFloat(process.env.UPDATE_COST_EDGES || "0.025");
 /**
@@ -67,7 +65,6 @@ export async function updateEdgeWeight(req: Request, res: Response) {
                 
             }
             
-            return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
 
         } else {
             //se non è il proprietario del grafo crea una richiesta in pending
@@ -91,6 +88,8 @@ export async function updateEdgeWeight(req: Request, res: Response) {
         const costoUpgrade = totalEdges * update_cost_per_edge;
         await subtractTokensByEmail(jwtUserEmail, costoUpgrade );
     }
+
+    return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
 };
 
 
@@ -226,55 +225,3 @@ export const getUpdatesInFormat = async (req: Request, res: Response) => {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
     }
 };
-
-
-// export const getUpdatesInFormat = async (req: Request, res: Response) => {
-//     const { graphId, dateFilter: { from, to }, status, format } = req.body;
-//     const startDate = from ? new Date(from) : undefined;
-//     const endDate = to ? new Date(to) : undefined;
-
-//     try {
-//         const updates = await filterUpdates(graphId, startDate, endDate, status);
-//         switch (format.toLowerCase()) {
-//             case 'csv':
-//                 const { stringify } = require('csv-stringify/sync');
-//                 const csvData = stringify(updates, { header: true });
-//                 res.header('Content-Type', 'text/csv');
-//                 res.attachment('updates.csv');
-//                 return res.send(csvData);
-//                 break;
-//             case 'pdf':
-//                 const PDFDocument = require('pdfkit');
-//                 const doc = new PDFDocument();
-//                 let pdfBuffers: Buffer[] = [];
-//                 doc.on('data', pdfBuffers.push.bind(pdfBuffers));
-//                 doc.on('end', () => {
-//                     const pdfData = Buffer.concat(pdfBuffers);
-//                     res.header('Content-Type', 'application/pdf');
-//                     res.attachment('updates.pdf');
-//                     return res.send(pdfData);
-//                 });
-            
-//                 // Qui dovresti aggiungere i dati nel documento PDF
-//                 updates.forEach((update: any) => {
-//                     doc.text(JSON.stringify(update));
-//                 });
-            
-//                 doc.end();
-//                 break;
-//             case 'xml':
-//                 const { js2xml } = require('xml-js');
-//                 const xmlData = js2xml({ updates }, { compact: true, spaces: 4 });
-//                 res.header('Content-Type', 'application/xml');
-//                 res.attachment('updates.xml');
-//                 return res.send(xmlData);
-//                 break;
-//             case 'json':
-//             default:
-//                 return res.json(updates);
-//         }
-//     } catch (error) {
-//         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
-        
-//     }
-// };
