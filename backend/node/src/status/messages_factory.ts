@@ -16,28 +16,20 @@ export class MessageFactory {
      * @param message - Il messaggio da impostare sulla risposta HTTP.
      * @returns L'oggetto di messaggio di stato corrispondente.
      */
-    getStatusMessage(cases: CustomStatusCodes, res: Response, message: string): any {
-        let oneCase = cases;
-        let messageClass;
-        switch (oneCase) {
-            case (400):
-                messageClass = new BadRequestMessage();
-                return messageClass.setStatus(res, message);
-            case (401):
-                messageClass = new UnauthorizedMessage();
-                return messageClass.setStatus(res, message);
-            case (500):
-                messageClass = new InternalServerErrorMessage();
-                return messageClass.setStatus(res, message);
-            case (404):
-                messageClass = new NotFoundErrorMessage();
-                return messageClass.setStatus(res, message);
-            case (200):
-                messageClass = new OkMessage();
-                return messageClass.setStatus(res, message);
+    static getStatusMessage(cases: CustomStatusCodes, res: Response, message: string) {
+        switch (cases) {
+            case CustomStatusCodes.BAD_REQUEST:
+                return BadRequestMessage.setStatus(res, message);
+            case CustomStatusCodes.UNAUTHORIZED:
+                return UnauthorizedMessage.setStatus(res, message);
+            case CustomStatusCodes.INTERNAL_SERVER_ERROR:
+                return InternalServerErrorMessage.setStatus(res, message);
+            case CustomStatusCodes.NOT_FOUND:
+                return NotFoundErrorMessage.setStatus(res, message);
+            case CustomStatusCodes.OK:
+                return OkMessage.setStatus(res, message);
             default:
                 return res.status(CustomStatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages500.InternalServerError });
         }
-
     }
 }

@@ -14,7 +14,7 @@ export const checkTokensBody = async (req: Request, res: Response, next: NextFun
     if (isNonNegativeNumber(tokens)) {
         next();
     } else {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, isNaN(tokens) ? Messages400.NotANumber : Messages400.NegativeTokens);
+        MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, isNaN(tokens) ? Messages400.NotANumber : Messages400.NegativeTokens);
     }
 };
 
@@ -28,14 +28,14 @@ export const checkPassword = (req: Request, res: Response, next: NextFunction) =
             if (checker) {
                 next();
             } else {
-                statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordCheck);
+                MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordCheck);
             }
         } else {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.IsANumber);
+            MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.IsANumber);
         }
     } else {
 
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordEmpty);
+        MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordEmpty);
     }
 };
 
@@ -45,23 +45,23 @@ export const checkPasswordMatch = async (req: Request, res: Response, next: Next
         if (user[0].password == req.body.password) {
             next();
         } else {
-            statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordNotMatch);
+            MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.PasswordNotMatch);
         }
         
     } else {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
+        MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
     }
 };
 
 export const checkEmail = (req: Request, res: Response, next: NextFunction) => {
     const { email } = req.body;
     if (!email) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EmailEmpty);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EmailEmpty);
     }
     if (isEmailValid(email)) {
         next();
     } else {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EmailCheck);
+        MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EmailCheck);
     }
 };
 
@@ -70,7 +70,7 @@ export const checkUser = async (req: Request, res: Response, next: NextFunction)
     if (user.length != 0) {
         next();
     } else {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
+        MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
     }
 };
 
@@ -79,7 +79,7 @@ export const checkUserNotRegistered = async (req: Request, res: Response, next: 
     if (user.length == 0) {
         next();
     } else {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnauthorizedUser);
+        MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnauthorizedUser);
     }
 };
 
@@ -89,6 +89,6 @@ export const checkUserJwt = async (req: Request, res: Response, next: NextFuncti
     if (user.length != 0) {
         next();
     } else {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
+        MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
     }
 };

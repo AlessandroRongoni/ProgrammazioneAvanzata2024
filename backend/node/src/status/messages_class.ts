@@ -7,42 +7,33 @@ import { Response } from "express";
  * Imposta il messaggio di stato sulla risposta HTTP con il codice di stato corrispondente.
  */
 
-export class BadRequestMessage implements MessageInterface {
-    public setStatus(res: Response, messageType: string): any {
-        res.status(CustomStatusCodes.BAD_REQUEST).json({
-            BAD_REQUEST: messageType
-        });
-    };
+// Esempio di classe di messaggio modificata
+export class BadRequestMessage {
+    static setStatus(res: Response, message: string) {
+        res.status(CustomStatusCodes.BAD_REQUEST).json({ message });
+    }
 }
 
-export class UnauthorizedMessage implements MessageInterface {
-    public setStatus(res: Response, messageType: string): any {
-        res.status(CustomStatusCodes.UNAUTHORIZED).json({
-            UNAUTHORIZED: messageType
-        });
-    };
+export class UnauthorizedMessage {
+    static setStatus(res: Response, message: string) {
+        res.status(CustomStatusCodes.UNAUTHORIZED).json({ message });
+    }
 }
 
-export class InternalServerErrorMessage implements MessageInterface {
-    public setStatus(res: Response, messageType: string): any {
-        res.status(CustomStatusCodes.INTERNAL_SERVER_ERROR).json({
-            INTERNAL_SERVER_ERROR: messageType
-        });
-    };
+export class InternalServerErrorMessage {
+    static setStatus(res: Response, message: string) {
+        res.status(CustomStatusCodes.INTERNAL_SERVER_ERROR).json({ message });
+    }
 }
 
-export class NotFoundErrorMessage implements MessageInterface {
-    public setStatus(res: Response, messageType: string): any {
-        res.status(CustomStatusCodes.NOT_FOUND).json({
-            NOT_FOUND: messageType
-        });
-    };
+export class NotFoundErrorMessage {
+    static setStatus(res: Response, message: string) {
+        res.status(CustomStatusCodes.NOT_FOUND).json({ message });
+    }
 }
 
-export class OkMessage implements MessageInterface {
-    public setStatus(res: Response, messageType: string): any {
-        res.status(CustomStatusCodes.OK).json({
-            OK: messageType
-        });
-    };
+export class OkMessage {
+    static setStatus(res: Response, message: string) {
+        res.status(CustomStatusCodes.OK).json({ message });
+    }
 }

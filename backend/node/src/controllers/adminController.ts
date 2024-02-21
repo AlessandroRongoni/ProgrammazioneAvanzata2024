@@ -18,9 +18,11 @@ export const updateTokens = async (req: Request, res: Response) => {
     try {
         await updateUserTokensDb(req.body.tokens, req.body.email);
         let message = JSON.parse(JSON.stringify({ tokens: req.body.tokens }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
+
     } catch (e) {
-        statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.TokensEmpty);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.TokensEmpty);
+
 
     }
 };

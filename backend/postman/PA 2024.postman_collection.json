@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "a2385364-2859-4bcf-b7ee-d0129c6af55b",
+		"_postman_id": "8e13b6d6-c776-48d6-8abc-873d86f03036",
 		"name": "PA 2024",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "32939762"
+		"_exporter_id": "14352422",
+		"_collection_link": "https://univpm-oop-team.postman.co/workspace/UNIVPM-OOP-Project~f51769f6-3894-4092-916b-1ef637b52a06/collection/14352422-8e13b6d6-c776-48d6-8abc-873d86f03036?action=share&source=collection_link&creator=14352422"
 	},
 	"item": [
 		{
@@ -298,7 +299,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\": 1\n}",
+					"raw": "{\n    \"graphId\": 7\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -328,7 +329,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODI0OTQxOH0.WbSe07WGZftGLc47sAlvNZwI16B-hDsWgS2cW5jkd7o",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODQ0NzQwNn0.GkMLs7bG5R-F_F8FXHugVqfINlsFyrPXSsfELtrTsNU",
 							"type": "string"
 						}
 					]
@@ -370,7 +371,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\":1\n}",
+					"raw": "{\n    \"graphId\":\"\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -432,7 +433,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODQyODA3OH0.-EWUgqhqO-xQlzYJTtjZP2uP4skTNGYBUzrsC-H7K-U",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODQ0NzQwNn0.GkMLs7bG5R-F_F8FXHugVqfINlsFyrPXSsfELtrTsNU",
 							"type": "string"
 						}
 					]
@@ -441,7 +442,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"tokens\": 101\n}",
+					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"tokens\": 109\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -479,7 +480,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n      \"request\":[\n                {\n                    \"updateId\": 13,\n                    \"answer\": 3\n                },\n                {\n                    \"updateId\":2,\n                    \"answer\":true\n\n                }\n        ]\n }",
+					"raw": "{\n      \"request\":[\n                {\n                    \"updateId\": 1,\n                    \"answer\": false\n                },\n                {\n                    \"updateId\":2,\n                    \"answer\":true\n\n                }\n        ]\n }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -560,7 +561,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"graphId\": 1,\n  \"dateFilter\": {\n    // formato data YYYY-MM-DD\n    \"from\": \"2024-02-18\", //inserire la data da cui partire (Superiore a...)\n    \"to\": \"2024-12-31\" //inserire la data finale (Inferiore a...)\n    //inserirle entrambe per avere un intervallo di tempo (Da...a...)\n  },\n  \"status\": \"\"\n  // Valori possibili: \"accepted\", \"rejected\", o lasciare vuoto/null per non filtrare per stato\n}",
+					"raw": "{\n  \"graphId\": 2,\n  \"dateFilter\": {\n    // formato data YYYY-MM-DD\n    \"from\": \"2024-02-18\", //inserire la data da cui partire (Superiore a...)\n    \"to\": \"2024-12-31\" //inserire la data finale (Inferiore a...)\n    //inserirle entrambe per avere un intervallo di tempo (Da...a...)\n  },\n  \"status\": \"\"\n  // Valori possibili: \"accepted\", \"rejected\", o lasciare vuoto/null per non filtrare per stato\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -600,7 +601,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Grafo Test Simulazione555\",\r\n  \"description\": \"Un grafo di test per la simulazione con un arco dal peso elevato.\",\r\n  \"nodes\": [\"A\", \"B\", \"C\", \"D\", \"E\", \"F\", \"G\", \"H\", \"I\", \"J\", \"K\", \"L\", \"M\", \"N\", \"O\", \"P\"],\r\n  \"edges\": [\r\n    {\"startNode\": \"A\", \"endNode\": \"B\", \"weight\": 1},\r\n    {\"startNode\": \"B\", \"endNode\": \"C\", \"weight\": 2},\r\n    {\"startNode\": \"C\", \"endNode\": \"D\", \"weight\": 2},\r\n    {\"startNode\": \"D\", \"endNode\": \"E\", \"weight\": 1},\r\n    {\"startNode\": \"E\", \"endNode\": \"F\", \"weight\": 3},\r\n    {\"startNode\": \"F\", \"endNode\": \"G\", \"weight\": 1},\r\n    {\"startNode\": \"G\", \"endNode\": \"H\", \"weight\": 2},\r\n    {\"startNode\": \"H\", \"endNode\": \"A\", \"weight\": 2},\r\n    {\"startNode\": \"I\", \"endNode\": \"J\", \"weight\": 1},\r\n    {\"startNode\": \"J\", \"endNode\": \"K\", \"weight\": 2},\r\n    {\"startNode\": \"K\", \"endNode\": \"L\", \"weight\": 1},\r\n    {\"startNode\": \"L\", \"endNode\": \"M\", \"weight\": 3},\r\n    {\"startNode\": \"M\", \"endNode\": \"N\", \"weight\": 1},\r\n    {\"startNode\": \"N\", \"endNode\": \"O\", \"weight\": 2},\r\n    {\"startNode\": \"O\", \"endNode\": \"P\", \"weight\": 2},\r\n    {\"startNode\": \"P\", \"endNode\": \"I\", \"weight\": 2},\r\n    {\"startNode\": \"A\", \"endNode\": \"I\", \"weight\": 50}, // Arco con peso esageratamente grosso\r\n    {\"startNode\": \"E\", \"endNode\": \"M\", \"weight\": 1},\r\n    {\"startNode\": \"B\", \"endNode\": \"J\", \"weight\": 1}\r\n  ]\r\n}",
+					"raw": "{\r\n  \"name\": \"GrafoSimulation\",\r\n  \"description\": \"Un grafo di test per la simulazione con un arco dal peso elevato.\",\r\n  \"nodes\": [\"A\", \"B\", \"C\", \"D\"],\r\n  \"edges\": [\r\n    {\"startNode\": \"A\", \"endNode\": \"B\", \"weight\": 50},\r\n    {\"startNode\": \"A\", \"endNode\": \"C\", \"weight\": 1},\r\n    {\"startNode\": \"C\", \"endNode\": \"D\", \"weight\": 1},\r\n    {\"startNode\": \"D\", \"endNode\": \"B\", \"weight\": 1}\r\n    \r\n  ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -623,7 +624,7 @@
 			"response": []
 		},
 		{
-			"name": "Calculate minimal path",
+			"name": "Calculatecost",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -642,7 +643,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"graphId\":2,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"C\"\r\n}",
+					"raw": "{\r\n  \"graphId\":7,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"B\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -664,7 +665,7 @@
 			"response": []
 		},
 		{
-			"name": "Save Update Format",
+			"name": "SaveUpdateFormat",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -683,7 +684,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"graphId\": 1,\r\n  \"dateFilter\": {\r\n    \"from\": \"2024-01-01\",\r\n    \"to\": \"2024-12-31\"\r\n  },\r\n  \"status\": \"accepted\",\r\n  \"format\": \"pippo\"\r\n}",
+					"raw": "{\r\n  \"graphId\": 1,\r\n  \"dateFilter\": {\r\n    \"from\": \"2024-01-01\",\r\n    \"to\": \"2024-12-31\"\r\n  },\r\n  \"status\": \"\",\r\n  \"format\": \"CSV\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -724,7 +725,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"graphId\": 2,\r\n  \"edgeId\": 91,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"B\",\r\n  \"startWeight\": 0.5,\r\n  \"endWeight\": 50,\r\n  \"step\": 1\r\n}",
+					"raw": "{\r\n  \"graphId\": 7,\r\n  \"edgeId\": 49,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"B\",\r\n  \"startWeight\":0.5,\r\n  \"endWeight\": 50,\r\n  \"step\": 1\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

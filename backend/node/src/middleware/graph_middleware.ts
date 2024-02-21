@@ -29,24 +29,27 @@ export const checkUserTokensCreate = async (req: Request, res: Response, next: N
         const jwtUserEmail = getJwtEmail(req);
 
         if (!jwtUserEmail) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoAuthHeader);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoAuthHeader);
+
         }
 
         const user = await findUser(jwtUserEmail);
         if (!user) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
+
         }
 
         // Calcola il costo totale basato sui nodi e sugli archi forniti nella richiesta
         const totalCost = calculateCost(req.body.nodes.length, req.body.edges.length);
 
         if (user[0].dataValues.tokens < totalCost) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokens);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokens);
+
         }
 
         next();
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -63,11 +66,12 @@ export const validateEdgeWeightsUpdate = async (req: Request, res: Response, nex
     const new_weight = req.body.newWeight;
     try{
         if (!new_weight || new_weight < 0 || typeof new_weight !== 'number') {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+
         }
         next();
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -83,7 +87,8 @@ export const validateEdgeWeightsCreation = async (req: Request, res: Response, n
     const edges = req.body;
 
     if (!edges || !Array.isArray(edges) || edges.some(edge => typeof edge.weight !== 'number' || edge.weight < 0)) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+
     }
     next();
 };
@@ -102,40 +107,49 @@ export const validateGraphStructure = async (req: Request, res: Response, next: 
     try {
         // Controlli sul nome e la descrizione con messaggi specifici
         if (typeof name !== 'string' || name.trim() === '') {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoGraphName);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoGraphName);
+
         }
         if (name.length > 50) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphLengthLimit);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.GraphLengthLimit);
+
         }
 
         if (typeof description !== 'string') {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionString);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionString);
+
         }
         if (description.length > 150) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionLenghtLimit);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DescriptionLenghtLimit);
+
         }
 
         // Verifica l'unicità del nome nel database con messaggio specifico
         const existingGraph = await findGraphByName(name);
         if (existingGraph && existingGraph.length > 0) {
             const errorMessage = generateGraphNameInUseErrorMessage(name);
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, errorMessage);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, errorMessage);
+
         }
 
         // Controlli sui nodi
         if (!Array.isArray(nodes)) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NodeArray);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NodeArray);
+
         }
         if (nodes.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NodeArray);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NodeArray);
+
         }
         if (new Set(nodes).size !== nodes.length) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DuplicateNode);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DuplicateNode);
+
         }
 
         // Controlli sugli archi
         if (!Array.isArray(edges) || edges.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeArray);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeArray);
+
         }
 
         const nodeSet = new Set(nodes);
@@ -148,19 +162,21 @@ export const validateGraphStructure = async (req: Request, res: Response, next: 
             // Controllo per nodi non definiti negli archi
             if (!nodeSet.has(startNode) || !nodeSet.has(endNode)) {
                 const errorMessage = generateUndefinedNodesErrorMessage(startNode, endNode, nodeSet);
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, errorMessage)
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, errorMessage);
             }
 
             if (!startNode || !endNode || startNode === endNode || typeof weight !== 'number' || weight <= 0) {
                 const errorMessage = validateEdgeErrorMessage(startNode, endNode, weight);
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, errorMessage!);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, errorMessage!);
+
 
             }
 
             const edgeString = `${startNode}->${endNode}`;
             const reciprocalEdgeString = `${endNode}->${startNode}`;
             if (edgeSet.has(reciprocalEdgeString)) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotReciprocal);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotReciprocal);
+
             }
 
             edgeSet.add(edgeString);
@@ -170,12 +186,13 @@ export const validateGraphStructure = async (req: Request, res: Response, next: 
 
         // Verifica che tutti i nodi siano collegati
         if (nodeSet.size !== connectedNodes.size) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnconnectedNodes);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnconnectedNodes);
+
         }
 
         next();
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -194,14 +211,16 @@ export const checkEdgeBelonging = async (req: Request, res: Response, next: Next
         const edgeId = req.body.edgeId;
         const edge = await findEdgeById(edgeId);
         if (!edge) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+
         }
         if (edge.graph_id != graphId) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
+
         }
         next();
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -218,18 +237,20 @@ export const checkGraphExistence = async (req: Request, res: Response, next: Nex
 
         // Verifica che graphId sia un numero
         if (isNaN(Number(graphId))) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidGraphId);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidGraphId);
+
         }
 
     try {
         const graph = await findGraphById(graphId);
         if (!graph) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.GraphNotFound);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.GraphNotFound);
+
         }
         next();
     } catch (error) {
         console.error(error);
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -238,7 +259,8 @@ export const validateNodes = async (req: Request, res: Response, next: NextFunct
     const { graphId, startNode, endNode } = req.body;
 
     if (!startNode || typeof startNode !== 'string' || !endNode || typeof endNode !== 'string') {
-        return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.InvalidNodes);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.InvalidNodes);
+
     }
     
     next();
@@ -254,12 +276,13 @@ export const validateNodes = async (req: Request, res: Response, next: NextFunct
         const endNodeExists = nodes.some((node: any) => node === endNode);
 
         if (!startNodeExists || !endNodeExists) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NodeNotFound);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NodeNotFound);
+
         }
 
         next();
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
 
     }
 };
@@ -270,7 +293,8 @@ export const checkEdgesExistence = async (req: Request, res: Response, next: Nex
   
     const edges = await findEdgesByGraphId(graphId);
     if (!edges || edges.length === 0) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+
     }
       next();
   };
@@ -287,7 +311,7 @@ export const checkUpdateExistence = async (req: Request, res: Response, next: Ne
     try {
         // Controlla se updateId non è un numero o è minore di 1 (consentendo solo valori positivi validi)
         if (isNaN(updateId) || updateId < 1) {
-            return statusMessage.getStatusMessage(
+            return MessageFactory.getStatusMessage(
                 CustomStatusCodes.BAD_REQUEST,
                 res,
                 isNaN(updateId) ? Messages400.NotANumber : Messages400.UpdateRequired
@@ -295,7 +319,7 @@ export const checkUpdateExistence = async (req: Request, res: Response, next: Ne
         }
         next();
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -312,12 +336,14 @@ export const checkUpdatePending = async (req: Request, res: Response, next: Next
     try {
         const update = await findUpdateById(updateId);
         if (update.approved != null) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAlreadyAwnsered);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAlreadyAwnsered);
+
         }
         next();
     } catch (error) {
         console.error(error);
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
     }
 };
 
@@ -337,12 +363,13 @@ export const checkOwner = async (req: Request, res: Response, next: NextFunction
         const updates = await findUpdateById(updateId);
         const receiver = await findUserById(updates.receiver_id);
         if (receiver[0].dataValues.email != JwtUserEmail) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotOwner);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotOwner);
+
         }
         next();
     } catch (error) {
         console.error(error);
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 
 };
@@ -362,25 +389,29 @@ export const checkAllEdgesBelongingAndCorrectWeights = async (req: Request, res:
         for (let i = 0; i < updates.length; i++) {
 
             if (typeof updates[i].edgeId !== 'number') {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber); // Assicurati di avere Messages400.EdgeIdValidation definito correttamente
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber);
+
             }
 
             const edge = await findEdgeById(updates[i].edgeId);
             if (!edge) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+
             }
             if (edge.graph_id != graphId) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
+
             }
             if (updates[i].newWeight < 0 || typeof updates[i].newWeight !== 'number' || !updates[i].newWeight) {
                 console.log("Sono nell'if weight validation")
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
+
             }
         }
         console.log("Ho passato la validazione dei pesi e degli archi")
         next();
     }catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 
 };
@@ -400,17 +431,19 @@ export const checkUserTokensUpdate = async (req: Request, res: Response, next: N
     try {
         const user = await findUser(jwtUserEmail);
         if (user[0].dataValues.tokens <= 0) { 
-            return statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokensUpdate);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokensUpdate);
+
         }
         const totalEdges = updates.length;
         const costoUpgrade = totalEdges * update_cost_per_edge;
         if (user[0].dataValues.tokens < costoUpgrade) {
             res.status(200).json({ message: "Costo operazione: " + costoUpgrade + ", tokens utente: " + user[0].dataValues.tokens});
-            return statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokensUpdate);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokensUpdate);
+
         }
         next();
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -424,15 +457,18 @@ export const checkUpdatesExistence = async (req: Request, res: Response, next: N
     const {request} = req.body;
     try {
         if (!request || request.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.RequestNotFound);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.RequestNotFound);
+
         }
         for(let i = 0; i < request.length; i++){
             const update = await findUpdateById(request[i].updateId);
             if (!update) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateNotFound);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateNotFound);
+
             }
             if (update.update_id <= 0 || isNaN(update.update_id)) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber);
+
                 
     
             }
@@ -440,7 +476,7 @@ export const checkUpdatesExistence = async (req: Request, res: Response, next: N
         next();
     } catch (error) {
         console.error(error);
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -461,12 +497,13 @@ export const checkOwnerGraphs = async (req: Request, res: Response, next: NextFu
             const updates = await findUpdateById(request[i].updateId);
             const receiver = await findUserById(updates.receiver_id);
             if (receiver[0].dataValues.email != JwtUserEmail) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotOwner);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotOwner);
+
             }
         }
         next();
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 
 };
@@ -484,13 +521,14 @@ export const checkUpdatesArePending = async (req: Request, res: Response, next: 
         for(let i = 0; i < request.length; i++){
             const update = await findUpdateById(request[i].updateId);
             if (update.approved != null) {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAlreadyAwnsered);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAlreadyAwnsered);
+
             }
         }
         next();
     } catch (error) {
         console.error(error);
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -510,14 +548,15 @@ export const checkUpdatesAreDifferent = async (req: Request, res: Response, next
         for(let i = 0; i < request.length; i++){
             for(let j = i + 1; j < request.length; j++){
                 if(request[i].updateId === request[j].updateId){
-                    return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateNotDifferent);
+                    return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateNotDifferent);
+
                 }
             }
         }
         next();
     } catch (error) {
         console.error(error);
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -536,16 +575,18 @@ export const checkValidationAnswer = (req: Request, res: Response, next: NextFun
         for(let i = 0; i < request.length; i++){
 
             if (typeof request[i].updateId !== 'number') {
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber); // Assicurati di avere un messaggio di errore appropriato in Messages400
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotANumber);
+
             }
 
             if(request[i].answer !== true && request[i].answer !== false){
-                return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAnswerValidation);
+                return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAnswerValidation);
+
             }
         }
         next();
     } catch (error) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -555,10 +596,12 @@ export const validateDateRange = (req: Request, res: Response, next: NextFunctio
 
     // Controlla che le date siano stringhe
     if (dateFilter?.from && typeof dateFilter.from !== 'string') {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DateString);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DateString);
+
     }
     if (dateFilter?.to && typeof dateFilter.to !== 'string') {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DateString);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.DateString);
+
     }
 
     // Gestisce i casi in cui le date sono stringhe vuote convertendole in undefined
@@ -571,12 +614,14 @@ export const validateDateRange = (req: Request, res: Response, next: NextFunctio
 
     // Controlla la validità delle date convertite
     if ((startDate && isNaN(startDate.getTime())) || (endDate && isNaN(endDate.getTime()))) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDate);
+
     }
     
     // Assicura che la data di inizio non sia successiva alla data di fine
     if (startDate && endDate && startDate > endDate) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDateReverse);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidDateReverse);
+
         
     }
 
@@ -588,13 +633,15 @@ export const validateStatus = (req: Request, res: Response, next: NextFunction) 
 
      // Verifica che status sia una stringa
      if (status && typeof status !== 'string') {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.StatusString);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.StatusString);
+
         
     }
 
     // Permette solo "accepted", "rejected", o una stringa vuota come valori validi per lo stato
     if (status && status.trim() !== '' && status !== 'accepted' && status !== 'rejected') {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.AllowStatus);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.AllowStatus);
+
     }
 
 
@@ -630,14 +677,17 @@ export const validateSimulationParameters = (req: Request, res: Response, next: 
     const { startWeight, endWeight, step } = req.body;
 
     if (typeof startWeight !== 'number' || typeof endWeight !== 'number' || typeof step !== 'number') {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidSimulationValue);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidSimulationValue);
+
     }
 
     if (startWeight >= endWeight) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidSimulationReverse);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidSimulationReverse);
+
     }
     if (step <= 0) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NegativeOrNullStep);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NegativeOrNullStep);
+
     }
 
 
@@ -649,7 +699,8 @@ export const validateStartEndNodes = (req: Request, res: Response, next: NextFun
 
     // Controlla se lo startNode è uguale all'endNode
     if (startNode === endNode) {
-        return statusMessage.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.StardEndNodeCoincide);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.StardEndNodeCoincide);
+
     }
 
     next(); // Continua al prossimo middleware se non ci sono errori
