@@ -27,6 +27,13 @@ fs
     );
   })
   .forEach(file => {
+    /**
+     * Rappresenta un modello del database.
+     * @typedef {Object} Modello
+     * @property {function} model - Funzione che restituisce il modello del database.
+     * @property {Sequelize} sequelize - Oggetto Sequelize per l'interazione con il database.
+     * @property {Sequelize.DataTypes} DataTypes - Oggetto che contiene i tipi di dati supportati da Sequelize.
+     */
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });

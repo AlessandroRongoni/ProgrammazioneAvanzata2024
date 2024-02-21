@@ -4,24 +4,8 @@ import { Op } from 'sequelize';
 import { EdgeModel } from '../../models/EdgeModel';
 // Importa il modello per gli aggiornamenti degli archi
 import { UpdateModel } from '../../models/UpdateModel';
+import { WhereOptions } from 'sequelize'; // Assicurati di importare WhereOptions da sequelize
 
-// Funzione per trovare tutti gli aggiornamenti degli archi per un determinato utente
-export async function findUpdatesByUserId(userId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            user_id: userId,
-        }
-    });
-}
-
-// Funzione per trovare tutti gli aggiornamenti degli archi per un determinato arco
-export async function findUpdatesByEdgeId(edgeId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            edge_id: edgeId,
-        }
-    });
-}
 
 /**
  * Approva una richiesta di aggiornamento dell'arco nel database.
@@ -35,7 +19,7 @@ export async function approveEdgeUpdate(updateId: number): Promise<any> {
             update_id: updateId
         }
     });
-}
+};
 
 /**
  * Respinti una richiesta di aggiornamento dell'arco nel database.
@@ -49,41 +33,8 @@ export async function rejectEdgeUpdate(updateId: number): Promise<any> {
             update_id: updateId
         }
     });
-}
+};
 
-/**
- * Trova tutte le richieste di aggiornamento NON pendenti per un utente specifico nel database.
- * 
- * @param userId - L'ID dell'utente per cui trovare le richieste di aggiornamento pendenti.
- * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento true e false per l'utente specificato.
- */
-// Trova lo storico delle richieste di aggiornamento per un utente specifico
-export async function findRequestHistory(userId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            user_id: userId,
-            approved: { [Op.ne]: null } // Seleziona le richieste che sono state approvate o rifiutate
-        },
-        include: [
-            // Opzionale: includi qui altri modelli se necessario, ad esempio per dettagli sull'arco
-        ],
-        order: [['updatedAt', 'DESC']] // Ordina le richieste dal più recente al più vecchio
-    });
-}
-
-/**
- * Trova tutte le richieste di aggiornamento fatte da un utente specifico nel database.
- * 
- * @param requesterId - L'ID dell'utente che ha fatto le richieste di aggiornamento.
- * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento fatte dall'utente specificato.
- */
-export async function findUpdatesByRequester(requesterId: number): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            requester_id: requesterId
-        }
-    });
-}
 
 /**
  * Trova tutte le richieste di aggiornamento fatte ad un utente specifico nel database.
@@ -99,90 +50,19 @@ export async function findUpdatesByReceiverInPending(receiverId: number): Promis
             approved: null
         }
     });
-}
+};
 
-
-// Funzione per trovare le richieste di aggiornamento fatte dopo una certa data
-export async function findUpdatesAfterDate(date: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            createdAt: {
-                [Op.gt]: date // Filtra le righe con createdAt maggiore della data specificata
-            }
-        }
-    });
-}
-
-
-// Funzione per trovare le richieste di aggiornamento fatte prima di una certa data
-export async function findUpdatesBeforeDate(date: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            createdAt: {
-                [Op.lt]: date // Filtra le righe con createdAt minore della data specificata
-            }
-        }
-    });
-}
-
-// Funzione per trovare le richieste di aggiornamento fatte in un intervallo di date
-export async function findUpdatesBetweenDates(startDate: Date, endDate: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            createdAt: {
-                [Op.between]: [startDate, endDate] // Filtra le righe con createdAt compreso tra startDate e endDate
-            }
-        }
-    });
-}
 
 /**
- * Trova tutti gli aggiornamenti richiesti ad un utente specifico e filtrali per data.
+ * Filtra gli aggiornamenti in base ai criteri specificati.
  * 
- * @param userId - L'ID dell'utente per cui trovare gli aggiornamenti.
- * @param startDate - Data di inizio del filtro.
- * @param endDate - Data di fine del filtro.
- * @returns Una promessa che rappresenta l'elenco degli aggiornamenti richiesti per l'utente specificato, filtrati per data.
+ * @param graphId - L'ID del grafo per cui filtrare gli aggiornamenti.
+ * @param startDate - La data di inizio per il filtro delle date (opzionale).
+ * @param endDate - La data di fine per il filtro delle date (opzionale).
+ * @param approved - Lo stato di approvazione per il filtro (opzionale).
+ *                   Accetta i valori 'accepted', 'rejected' o undefined per includere tutti gli stati.
+ * @returns Una Promise che risolve con un array di oggetti UpdateModel che corrispondono ai criteri di filtro.
  */
-export async function findUpdatesByModelAndBetweenDate(graph_Id: number, startDate: Date, endDate: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            graph_Id: graph_Id,
-            createdAt: {
-                [Op.between]: [startDate, endDate]
-            }
-        }
-    });
-}
-
-// Filtra gli aggiornamenti per un modello specifico a partire da una data di inizio
-export async function findUpdatesByModelAndStartDate(graph_Id: number, startDate: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            graph_Id: graph_Id,
-            createdAt: {
-                [Op.gte]: startDate
-            }
-        }
-    });
-}
-
-// Filtra gli aggiornamenti per un modello specifico fino a una data di fine
-export async function findUpdatesByModelAndEndDate(graph_Id: number, endDate: Date): Promise<any> {
-    return await UpdateModel.findAll({
-        where: {
-            graph_Id: graph_Id,
-            createdAt: {
-                [Op.lte]: endDate
-            }
-        }
-    });
-}
-
-
-import { WhereOptions } from 'sequelize'; // Assicurati di importare WhereOptions da sequelize
-
-// Funzione per filtrare gli aggiornamenti basandosi su varie condizioni
 export async function filterUpdates(graphId: number, startDate?: Date, endDate?: Date, approved?: string) {
     let whereCondition: WhereOptions = { // Usa WhereOptions per una maggiore flessibilità
         graph_id: graphId,
@@ -211,8 +91,12 @@ export async function filterUpdates(graphId: number, startDate?: Date, endDate?:
     });
 }
 
+
 /**
- * Query per trovare tutti gli updates dato l'ID di un grafo
+ * Trova gli aggiornamenti in sospeso per un determinato ID di grafo.
+ * 
+ * @param graphId - L'ID del grafo per cui cercare gli aggiornamenti in sospeso.
+ * @returns Una Promise che si risolve con un array contenente gli aggiornamenti in sospeso.
  */
 export async function findPendingUpdatesByGraphId(graphId: number): Promise<any> {
     return await UpdateModel.findAll({
@@ -264,11 +148,11 @@ export async function updateEdgeWeightInDB(edgeId: number, updatedWeight: number
     }
 }
 
-/** QUERY PER ottenere gli update dato l'ID
- * 
- * @param updateId - L'ID dell'aggiornamento da ottenere.
- * @returns Una promessa che rappresenta l'aggiornamento richiesto.
- * 
+
+/**
+ * Trova un aggiornamento dal suo ID.
+ * @param updateId - L'ID dell'aggiornamento da cercare.
+ * @returns Una promessa che si risolve con l'aggiornamento trovato.
  */
 export async function findUpdateById(updateId: number): Promise<any> {
     return await UpdateModel.findByPk(updateId);

@@ -1,8 +1,10 @@
-
 import { DataTypes} from 'sequelize';
 import { DbConnector } from '../db/db_connection';
 
 
+/**
+ * Oggetto Sequelize per la connessione al database.
+ */
 const sequelize = DbConnector.getConnection();
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
@@ -10,13 +12,22 @@ sequelize.authenticate().then(() => {
   console.error('Unable to connect to the database: ', error);
 });
 
+/**
+ * Modello per rappresentare un arco nel grafo.
+ */
 export const EdgeModel = sequelize.define('edges', {
+    /**
+     * Identificatore univoco dell'arco.
+     */
     edge_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
     },
+    /**
+     * Identificatore del grafo a cui l'arco appartiene.
+     */
     graph_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -25,14 +36,23 @@ export const EdgeModel = sequelize.define('edges', {
             key: 'graph_id',
         }
     },
+    /**
+     * Nodo di partenza dell'arco.
+     */
     start_node: {
         type: DataTypes.STRING,
         allowNull: false
     },
+    /**
+     * Nodo di arrivo dell'arco.
+     */
     end_node: {
         type: DataTypes.STRING,
         allowNull: false
     },
+    /**
+     * Peso dell'arco.
+     */
     weight: {
         type: DataTypes.FLOAT,
         allowNull: false

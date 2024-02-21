@@ -1,5 +1,4 @@
 import { UserModel } from '../../models/UserModel';
-
 /**
  * Aggiorna il numero di token di un utente nel database.
  * Aggiorna il campo "tokens" dell'utente identificato dall'indirizzo email nel database.

@@ -2,6 +2,9 @@ import { DataTypes } from 'sequelize';
 import { DbConnector } from '../db/db_connection';
 
 
+/**
+ * Oggetto Sequelize per la connessione al database.
+ */
 const sequelize = DbConnector.getConnection();
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
@@ -44,6 +47,10 @@ export const GraphModel = sequelize.define('graphs', {
     description: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    cost: {
+        type: DataTypes.FLOAT,
+        allowNull: false
     }
 }, {
     modelName: 'GraphModel',
