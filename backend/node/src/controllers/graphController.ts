@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { addEdgesToGraph, createGraphQuery, findAllGraphs, findEdgesByGraphId, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { addEdgesToGraph, createGraphQuery, findAllGraphs, findEdgesByGraphId, findGraphCostById, subtractTokensByEmail } from '../db/queries/graph_queries';
 import { calculateCost, prepareGraphData, calculatePathUtility } from '../utils/graph_utils';
 import Graph from "node-dijkstra";
 
@@ -93,7 +93,7 @@ export const createGraph = async (req: Request, res: Response) => {
     const totalCost = calculateCost(nodes.length, edges.length);
     try {        
         // Crea il grafo //+ controlli nome/descrizione non possono esistere più nomi uguali
-        const graph = await createGraphQuery(user[0].dataValues.user_id, name, description);
+        const graph = await createGraphQuery(user[0].dataValues.user_id, name, description, totalCost);
         for(let i=0; i<req.body.edges.length; i++){
             await addEdgesToGraph(graph.graph_id, edges[i].startNode, edges[i].endNode, edges[i].weight);
         }
@@ -132,8 +132,7 @@ export const getAllGraphs = async (req: Request,res: Response) => {
  * 
  * @param req - Oggetto della richiesta.
  * @param res - Oggetto della risposta.
- * @returns
- * 
+ * @returns 
  */
 export const getGraphEdges = async (req: Request,res: Response) => {
     try {
@@ -152,28 +151,48 @@ export const getGraphEdges = async (req: Request,res: Response) => {
 
 export const CalculatePath = async (req: Request, res: Response) => {
     const { graphId, startNode, endNode } = req.body;
+
+    let jwtUserEmail = getJwtEmail(req)
+    // Cerca l'utente tramite email
+    const user = await findUser(jwtUserEmail);
+    const graphCost: any = findGraphCostById(graphId);
+    let startTime: number; // Timestamp di inizio
+    let endTime: number; // Timestamp di fine
+
     try {
+        startTime = Date.now(); // Registra l'istante di inizio
+
         const edges = await findEdgesByGraphId(graphId);
         const graphData = prepareGraphData(edges);
 
         const routeGraph = new Graph(graphData);
         const result = routeGraph.path(startNode, endNode, { cost: true });
 
+        endTime = Date.now(); // Registra l'istante di fine
+
+
         // Verifica che il risultato sia di tipo PathResult
         if (!Array.isArray(result) && result.path && result.cost !== undefined) {
+            const elapsedTime = endTime - startTime; // Calcola il tempo trascorso in millisecondi
             res.json({
                 path: result.path,
                 cost: result.cost,
+                elapsedTime: elapsedTime,
                 message: 'Path calculated successfully.'
             });
         } else {
             return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.PathNotFound);
-
-            
         }
-    } catch (error) {
+    } 
+    
+    catch (error) {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
 
+    }
+    finally{
+        if (graphCost !== null) {
+        await subtractTokensByEmail(jwtUserEmail, graphCost);
+        }
     }
 };
 

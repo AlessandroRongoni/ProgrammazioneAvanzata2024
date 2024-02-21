@@ -44,6 +44,10 @@ export const GraphModel = sequelize.define('graphs', {
     description: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    cost: {
+        type: DataTypes.FLOAT,
+        allowNull: false
     }
 }, {
     modelName: 'GraphModel',

@@ -79,14 +79,30 @@ export async function findEdgeById(edgeId: number): Promise<any> {
 }
 
 
-export async function createGraphQuery(userId: number, name: string, description: string): Promise<any> {
+export async function createGraphQuery(userId: number, name: string, description: string, cost: number): Promise<any> {
     return await GraphModel.create({
         user_id: userId,
         name: name,
-        description: description
+        description: description,
+        cost: cost
     });
 }
 
+export async function findGraphCostById(graphId: number): Promise<number | null> {
+    try {
+        const graph = await GraphModel.findByPk(graphId, {
+            attributes: ['cost'] // Seleziona solo la colonna 'cost'
+        });
+        if (graph) {
+            return graph.cost; // Restituisce il costo se il grafo è stato trovato
+        } else {
+            return null; // Restituisce null se non viene trovato nessun grafo con l'ID specificato
+        }
+    } catch (error) {
+        console.error("Error fetching graph cost by graphId:", error);
+        throw error; // Rilancia l'errore per una gestione ulteriore
+    }
+}
 
 export async function addEdgesToGraph(graphId: number, startNode: string, endNode: string, weight: number): Promise<any> {
         return EdgeModel.create({
