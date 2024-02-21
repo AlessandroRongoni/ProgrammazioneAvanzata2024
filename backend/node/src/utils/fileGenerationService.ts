@@ -1,30 +1,56 @@
 import fs from 'fs';
 import path from 'path';
 import { Response } from 'express';
+// Per il formato CSV
+import  {stringify} from 'csv-stringify';
 
-const filesDir = path.join(__dirname, '..', '..', 'generatedFiles');
 
-// Verifica se la cartella esiste, altrimenti creala
-if (!fs.existsSync(filesDir)){
-    fs.mkdirSync(filesDir, { recursive: true });
-}
+/**
+ * Salva i dati in un file e risponde con il file generato.
+ * @param updates - Array di oggetti contenenti gli aggiornamenti da salvare nel file.
+ * @param format - Formato del file da generare (csv, pdf, xml).
+ * @param res - Oggetto Response per inviare la risposta al client.
+ * @param graphInfo - Informazioni sul grafo (graph_id, user_id, name, description).
+ * @returns Promise<void>
+ */
+export const saveAndRespondWithFile = async (updates: any[],format: string,res: Response,graphInfo: { graph_id: number; user_id:number, name: string; description: string;}) => {
+    const filesDir = path.join(__dirname, '..', '..', 'generatedFiles');
+    try{
+    // Verifica se la cartella esiste, altrimenti creala
+    if (!fs.existsSync(filesDir)){
+        fs.mkdirSync(filesDir, { recursive: true });
+      }
+    switch (format.toLowerCase()) {
+      // Definisci le colonne per il CSV
+      case 'csv':
+        // Estrai solo i dataValues da ogni oggetto in updates
+        const cleanUpdates = updates.map(update => update.dataValues ? update.dataValues : update);
+                
+        // Definisci le colonne per il CSV
+        const columns = {
+            update_id: 'Update ID',
+            graph_id: 'Graph ID',
+            edge_id: 'Edge ID',
+            requester_id: 'Requester ID',
+            receiver_id: 'Receiver ID',
+            new_weight: 'New Weight',
+            approved: 'Approved',
+            createdat: 'Created At',
+            updatedat: 'Updated At'
+        };
 
-export const saveAndRespondWithFile = async (
-  updates: any[],
-  format: string,
-  res: Response,
-  graphInfo: { graph_id: number; user_id:number, name: string; description: string;}
-) => {
-  switch (format.toLowerCase()) {
-    case 'csv':
-      const { stringify } = require('csv-stringify/sync');
-      const csvData = stringify(updates, { header: true });
-      // Usa filesDir per salvare il file CSV
-      const csvFilePath = path.join(filesDir, 'updates.csv');
-      fs.writeFileSync(csvFilePath, csvData);
-      res.header('Content-Type', 'text/csv');
-      res.attachment('updates.csv');
-      return res.send(csvData);
+        // Gestisci la scrittura del file CSV
+        const csvFilePath = path.join(filesDir, 'updates.csv');
+        const csvStream = fs.createWriteStream(csvFilePath);
+
+        stringify(cleanUpdates, { header: true, columns: columns }).pipe(csvStream);
+
+        csvStream.on('finish', () => {
+            res.header('Content-Type', 'text/csv');
+            res.attachment('updates.csv');
+            res.download(csvFilePath);
+        });
+        break;
 
       case 'pdf':
         const PDFDocument = require('pdfkit');
@@ -63,5 +89,8 @@ export const saveAndRespondWithFile = async (
 
     default:
       res.json([graphInfo, updates]);
+  }} catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Errore nella generazione del file' });
   }
 };
