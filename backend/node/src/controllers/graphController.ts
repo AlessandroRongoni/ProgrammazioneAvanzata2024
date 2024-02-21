@@ -152,12 +152,18 @@ export const getGraphEdges = async (req: Request,res: Response) => {
 
 export const CalculatePath = async (req: Request, res: Response) => {
     const { graphId, startNode, endNode } = req.body;
+
+    let jwtUserEmail = getJwtEmail(req)
+    // Cerca l'utente tramite email
+    const user = await findUser(jwtUserEmail);
+    let result: any = null; 
+
     try {
         const edges = await findEdgesByGraphId(graphId);
         const graphData = prepareGraphData(edges);
 
         const routeGraph = new Graph(graphData);
-        const result = routeGraph.path(startNode, endNode, { cost: true });
+        result = routeGraph.path(startNode, endNode, { cost: true });
 
         // Verifica che il risultato sia di tipo PathResult
         if (!Array.isArray(result) && result.path && result.cost !== undefined) {
@@ -168,12 +174,17 @@ export const CalculatePath = async (req: Request, res: Response) => {
             });
         } else {
             return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.PathNotFound);
-
-            
         }
-    } catch (error) {
+    } 
+    
+    catch (error) {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
 
+    }
+    finally{
+        if (result !== null) {
+        await subtractTokensByEmail(jwtUserEmail, result.cost);
+        }
     }
 };
 
