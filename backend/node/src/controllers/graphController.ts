@@ -132,8 +132,7 @@ export const getAllGraphs = async (req: Request,res: Response) => {
  * 
  * @param req - Oggetto della richiesta.
  * @param res - Oggetto della risposta.
- * @returns
- * 
+ * @returns 
  */
 export const getGraphEdges = async (req: Request,res: Response) => {
     try {
