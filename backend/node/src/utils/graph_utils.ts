@@ -9,6 +9,13 @@ const nodeCost = process.env.CREATE_COST_NODES ? parseFloat(process.env.CREATE_C
 const edgeCost = process.env.CREATE_COST_EDGES ? parseFloat(process.env.CREATE_COST_EDGES) : 0.02; // Costo per arco, usato nella creazione
 
 
+/**
+ * Calcola il costo totale di un grafo dato il numero di nodi e il numero di archi.
+ * 
+ * @param nodes Il numero di nodi nel grafo.
+ * @param edges Il numero di archi nel grafo.
+ * @returns Il costo totale del grafo.
+ */
 export function calculateCost(nodes: number, edges: number): number {
     let totalCost = 0;
     totalCost += nodes * nodeCost + edges * edgeCost;
@@ -16,6 +23,12 @@ export function calculateCost(nodes: number, edges: number): number {
 }
 
 
+/**
+ * Prepara i dati del grafo a partire dagli archi forniti.
+ * 
+ * @param edges - Gli archi del grafo.
+ * @returns I dati del grafo preparati.
+ */
 export function prepareGraphData(edges: any) {
     const graphData: { [key: string]: { [key: string]: number } } = {};
   
@@ -31,43 +44,25 @@ export function prepareGraphData(edges: any) {
 
 
 /**
- * Calcola il percorso più breve utilizzando i dati del grafo specificati e restituisce il risultato.
+ * Calcola il percorso più breve tra due nodi di un grafo.
  * 
  * @param graphData Dati del grafo.
  * @param startNode Nodo di partenza.
  * @param endNode Nodo di arrivo.
  * @returns Il percorso più breve e il suo costo, se esiste; altrimenti, undefined.
  */
-export async function calculatePathWithGraphData(graphData: { [key: string]: { [key: string]: number } }, startNode: string, endNode: string): Promise<{ path: string[]; cost: number } | undefined> {
-  try {
-      const routeGraph = new Graph(graphData);
-      const result = routeGraph.path(startNode, endNode, { cost: true });
-
-      if (result && !Array.isArray(result) && result.path && result.cost !== undefined) {
-          return {
-              path: result.path,
-              cost: result.cost
-          };
-      } else {
-          return undefined;
-      }
-  } catch (error) {
-      console.error('Error calculating path with graph data:', error);
-      return undefined;
-  }
-}
-
-// Funzione di utilità per calcolare il percorso
 export function calculatePathUtility(graphData: { [key: string]: { [key: string]: number } }, startNode: string, endNode: string) {
   const routeGraph = new Graph(graphData);
   return routeGraph.path(startNode, endNode, { cost: true });
 }
 
-export function getUnsupportedFormatMessage(format: string, allowedFormats: string[]): string {
-  return Messages400.UnsupportedFormat.replace('{{format}}', format).replace('{{allowedFormats}}', allowedFormats.join(', '));
-}
-
-// Funzione helper per generare messaggi di errore personalizzati per nodi non definiti
+/**
+ * Restituisce un messaggio di errore per un formato non supportato.
+ * 
+ * @param format Il formato non supportato.
+ * @param allowedFormats I formati supportati.
+ * @returns Il messaggio di errore per un formato non supportato.
+ */
 export function generateUndefinedNodesErrorMessage(startNode: string, endNode: string, nodeSet: Set<string>): string {
   let errorMessage = "L'arco contiene nodi non definiti: ";
   const undefinedNodes = [];
@@ -83,6 +78,14 @@ export function generateUndefinedNodesErrorMessage(startNode: string, endNode: s
   return errorMessage;
 }
 
+
+/**
+ * Restituisce un messaggio di errore per un formato non supportato.
+ * 
+ * @param format Il formato non supportato.
+ * @param allowedFormats I formati supportati.
+ * @returns Il messaggio di errore per un formato non supportato.
+ */
 export function validateEdgeErrorMessage(startNode: string, endNode: string, weight: number): string | null {
   if (!startNode || !endNode) {
       return "Sia il nodo di partenza che quello di arrivo devono essere specificati.";
@@ -97,7 +100,14 @@ export function validateEdgeErrorMessage(startNode: string, endNode: string, wei
   return null;
 }
 
-// Funzione helper per generare un messaggio di errore per nomi di grafi già in uso
+
+/**
+ * Restituisce un messaggio di errore per un formato non supportato.
+ * 
+ * @param format Il formato non supportato.
+ * @param allowedFormats I formati supportati.
+ * @returns Il messaggio di errore per un formato non supportato.
+ */
 export function generateGraphNameInUseErrorMessage(graphName: string): string {
   return `Il nome del grafo '${graphName}' è già in uso.`;
 }

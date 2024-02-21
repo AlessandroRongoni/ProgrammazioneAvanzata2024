@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Middleware per il parsing del JSON
 app.use(express.json());
 
-// Middleware per la gestione degli errori di parsing JSON
+//Gestione degli errori di parsing JSON
 app.use((err:Error, req:Request, res:Response, next:NextFunction) => {
     if (err instanceof SyntaxError && 'body' in err) {
         console.error('Errore di parsing JSON!');
@@ -41,6 +41,8 @@ app.use((err:Error, req:Request, res:Response, next:NextFunction) => {
 app.get("/", (req: Request, res: Response) => {
   res.send("Effettua il login per usare l'applicazione");
 });
+
+
 /**
  * Effettua il login e restituisce il jwt associato all'utente
  */

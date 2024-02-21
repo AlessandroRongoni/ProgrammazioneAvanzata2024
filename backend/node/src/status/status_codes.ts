@@ -22,6 +22,9 @@ export enum Messages200 {
 export enum Messages300 {
 
 }
+/**
+ * Enumerazione dei messaggi di errore per la risposta HTTP 400.
+ */
 export enum Messages400 {
     NoAuthHeader = "Bad Request - No authorization header",
     UnconnectedNodes = "Nodi non connessi",

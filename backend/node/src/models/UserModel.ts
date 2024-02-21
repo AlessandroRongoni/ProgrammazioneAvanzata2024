@@ -17,6 +17,9 @@ sequelize.authenticate().then(() => {
  * Definizione del modello "user" per la tabella del database.
  * Il modello definisce le proprietà e i tipi di dati associati alla tabella "user".
  */
+/**
+ * Definisce il modello per la tabella "users" nel database.
+ */
 export const UserModel = sequelize.define('users', {
     user_id: {
         type: DataTypes.INTEGER,

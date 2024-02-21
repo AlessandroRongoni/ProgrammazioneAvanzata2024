@@ -4,7 +4,6 @@ import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500 } from "../status/status_codes";
 import { Request, Response, NextFunction } from "express";
 
-var statusMessage: MessageFactory = new MessageFactory();
 
 /**
  * Verifica se l'utente è un amministratore.

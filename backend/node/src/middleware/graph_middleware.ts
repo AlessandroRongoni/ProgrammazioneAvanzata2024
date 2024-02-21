@@ -1,18 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { findEdgeById, findEdgesByGraphId, findGraphById, findGraphByName, findNodesByGraphId, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { findEdgeById, findEdgesByGraphId, findGraphById, findGraphByName, findNodesByGraphId } from '../db/queries/graph_queries';
 import { MessageFactory } from "../status/messages_factory";
 import { CustomStatusCodes, Messages400, Messages500 } from "../status/status_codes";
 import { getJwtEmail } from '../utils/jwt_utils';
 import { findUser, findUserById } from '../db/queries/user_queries';
 import {findUpdateById } from '../db/queries/update_queries';
 import dotenv = require('dotenv');
-import { calculateCost, getUnsupportedFormatMessage, generateUndefinedNodesErrorMessage, validateEdgeErrorMessage, generateGraphNameInUseErrorMessage } from '../utils/graph_utils';
-import { GraphModel } from '../models/GraphModel';
-import { stat } from 'fs';
-import { EdgeModel } from '../models/EdgeModel';
+import { calculateCost, generateUndefinedNodesErrorMessage, validateEdgeErrorMessage, generateGraphNameInUseErrorMessage } from '../utils/graph_utils';
+
 dotenv.config();
 var update_cost_per_edge = parseFloat(process.env.UPDATE_COST_PER_EDGE!) || 0.025;
-var statusMessage: MessageFactory = new MessageFactory();
 
 
 
@@ -51,46 +48,6 @@ export const checkUserTokensCreate = async (req: Request, res: Response, next: N
     } catch (error) {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
-};
-
-
-/**
- * Middleware per la validazione dell'aggiornamento dei pesi degli archi.
- * 
- * @param req - Oggetto della richiesta HTTP.
- * @param res - Oggetto della risposta HTTP.
- * @param next - Funzione per passare al middleware successivo.
- * @returns Una risposta HTTP con uno stato specifico in caso di errore.
- */
-export const validateEdgeWeightsUpdate = async (req: Request, res: Response, next: NextFunction) => {
-    const new_weight = req.body.newWeight;
-    try{
-        if (!new_weight || new_weight < 0 || typeof new_weight !== 'number') {
-            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
-
-        }
-        next();
-    } catch (error) {
-        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};
-
-/**
- * Validates the creation of edge weights.
- * 
- * @param req - The request object.
- * @param res - The response object.
- * @param next - The next function.
- * @returns If the edge weights are invalid, returns a bad request status message. Otherwise, calls the next function.
- */
-export const validateEdgeWeightsCreation = async (req: Request, res: Response, next: NextFunction) => {
-    const edges = req.body;
-
-    if (!edges || !Array.isArray(edges) || edges.some(edge => typeof edge.weight !== 'number' || edge.weight < 0)) {
-        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.WeightValidation);
-
-    }
-    next();
 };
 
 /**
@@ -198,34 +155,6 @@ export const validateGraphStructure = async (req: Request, res: Response, next: 
 
 
 /**
- * Middleware per verificare l'appartenenza di un arco a un grafo.
- * 
- * @param req - Oggetto della richiesta HTTP.
- * @param res - Oggetto della risposta HTTP.
- * @param next - Funzione per passare al middleware successivo.
- * @returns Una Promise che rappresenta l'esecuzione asincrona del middleware.
- */
-export const checkEdgeBelonging = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const graphId = req.body.graphId;
-        const edgeId = req.body.edgeId;
-        const edge = await findEdgeById(edgeId);
-        if (!edge) {
-            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
-
-        }
-        if (edge.graph_id != graphId) {
-            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
-
-        }
-        next();
-    } catch (error) {
-        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-};
-
-
-/**
  * Controllo esistenza di un grafo
  * @param req
  * @param res
@@ -254,7 +183,15 @@ export const checkGraphExistence = async (req: Request, res: Response, next: Nex
     }
 };
 
-// Middleware per validare l'ID del grafo e i nodi di partenza e arrivo
+
+/**
+ * Middleware per la validazione dei nodi.
+ * 
+ * @param req - Oggetto della richiesta HTTP.
+ * @param res - Oggetto della risposta HTTP.
+ * @param next - Funzione per passare al prossimo middleware.
+ * @returns Una Promise che rappresenta l'esecuzione asincrona del middleware.
+ */
 export const validateNodes = async (req: Request, res: Response, next: NextFunction) => {
     const { graphId, startNode, endNode } = req.body;
 
@@ -266,7 +203,17 @@ export const validateNodes = async (req: Request, res: Response, next: NextFunct
     next();
   };
 
-  export const checkNodesExistence = async (req: Request, res: Response, next: NextFunction) => {
+/**
+ * Verifica l'esistenza dei nodi specificati nel corpo della richiesta nel database.
+ * Se uno o entrambi i nodi non esistono, viene restituito un messaggio di errore.
+ * Altrimenti, viene chiamata la funzione successiva nella catena di middleware.
+ * 
+ * @param req - L'oggetto della richiesta HTTP.
+ * @param res - L'oggetto della risposta HTTP.
+ * @param next - La funzione per passare il controllo al successivo middleware.
+ * @returns Un messaggio di errore o il controllo passato al successivo middleware.
+ */
+export const checkNodesExistence = async (req: Request, res: Response, next: NextFunction) => {
     const { graphId, startNode, endNode } = req.body;
 
     try {
@@ -279,7 +226,6 @@ export const validateNodes = async (req: Request, res: Response, next: NextFunct
             return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NodeNotFound);
 
         }
-
         next();
     } catch (error) {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
@@ -287,7 +233,15 @@ export const validateNodes = async (req: Request, res: Response, next: NextFunct
     }
 };
 
-  // Middleware per controllare l'esistenza degli archi nel grafo
+  
+/**
+ * Controlla l'esistenza degli archi per un determinato grafo.
+ * 
+ * @param req - L'oggetto di richiesta HTTP.
+ * @param res - L'oggetto di risposta HTTP.
+ * @param next - La funzione per passare alla prossima funzione middleware.
+ * @returns Un messaggio di stato se gli archi non sono presenti nel grafo.
+ */
 export const checkEdgesExistence = async (req: Request, res: Response, next: NextFunction) => {
     const { graphId } = req.body;
   
@@ -297,84 +251,7 @@ export const checkEdgesExistence = async (req: Request, res: Response, next: Nex
 
     }
       next();
-  };
-
-/** Controllo se esiste l'update passando l'id
- * @param req
- * @param res
- * @param next
- * @returns
- */
-export const checkUpdateExistence = async (req: Request, res: Response, next: NextFunction) => {
-    const updateId = Number(req.body.updateId); // Converte in numero, NaN se non è convertibile
-
-    try {
-        // Controlla se updateId non è un numero o è minore di 1 (consentendo solo valori positivi validi)
-        if (isNaN(updateId) || updateId < 1) {
-            return MessageFactory.getStatusMessage(
-                CustomStatusCodes.BAD_REQUEST,
-                res,
-                isNaN(updateId) ? Messages400.NotANumber : Messages400.UpdateRequired
-            );
-        }
-        next();
-    } catch (error) {
-        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
 };
-
-
-/** 
- * Controllo se l'Update ha lo stato approved NULL
- * @param req
- * @param res
- * @param next
- * @returns
- */
-export const checkUpdatePending = async (req: Request, res: Response, next: NextFunction) => {
-    const updateId = req.body.updateId;
-    try {
-        const update = await findUpdateById(updateId);
-        if (update.approved != null) {
-            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UpdateAlreadyAwnsered);
-
-        }
-        next();
-    } catch (error) {
-        console.error(error);
-        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-
-    }
-};
-
-
-/**
- * Controllo se il l'upgrade corrisponde ad un grafo a cui chi fa la richiesta
- * è proprietario
- * @param req
- * @param res
- * @param next
- * @returns
- */
-export const checkOwner = async (req: Request, res: Response, next: NextFunction) => {
-    const updateId = req.body.updateId;
-    let JwtUserEmail = getJwtEmail(req);
-    try {
-        const updates = await findUpdateById(updateId);
-        const receiver = await findUserById(updates.receiver_id);
-        if (receiver[0].dataValues.email != JwtUserEmail) {
-            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NotOwner);
-
-        }
-        next();
-    } catch (error) {
-        console.error(error);
-        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
-    }
-
-};
-
-
 
 /**
  * Controllo se tutti gli archi passati appartengono al grafo
@@ -408,7 +285,6 @@ export const checkAllEdgesBelongingAndCorrectWeights = async (req: Request, res:
 
             }
         }
-        console.log("Ho passato la validazione dei pesi e degli archi")
         next();
     }catch (error) {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
@@ -508,6 +384,7 @@ export const checkOwnerGraphs = async (req: Request, res: Response, next: NextFu
 
 };
 
+
 /** 
  * Controllo se tutti  gli Update hanno lo stato approved NULL
  * @param req
@@ -590,6 +467,14 @@ export const checkValidationAnswer = (req: Request, res: Response, next: NextFun
     }
 };
 
+/**
+ * Middleware per la validazione dell'intervallo di date.
+ * 
+ * @param req - Oggetto della richiesta HTTP.
+ * @param res - Oggetto della risposta HTTP.
+ * @param next - Funzione per passare al middleware successivo.
+ * @returns Un messaggio di errore se l'intervallo di date non è valido, altrimenti passa al middleware successivo.
+ */
 export const validateDateRange = (req: Request, res: Response, next: NextFunction) => {
     const { dateFilter } = req.body;
     let startDate, endDate;
@@ -628,6 +513,13 @@ export const validateDateRange = (req: Request, res: Response, next: NextFunctio
     next();
 };
 
+
+/**
+ * Middleware per la validazione dello stato specificato nella richiesta.
+ * @param {Request} req - L'oggetto richiesta.
+ * @param {Response} res - L'oggetto risposta.
+ * @param {NextFunction} next - La funzione next per passare al prossimo middleware.
+ */
 export const validateStatus = (req: Request, res: Response, next: NextFunction) => {
     const { status } = req.body;
 
@@ -668,19 +560,19 @@ export const validateFormat = (req: Request, res: Response, next: NextFunction) 
         req.body.format = format; // Aggiorna il corpo della richiesta con il formato predefinito
     }
 
-
-    // // Se il formato specificato non è uno dei valori consentiti, restituisce un errore
-    // if (!allowedFormats.includes(format.toLowerCase())) {
-    //     const errorMessage = getUnsupportedFormatMessage(format, allowedFormats);
-    //     return res.status(CustomStatusCodes.BAD_REQUEST).json({ message: errorMessage });
-    //     }
-
     next();
 };
 
+
+/**
+ * Middleware per la validazione dei parametri di simulazione.
+ * @param {Request} req - L'oggetto richiesta.
+ * @param {Response} res - L'oggetto risposta.
+ * @param {NextFunction} next - La funzione next per passare al prossimo middleware.
+ */
 export const validateSimulationParameters = (req: Request, res: Response, next: NextFunction) => {
     const { startWeight, endWeight, step } = req.body;
-
+    
     if (typeof startWeight !== 'number' || typeof endWeight !== 'number' || typeof step !== 'number') {
         return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidSimulationValue);
 
@@ -694,19 +586,28 @@ export const validateSimulationParameters = (req: Request, res: Response, next: 
         return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NegativeOrNullStep);
 
     }
-
-
     next();
 };
 
+
+/**
+ * Middleware per la validazione dei parametri di simulazione.
+ * @param {Request} req - L'oggetto richiesta.
+ * @param {Response} res - L'oggetto risposta.
+ * @param {NextFunction} next - La funzione next per passare al prossimo middleware.
+ */
 export const validateStartEndNodes = (req: Request, res: Response, next: NextFunction) => {
     const { startNode, endNode } = req.body;
-
-    // Controlla se lo startNode è uguale all'endNode
-    if (startNode === endNode) {
-        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.StardEndNodeCoincide);
-
+    try {
+        // Controlla se lo startNode è uguale all'endNode
+        if (startNode === endNode) {
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.StardEndNodeCoincide);
+    
+        }
+        next();
+        
+    } catch (error) {
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 
-    next(); // Continua al prossimo middleware se non ci sono errori
 };

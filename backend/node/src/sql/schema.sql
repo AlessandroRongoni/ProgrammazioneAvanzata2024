@@ -1,5 +1,7 @@
+-- Creazione del database 'mydb'
 CREATE DATABASE mydb;
 
+-- Connessione al database 'mydb'
 \c mydb;
 
 -- Creazione della tabella 'users'
@@ -23,7 +25,6 @@ CREATE TABLE IF NOT EXISTS graphs (
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
-
 -- Creazione della tabella 'edges'
 CREATE TABLE IF NOT EXISTS edges (
     edge_id SERIAL PRIMARY KEY,
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS edges (
     FOREIGN KEY (graph_id) REFERENCES graphs (graph_id) ON DELETE CASCADE
 );
 
+-- Creazione della tabella 'updates'
 CREATE TABLE IF NOT EXISTS updates (
     update_id SERIAL PRIMARY KEY,
     graph_id INT NOT NULL,
@@ -50,14 +52,13 @@ CREATE TABLE IF NOT EXISTS updates (
     FOREIGN KEY (receiver_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
-
 -- Inserimento dati nella tabella 'users'
 INSERT INTO users (email, password, tokens, isadmin) VALUES
  ('daniele@op.it', 'Opti2024!', 100.00, false),
  ('alessandro@op.it', 'Opti2024!', 100.00, false),
  ('adriano@op.it', 'Opti2024!', 100.00, true);
 
--- Inserimento di due grafi con 8 nodi e 16 archi
+-- Inserimento di grafi nella tabella 'graphs'
 INSERT INTO graphs (user_id, name, description, cost) VALUES
     (1, 'Graph 1', 'Description of Graph 1', 3.0),
     (2, 'Graph 2', 'Description of Graph 2', 4.1),
@@ -66,7 +67,6 @@ INSERT INTO graphs (user_id, name, description, cost) VALUES
     (2, 'Graph 5', 'Description of Graph 5', 6.6),
     (3, 'Graph 6', 'Description of Graph 6', 1.9),
     (3, 'GrafoSimulation', 'Un grafo di test per la simulazione con un arco dal peso elevato.', 9.9);
-
 
 -- Inserimento degli archi per il primo grafo
 INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
@@ -101,6 +101,7 @@ INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (3, 'G', 'H', 2.1),
     (3, 'H', 'A', 1.2);
 
+-- Inserimento degli archi per il quarto grafo
 INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (4, 'I', 'J', 1.7),
     (4, 'J', 'K', 2.1),
@@ -111,6 +112,7 @@ INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (4, 'O', 'P', 1.8),
     (4, 'P', 'M', 2.0);
 
+-- Inserimento degli archi per il quinto grafo
 INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (5, 'Q', 'R', 1.6),
     (5, 'R', 'S', 1.9),
@@ -121,6 +123,7 @@ INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (5, 'W', 'X', 1.8),
     (5, 'X', 'V', 1.9);
 
+-- Inserimento degli archi per il sesto grafo
 INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (6, 'Y', 'Z', 2.2),
     (6, 'Z', 'A1', 1.6),
@@ -131,7 +134,8 @@ INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (6, 'E1', 'F1', 2.1),
     (6, 'F1', 'A1', 1.7);
 
-    INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
+-- Inserimento degli archi per il settimo grafo
+INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (7, 'A', 'B', 50),
     (7, 'A', 'C', 1),
     (7, 'C', 'D', 1),
@@ -145,5 +149,3 @@ INSERT INTO updates (graph_id, edge_id, requester_id, receiver_id, new_weight, a
     (2, 10, 1, 3, 1.7, true),
     (2, 11, 1, 3, 2.0, false),
     (2, 9, 1, 3, 1.5, NULL);
-    
-   
