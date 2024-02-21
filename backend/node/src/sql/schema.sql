@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS graphs (
     user_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
+    cost FLOAT NOT NULL,
     createdat DATE DEFAULT CURRENT_DATE,
     updatedat DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
@@ -57,14 +58,14 @@ INSERT INTO users (email, password, tokens, isadmin) VALUES
  ('adriano@op.it', 'Opti2024!', 100.00, true);
 
 -- Inserimento di due grafi con 8 nodi e 16 archi
-INSERT INTO graphs (user_id, name, description) VALUES
-    (1, 'Graph 1', 'Description of Graph 1'),
-    (2, 'Graph 2', 'Description of Graph 2'),
-    (3, 'Graph 3', 'Description of Graph 3'),
-    (1, 'Graph 4', 'Description of Graph 4'),
-    (2, 'Graph 5', 'Description of Graph 5'),
-    (3, 'Graph 6', 'Description of Graph 6');
-    (3, 'GrafoSimulation', 'Un grafo di test per la simulazione con un arco dal peso elevato.');
+INSERT INTO graphs (user_id, name, description, cost) VALUES
+    (1, 'Graph 1', 'Description of Graph 1', 3.0),
+    (2, 'Graph 2', 'Description of Graph 2', 4.1),
+    (3, 'Graph 3', 'Description of Graph 3', 2.3),
+    (1, 'Graph 4', 'Description of Graph 4', 5.1),
+    (2, 'Graph 5', 'Description of Graph 5', 6.6),
+    (3, 'Graph 6', 'Description of Graph 6', 1.9),
+    (3, 'GrafoSimulation', 'Un grafo di test per la simulazione con un arco dal peso elevato.', 9.9);
 
 
 -- Inserimento degli archi per il primo grafo
@@ -131,16 +132,16 @@ INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (6, 'F1', 'A1', 1.7);
 
     INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
-    (1, 'A', 'B', 50),
-    (1, 'A', 'C', 1),
-    (1, 'C', 'D', 1),
-    (1, 'D', 'B', 1);
+    (7, 'A', 'B', 50),
+    (7, 'A', 'C', 1),
+    (7, 'C', 'D', 1),
+    (7, 'D', 'B', 1);
 
 -- Inserimento di alcune richieste di modifica degli archi con requester_id e receiver_id
 INSERT INTO updates (graph_id, edge_id, requester_id, receiver_id, new_weight, approved) VALUES
     (1, 1, 2, 1, 1.7, NULL), -- Richiesta di modifica per il primo arco da alessandro a daniele
     (1, 4, 2, 1, 2.0, NULL), -- Richiesta di modifica per il quarto arco da alessandro a daniele
-    (2, 9, 1, 3, 1.5, NULL); -- Richiesta di modifica per il nono arco da daniele a adriano
+    (2, 9, 1, 3, 1.5, NULL), -- Richiesta di modifica per il nono arco da daniele a adriano
     (2, 10, 1, 3, 1.7, true),
     (2, 11, 1, 3, 2.0, false),
     (2, 9, 1, 3, 1.5, NULL);
