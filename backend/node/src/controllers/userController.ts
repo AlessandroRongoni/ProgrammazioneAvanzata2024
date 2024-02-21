@@ -27,10 +27,11 @@ export const login = async (req: Request, res: Response) => {
 
         const jwtBearerToken = jwt.sign(payload, PRIVATE_KEY);
         let message = JSON.parse(JSON.stringify({ jwt: jwtBearerToken }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
+
     
     } catch (e) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
 
     }
 };
@@ -49,9 +50,9 @@ export const getUserTokens = async (req: Request, res: Response) => {
         const user: any = await findUser(jwtPlayerEmail);
         const tokens = parseFloat(user[0].dataValues.tokens);
         let message = JSON.parse(JSON.stringify({ tokens: tokens }))
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -66,10 +67,11 @@ export const getUserTokens = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
     try {
         await createUserDb(req);
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UserCreateSuccess);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UserCreateSuccess);
+
         
     } catch (e) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -85,10 +87,10 @@ export const getAllUsers = async (req: Request,res: Response) => {
     try {
         const users: any = await findAllUsers();
         let message = JSON.parse(JSON.stringify({ users: users }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
 
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 

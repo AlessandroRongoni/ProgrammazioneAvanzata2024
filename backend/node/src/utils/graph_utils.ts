@@ -1,23 +1,17 @@
 import { Express } from "express";
-import Graph = require("node-dijkstra")
+import { MessageFactory } from "../status/messages_factory";
+import Graph from "node-dijkstra";
+import dotenv from "dotenv";
+import { Messages400 } from "../status/status_codes";
+
+dotenv.config();
+const nodeCost = process.env.CREATE_COST_NODES ? parseFloat(process.env.CREATE_COST_NODES) : 0.10; // Costo per nodo, usato solo nella creazione
+const edgeCost = process.env.CREATE_COST_EDGES ? parseFloat(process.env.CREATE_COST_EDGES) : 0.02; // Costo per arco, usato nella creazione
 
 
-
-export function calculateCost(action: 'create' | 'update', details: { nodes?: number, edges?: number, updatedEdges?: number }): number {
-    const nodeCost = 0.10; // Costo per nodo, usato solo nella creazione
-    const edgeCost = 0.02; // Costo per arco, usato nella creazione
-    const updateCostPerEdge = 0.025; // Costo per aggiornare un arco
-
+export function calculateCost(nodes: number, edges: number): number {
     let totalCost = 0;
-
-    if (action === 'create') {
-        // Calcolo costo per la creazione di un grafo
-        totalCost += (details.nodes || 0) * nodeCost + (details.edges || 0) * edgeCost;
-    } else if (action === 'update') {
-        // Calcolo costo per l'aggiornamento dei pesi degli archi
-        totalCost += (details.updatedEdges || 0) * updateCostPerEdge;
-    }
-
+    totalCost += nodes * nodeCost + edges * edgeCost;
     return totalCost;
 }
 
@@ -67,4 +61,43 @@ export async function calculatePathWithGraphData(graphData: { [key: string]: { [
 export function calculatePathUtility(graphData: { [key: string]: { [key: string]: number } }, startNode: string, endNode: string) {
   const routeGraph = new Graph(graphData);
   return routeGraph.path(startNode, endNode, { cost: true });
+}
+
+export function getUnsupportedFormatMessage(format: string, allowedFormats: string[]): string {
+  return Messages400.UnsupportedFormat.replace('{{format}}', format).replace('{{allowedFormats}}', allowedFormats.join(', '));
+}
+
+// Funzione helper per generare messaggi di errore personalizzati per nodi non definiti
+export function generateUndefinedNodesErrorMessage(startNode: string, endNode: string, nodeSet: Set<string>): string {
+  let errorMessage = "L'arco contiene nodi non definiti: ";
+  const undefinedNodes = [];
+  
+  if (!nodeSet.has(startNode)) {
+      undefinedNodes.push(`'${startNode}'`);
+  }
+  if (!nodeSet.has(endNode)) {
+      undefinedNodes.push(`'${endNode}'`);
+  }
+  
+  errorMessage += undefinedNodes.join(" e ") + " non sono presenti nell'elenco dei nodi.";
+  return errorMessage;
+}
+
+export function validateEdgeErrorMessage(startNode: string, endNode: string, weight: number): string | null {
+  if (!startNode || !endNode) {
+      return "Sia il nodo di partenza che quello di arrivo devono essere specificati.";
+  }
+  if (startNode === endNode) {
+      return "Il nodo di partenza e quello di arrivo non possono essere lo stesso.";
+  }
+  if (typeof weight !== 'number' || weight <= 0) {
+      return "Il peso dell'arco deve essere un numero maggiore di zero.";
+  }
+  // Se tutti i controlli sono passati, l'arco è valido
+  return null;
+}
+
+// Funzione helper per generare un messaggio di errore per nomi di grafi già in uso
+export function generateGraphNameInUseErrorMessage(graphName: string): string {
+  return `Il nome del grafo '${graphName}' è già in uso.`;
 }

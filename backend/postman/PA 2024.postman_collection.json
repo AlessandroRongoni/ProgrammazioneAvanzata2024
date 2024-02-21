@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "9d220378-97d4-4237-984a-3d167c2b955c",
+		"_postman_id": "8e13b6d6-c776-48d6-8abc-873d86f03036",
 		"name": "PA 2024",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "32939762"
+		"_exporter_id": "14352422",
+		"_collection_link": "https://univpm-oop-team.postman.co/workspace/UNIVPM-OOP-Project~f51769f6-3894-4092-916b-1ef637b52a06/collection/14352422-8e13b6d6-c776-48d6-8abc-873d86f03036?action=share&source=collection_link&creator=14352422"
 	},
 	"item": [
 		{
@@ -32,7 +33,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"adriano@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"raw": "{\n    \"email\":\"adriano@op.it\",\n    \"password\":\"Opti2024!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -60,7 +61,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"daniele@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"raw": "{\n    \"email\":\"daniele@op.it\",\n    \"password\":\"Opti2024!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -88,7 +89,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"password\":\"Opti2024!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -144,7 +145,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"prova@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"raw": "{\n    \"email\":\"prova@op.it\",\n    \"password\":\"Opti2024!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -176,7 +177,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InByb3ZhQG9wLml0IiwicGFzc3dvcmQiOiJvcHRpMjAyNCEiLCJpYXQiOjE3MDgxNzE3MjV9.GtDl-VHAqpOoPS9ZXhcdIfKj0Dc8T8XWYz13l_jImkI",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODQyODA3OH0.-EWUgqhqO-xQlzYJTtjZP2uP4skTNGYBUzrsC-H7K-U",
 							"type": "string"
 						}
 					]
@@ -298,7 +299,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\": 1\n}",
+					"raw": "{\n    \"graphId\": 7\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -328,7 +329,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODI0OTQxOH0.WbSe07WGZftGLc47sAlvNZwI16B-hDsWgS2cW5jkd7o",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODQ0NzQwNn0.GkMLs7bG5R-F_F8FXHugVqfINlsFyrPXSsfELtrTsNU",
 							"type": "string"
 						}
 					]
@@ -370,7 +371,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\":1\n}",
+					"raw": "{\n    \"graphId\":\"\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -432,7 +433,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODAxMzI0Nn0.iY_Gj5CUNZWVLZ8rXo1fR5rn-biHWkV2x4SDzPJYstA",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkcmlhbm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODQ0NzQwNn0.GkMLs7bG5R-F_F8FXHugVqfINlsFyrPXSsfELtrTsNU",
 							"type": "string"
 						}
 					]
@@ -441,7 +442,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"tokens\": 100\n}",
+					"raw": "{\n    \"email\":\"alessandro@op.it\",\n    \"tokens\": 109\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -479,7 +480,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n      \"request\":[\n                {\n                    \"updateId\": 41,\n                    \"answer\": false\n                },\n                {\n                    \"updateId\":42,\n                    \"answer\":true\n\n                }\n        ]\n }",
+					"raw": "{\n      \"request\":[\n                {\n                    \"updateId\": 1,\n                    \"answer\": false\n                },\n                {\n                    \"updateId\":2,\n                    \"answer\":true\n\n                }\n        ]\n }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -518,7 +519,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\":1,\n    \"updates\":[\n        {\n            \"edgeId\":5,\n            \"newWeight\":3\n        }\n    ]\n}",
+					"raw": "{\n    \"graphId\":1,\n    \"updates\":[\n        {\n            \"edgeId\":1,\n            \"newWeight\":3\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -560,7 +561,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"graphId\": 3,\n  \"dateFilter\": {\n    // formato data YYYY-MM-DD\n    \"from\": \"2024-01-01\", //inserire la data da cui partire (Superiore a...)\n    \"to\": \"2024-12-31\" //inserire la data finale (Inferiore a...)\n    //inserirle entrambe per avere un intervallo di tempo (Da...a...)\n  },\n  \"status\": \"rejected\"\n  // Valori possibili: \"accepted\", \"rejected\", o lasciare vuoto/null per non filtrare per stato\n}",
+					"raw": "{\n  \"graphId\": 2,\n  \"dateFilter\": {\n    // formato data YYYY-MM-DD\n    \"from\": \"2024-02-18\", //inserire la data da cui partire (Superiore a...)\n    \"to\": \"2024-12-31\" //inserire la data finale (Inferiore a...)\n    //inserirle entrambe per avere un intervallo di tempo (Da...a...)\n  },\n  \"status\": \"\"\n  // Valori possibili: \"accepted\", \"rejected\", o lasciare vuoto/null per non filtrare per stato\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -578,6 +579,167 @@
 						"updates",
 						"history",
 						"graph"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Graph ",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODMzMTE1N30.mWC78uzM21H6h-KgEq-r222fVI2Tt6i34k9W7b9VDPI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"GrafoSimulation\",\r\n  \"description\": \"Un grafo di test per la simulazione con un arco dal peso elevato.\",\r\n  \"nodes\": [\"A\", \"B\", \"C\", \"D\"],\r\n  \"edges\": [\r\n    {\"startNode\": \"A\", \"endNode\": \"B\", \"weight\": 50},\r\n    {\"startNode\": \"A\", \"endNode\": \"C\", \"weight\": 1},\r\n    {\"startNode\": \"C\", \"endNode\": \"D\", \"weight\": 1},\r\n    {\"startNode\": \"D\", \"endNode\": \"B\", \"weight\": 1}\r\n    \r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/graph",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graph"
+					]
+				},
+				"description": "Rotta per la creazione del grafo"
+			},
+			"response": []
+		},
+		{
+			"name": "Calculatecost",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODI3NTYwM30.8-k4tYOMKrp-T9W-iBaE2Ak2xy8bXEejqceZUxGwz24",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"graphId\":7,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"B\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/graph/calculatecost",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"graph",
+						"calculatecost"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SaveUpdateFormat",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODI4NjIxNn0.kRAUynTsdkQ8frNJp-XKhQn0lzuhholJUbve0RIvRsc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"graphId\": 1,\r\n  \"dateFilter\": {\r\n    \"from\": \"2024-01-01\",\r\n    \"to\": \"2024-12-31\"\r\n  },\r\n  \"status\": \"\",\r\n  \"format\": \"CSV\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/updates/format",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"updates",
+						"format"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Simulation",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRhbmllbGVAb3AuaXQiLCJwYXNzd29yZCI6Im9wdGkyMDI0ISIsImlhdCI6MTcwODI4NjIxNn0.kRAUynTsdkQ8frNJp-XKhQn0lzuhholJUbve0RIvRsc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"graphId\": 7,\r\n  \"edgeId\": 49,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"B\",\r\n  \"startWeight\":0.5,\r\n  \"endWeight\": 50,\r\n  \"step\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/simulate",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"simulate"
 					]
 				}
 			},

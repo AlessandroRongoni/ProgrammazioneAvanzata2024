@@ -1,10 +1,10 @@
 import { getJwtEmail } from '../utils/jwt_utils';
 import { Request, Response } from "express";
-import { createUserDb, findAllUsers, findUser } from '../db/queries/user_queries';
+import { findUser } from '../db/queries/user_queries';
 import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
-import { addEdgesToGraph, createGraphQuery, findAllGraphs, findEdgeById, findEdgesByGraphId, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
-import { calculateCost, prepareGraphData, calculatePathWithGraphData, calculatePathUtility } from '../utils/graph_utils';
+import { addEdgesToGraph, createGraphQuery, findAllGraphs, findEdgesByGraphId, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { calculateCost, prepareGraphData, calculatePathUtility } from '../utils/graph_utils';
 import Graph from "node-dijkstra";
 
 var jwt = require('jsonwebtoken');
@@ -56,40 +56,57 @@ var statusMessage: MessageFactory = new MessageFactory();
     {"startNode": "L", "endNode": "P", "weight": 1.5}
   ]
 }
+
+{
+  "name": "Grafo Test Simulazione555",
+  "description": "Un grafo di test per la simulazione con un arco dal peso elevato.",
+  "nodes": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"],
+  "edges": [
+    {"startNode": "A", "endNode": "B", "weight": 1},
+    {"startNode": "B", "endNode": "C", "weight": 2},
+    {"startNode": "C", "endNode": "D", "weight": 2},
+    {"startNode": "D", "endNode": "E", "weight": 1},
+    {"startNode": "E", "endNode": "F", "weight": 3},
+    {"startNode": "F", "endNode": "G", "weight": 1},
+    {"startNode": "G", "endNode": "H", "weight": 2},
+    {"startNode": "H", "endNode": "A", "weight": 2},
+    {"startNode": "I", "endNode": "J", "weight": 1},
+    {"startNode": "J", "endNode": "K", "weight": 2},
+    {"startNode": "K", "endNode": "L", "weight": 1},
+    {"startNode": "L", "endNode": "M", "weight": 3},
+    {"startNode": "M", "endNode": "N", "weight": 1},
+    {"startNode": "N", "endNode": "O", "weight": 2},
+    {"startNode": "O", "endNode": "P", "weight": 2},
+    {"startNode": "P", "endNode": "I", "weight": 2},
+    {"startNode": "A", "endNode": "I", "weight": 50}, // Arco con peso esageratamente grosso
+    {"startNode": "E", "endNode": "M", "weight": 1},
+    {"startNode": "B", "endNode": "J", "weight": 1}
+  ]
+}
 */ 
-export async function createGraph(req: Request, res: Response) {
-    try {
-        // Accede direttamente ai dati della richiesta tramite req.body
-        const { name, description, nodes, edges } = req.body;
-
-        let jwtUserEmail = getJwtEmail(req)
-
-        // Cerca l'utente tramite email
-        const user = await findUser(jwtUserEmail);
-
-        // Calcola il costo per la creazione del grafo
-        const cost =  await calculateCost('create', { nodes: nodes.length, edges: edges.length });
-        // Deduce i token dall'utente
-        console.log(cost)
-
-        await subtractTokensByEmail(jwtUserEmail, cost)
-
+export const createGraph = async (req: Request, res: Response) => {
+    // Accede direttamente ai dati della richiesta tramite req.body
+    const { name, description, nodes, edges } = req.body;
+    let jwtUserEmail = getJwtEmail(req)
+    // Cerca l'utente tramite email
+    const user = await findUser(jwtUserEmail);
+    const totalCost = calculateCost(nodes.length, edges.length);
+    try {        
         // Crea il grafo //+ controlli nome/descrizione non possono esistere più nomi uguali
         const graph = await createGraphQuery(user[0].dataValues.user_id, name, description);
-        const id_newGraph = await findGraphById(graph.graph_id)
-        console.log(graph.graph_id)
-
         for(let i=0; i<req.body.edges.length; i++){
-        // Aggiungi gli archi al grafo
-        console.log("e siamo dentro")
-        await addEdgesToGraph(graph.graph_id, edges[i].startNode, edges[i].endNode, edges[i].weight);
+            await addEdgesToGraph(graph.graph_id, edges[i].startNode, edges[i].endNode, edges[i].weight);
         }
-        return statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelCreationSuccess);
     } catch (error) {
-        console.error(error);
-        return statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.ImpossibileCreation);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.ImpossibileCreation);
+
     }
-}
+    finally{
+        await subtractTokensByEmail(jwtUserEmail, totalCost);
+    }
+    return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelCreationSuccess);
+
+};
 
 
 /**
@@ -100,9 +117,11 @@ export const getAllGraphs = async (req: Request,res: Response) => {
     try {
         const graphs = await findAllGraphs();
         let message = JSON.parse(JSON.stringify({ graphs: graphs }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
+
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
     }
 };
 
@@ -121,9 +140,11 @@ export const getGraphEdges = async (req: Request,res: Response) => {
         const graphId = req.body.graphId;
         const edges = await findEdgesByGraphId(graphId);
         let message = JSON.parse(JSON.stringify({ edges: edges }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
+        
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
     }
 };
 
@@ -131,7 +152,6 @@ export const getGraphEdges = async (req: Request,res: Response) => {
 
 export const CalculatePath = async (req: Request, res: Response) => {
     const { graphId, startNode, endNode } = req.body;
-
     try {
         const edges = await findEdgesByGraphId(graphId);
         const graphData = prepareGraphData(edges);
@@ -144,14 +164,16 @@ export const CalculatePath = async (req: Request, res: Response) => {
             res.json({
                 path: result.path,
                 cost: result.cost,
-                message: 'Path calculated successfully'
+                message: 'Path calculated successfully.'
             });
         } else {
-            return res.status(404).json({ message: 'Path not found' });
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.PathNotFound);
+
+            
         }
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error calculating path' });
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
     }
 };
 
@@ -163,36 +185,27 @@ interface PathResult {
 
   // Modifica della funzione simulateGraph per utilizzare calculatePathUtility
  // Modifica della funzione simulateGraph per utilizzare calculatePathUtility
-export const simulateGraph = async (req: Request, res: Response) => {
+ export const simulateGraph = async (req: Request, res: Response) => {
     const { graphId, edgeId, startNode, endNode, startWeight, endWeight, step } = req.body;
 
     try {
-        if (startWeight >= endWeight || step <= 0) {
-            return res.status(400).json({ message: 'Invalid simulation parameters' });
-        }
-
         const edges = await findEdgesByGraphId(graphId);
-        if (!edges) {
-            return res.status(404).json({ message: 'Edges not found' });
-        }
-
         let results = [];
         let bestResult: PathResult = { cost: Infinity, configuration: null, path: [] };
 
         for (let weight = startWeight; weight <= endWeight; weight += step) {
+            const finalWeight = (weight + step > endWeight) ? endWeight : weight;
+            
             const simulatedEdges = edges.map((edge: any) => {
-                if (edge.edge_id === edgeId) {
-                    return { ...edge, weight };
+                const simpleEdge = edge.get ? edge.get({ plain: true }) : edge; // Gestisce sia oggetti Sequelize che normali oggetti JS
+                if (simpleEdge.edge_id === edgeId) {
+                    return { ...simpleEdge, weight }; // Aggiorna il peso per l'arco specificato
                 }
-                return edge;
+                return simpleEdge; // Restituisce l'arco non modificato per gli altri archi
             });
 
             const graphData = prepareGraphData(simulatedEdges);
             const pathResult = calculatePathUtility(graphData, startNode, endNode);
-
-
-
-
             if (typeof pathResult === 'object' && 'cost' in pathResult) {
                 results.push({ weight, cost: pathResult.cost, path: pathResult.path });
 
@@ -200,12 +213,14 @@ export const simulateGraph = async (req: Request, res: Response) => {
                     bestResult = { cost: pathResult.cost, configuration: weight, path: pathResult.path };
                 }
             }
+             // Se il peso corrente è stato impostato a endWeight, termina il ciclo for
+            if (finalWeight === endWeight) break;
+            
         }
-
         res.json({ results, bestResult });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error during simulation' });
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 

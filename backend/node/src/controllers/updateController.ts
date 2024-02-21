@@ -5,11 +5,13 @@ import { MessageFactory } from '../status/messages_factory';
 import { CustomStatusCodes, Messages200, Messages400, Messages500 } from '../status/status_codes';
 import { approveEdgeUpdate, filterUpdates, findPendingUpdatesByGraphId, findUpdateById, findUpdatesByReceiverInPending, rejectEdgeUpdate, requestEdgeUpdate } from '../db/queries/update_queries';
 import { updateEdgeWeightInDB } from '../db/queries/update_queries';
-import { findEdgeById, findGraphById } from '../db/queries/graph_queries';
+import { findEdgeById, findGraphById, subtractTokensByEmail } from '../db/queries/graph_queries';
+import { saveAndRespondWithFile } from '../utils/fileGenerationService';
 
 
 var statusMessage: MessageFactory = new MessageFactory();
 const ALPHA = parseFloat(process.env.ALPHA || "0.8"); 
+const update_cost_per_edge = parseFloat(process.env.UPDATE_COST_EDGES || "0.025");
 /**
  * Updates the weight of an edge. (DA FINIRE)
  * 
@@ -38,23 +40,24 @@ const ALPHA = parseFloat(process.env.ALPHA || "0.8");
 }
 */
 export async function updateEdgeWeight(req: Request, res: Response) {
+    //Vedo chi fa la richiesta
+    const jwtUserEmail = getJwtEmail(req);
+    const updates = req.body.updates;
     try {
-        //Vedo chi fa la richiesta
-        const jwtUserEmail = getJwtEmail(req);
         //trovo l'utente che fa la richiesta per usare il suo id
         const requester = await findUser(jwtUserEmail); // Trova l'utente che ha fatto la richiesta
         const graph = await findGraphById(req.body.graphId); // Trova il grafo dal database
         //verifico se l'utente che ha fatto la richiesta è il proprietario del grafo
+
         if (requester[0].dataValues.user_id === graph.user_id) {
             //se è il proprietario del grafo
-            for (let i = 0; i < req.body.updates.length; i++) {
+            for (let i = 0; i < updates.length; i++) {
                 
                 const edge = await findEdgeById(req.body.updates[i].edgeId);
                 const newWeight = req.body.updates[i].newWeight;
                 const oldWeight = edge.weight;
                 //calcolo il nuovo peso con la formula di aggiornamento
                 const updatedWeight = ALPHA * oldWeight + (1 - ALPHA) * newWeight;
-                
                 //aggiorno il peso dell'arco nel db
                 await updateEdgeWeightInDB(edge.edge_id, updatedWeight);
                 //creo una row upgrade con richiedente e ricevitore lo stesso autore, da vedere se mettere il peso aggiornato o il peso nuovo richiesto
@@ -63,7 +66,9 @@ export async function updateEdgeWeight(req: Request, res: Response) {
                 await approveEdgeUpdate(richiestaAggiornamento.update_id);
                 
             }
-            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
+            
+            return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.ModelUpdateSuccess);
+
         } else {
             //se non è il proprietario del grafo crea una richiesta in pending
             for (let i = 0; i < req.body.updates.length; i++) {
@@ -74,12 +79,17 @@ export async function updateEdgeWeight(req: Request, res: Response) {
                 // const updatedWeight = ALPHA * oldWeight + (1 - ALPHA) * req.body.update[i].newWeight;
                 await requestEdgeUpdate(graph.graph_id, edge.edge_id, requester[0].dataValues.user_id, graph.user_id, newWeight);
             }
-            statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UpdateNotification);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.UpdateNotification);
+
         }
         
     } catch (error) {
         console.log("Sono nell'errore")
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+
+    }finally{
+        const totalEdges = updates.length;
+        const costoUpgrade = totalEdges * update_cost_per_edge;
+        await subtractTokensByEmail(jwtUserEmail, costoUpgrade );
     }
 };
 
@@ -97,16 +107,18 @@ export const viewPendingUpdatesForUser = async (req: Request, res: Response) => 
         const user = await findUser(jwtUserEmail);
         const pendingUpdates = await findUpdatesByReceiverInPending(user[0].dataValues.user_id);
         if (pendingUpdates.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFound);
+
         }
         let message = JSON.parse(JSON.stringify({ pendingUpdates: pendingUpdates }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
+
     } catch (error) {
         console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
-
+//daje
 
 /**
  * Retrieves and returns the filtered update history for a user within a specified date range.
@@ -121,6 +133,15 @@ export const viewFilteredUpdateHistory = async (req: Request, res: Response) => 
         const startDate = dateFilter?.from ? new Date(dateFilter.from) : undefined;
         const endDate = dateFilter?.to ? new Date(dateFilter.to) : undefined;
         const updates = await filterUpdates(graphId, startDate, endDate, status);
+
+                // Verifica se ci sono aggiornamenti
+                if (updates.length === 0) {
+                    // Restituisce un errore se non ci sono aggiornamenti
+                    return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.NoUpdateForGraph);
+
+                    
+                }
+                
         res.json(updates);
     } catch (error) {
         console.error("Error fetching filtered updates:", error);
@@ -142,13 +163,14 @@ export const viewPendingUpdatesForModel = async (req: Request, res: Response) =>
         const pendingUpdates = await findPendingUpdatesByGraphId(graphId);
         console.log(pendingUpdates);
         if (pendingUpdates.length === 0) {
-            return statusMessage.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFoundForModel);
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.UpdateRequestNotFoundForModel);
+
         }
         let message = JSON.parse(JSON.stringify({ pendingUpdates: pendingUpdates }));
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, message);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, message);
     } catch (error) {
         console.error(error);
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
@@ -179,59 +201,80 @@ export const answerUpdate = async (req: Request, res: Response) => {
                 await rejectEdgeUpdate(updateId);
             }
         }
-        statusMessage.getStatusMessage(CustomStatusCodes.OK, res, Messages200.RequestAwnsered);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.OK, res, Messages200.RequestAwnsered);
+
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
 
+/**
+ * Ottiene gli aggiornamenti nel formato specificato e li restituisce come risposta.
+ * @param req - L'oggetto di richiesta HTTP.
+ * @param res - L'oggetto di risposta HTTP.
+ * @returns La risposta HTTP con gli aggiornamenti nel formato specificato.
+ */
 export const getUpdatesInFormat = async (req: Request, res: Response) => {
     const { graphId, dateFilter: { from, to }, status, format } = req.body;
     const startDate = from ? new Date(from) : undefined;
     const endDate = to ? new Date(to) : undefined;
-
     try {
         const updates = await filterUpdates(graphId, startDate, endDate, status);
-        switch (format.toLowerCase()) {
-            case 'csv':
-                const { stringify } = require('csv-stringify/sync');
-                const csvData = stringify(updates, { header: true });
-                res.header('Content-Type', 'text/csv');
-                res.attachment('updates.csv');
-                return res.send(csvData);
-                break;
-            case 'pdf':
-                const PDFDocument = require('pdfkit');
-                const doc = new PDFDocument();
-                let pdfBuffers: Buffer[] = [];
-                doc.on('data', pdfBuffers.push.bind(pdfBuffers));
-                doc.on('end', () => {
-                    const pdfData = Buffer.concat(pdfBuffers);
-                    res.header('Content-Type', 'application/pdf');
-                    res.attachment('updates.pdf');
-                    return res.send(pdfData);
-                });
-            
-                // Qui dovresti aggiungere i dati nel documento PDF
-                updates.forEach((update: any) => {
-                    doc.text(JSON.stringify(update));
-                });
-            
-                doc.end();
-                break;
-            case 'xml':
-                const { js2xml } = require('xml-js');
-                const xmlData = js2xml({ updates }, { compact: true, spaces: 4 });
-                res.header('Content-Type', 'application/xml');
-                res.attachment('updates.xml');
-                return res.send(xmlData);
-                break;
-            case 'json':
-            default:
-                return res.json(updates);
-        }
+        const details = await findGraphById(graphId);
+        await saveAndRespondWithFile(updates, format, res, details);
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error fetching filtered updates' });
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
     }
 };
+
+
+// export const getUpdatesInFormat = async (req: Request, res: Response) => {
+//     const { graphId, dateFilter: { from, to }, status, format } = req.body;
+//     const startDate = from ? new Date(from) : undefined;
+//     const endDate = to ? new Date(to) : undefined;
+
+//     try {
+//         const updates = await filterUpdates(graphId, startDate, endDate, status);
+//         switch (format.toLowerCase()) {
+//             case 'csv':
+//                 const { stringify } = require('csv-stringify/sync');
+//                 const csvData = stringify(updates, { header: true });
+//                 res.header('Content-Type', 'text/csv');
+//                 res.attachment('updates.csv');
+//                 return res.send(csvData);
+//                 break;
+//             case 'pdf':
+//                 const PDFDocument = require('pdfkit');
+//                 const doc = new PDFDocument();
+//                 let pdfBuffers: Buffer[] = [];
+//                 doc.on('data', pdfBuffers.push.bind(pdfBuffers));
+//                 doc.on('end', () => {
+//                     const pdfData = Buffer.concat(pdfBuffers);
+//                     res.header('Content-Type', 'application/pdf');
+//                     res.attachment('updates.pdf');
+//                     return res.send(pdfData);
+//                 });
+            
+//                 // Qui dovresti aggiungere i dati nel documento PDF
+//                 updates.forEach((update: any) => {
+//                     doc.text(JSON.stringify(update));
+//                 });
+            
+//                 doc.end();
+//                 break;
+//             case 'xml':
+//                 const { js2xml } = require('xml-js');
+//                 const xmlData = js2xml({ updates }, { compact: true, spaces: 4 });
+//                 res.header('Content-Type', 'application/xml');
+//                 res.attachment('updates.xml');
+//                 return res.send(xmlData);
+//                 break;
+//             case 'json':
+//             default:
+//                 return res.json(updates);
+//         }
+//     } catch (error) {
+//         statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.Unable);
+        
+//     }
+// };

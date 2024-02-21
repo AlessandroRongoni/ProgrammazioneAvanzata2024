@@ -1,5 +1,5 @@
 var express = require('express');
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 var bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 import dotenv from 'dotenv';
@@ -8,10 +8,9 @@ import { getUserTokens, login, createUser, getAllUsers } from './controllers/use
 import { checkJwt } from "./middleware/jwt_middleware";
 import { checkIsAdmin } from "./middleware/admin_middleware";
 import { updateTokens } from "./controllers/adminController";
-import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer} from "./middleware/graph_middleware";
+import { checkUserTokensCreate, checkUserTokensUpdate, checkGraphExistence, checkAllEdgesBelongingAndCorrectWeights, checkUpdatesExistence, checkOwnerGraphs, checkUpdatesArePending, checkUpdatesAreDifferent, validateGraphStructure, checkValidationAnswer, validateDateRange, validateStatus, validateNodes, checkEdgesExistence, checkNodesExistence, validateFormat, validateSimulationParameters, validateStartEndNodes} from "./middleware/graph_middleware";
 import {createGraph, getAllGraphs, getGraphEdges, CalculatePath, simulateGraph } from "./controllers/graphController";
 import { answerUpdate, getUpdatesInFormat, updateEdgeWeight, viewFilteredUpdateHistory, viewPendingUpdatesForModel, viewPendingUpdatesForUser } from "./controllers/updateController";
-import Graph from "node-dijkstra";
 
 
 dotenv.config();
@@ -22,6 +21,19 @@ const host = process.env.HOST;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+// Middleware per il parsing del JSON
+app.use(express.json());
+
+// Middleware per la gestione degli errori di parsing JSON
+app.use((err:Error, req:Request, res:Response, next:NextFunction) => {
+    if (err instanceof SyntaxError && 'body' in err) {
+        console.error('Errore di parsing JSON!');
+        return res.status(400).send({ message: 'JSON malformato!' }); // Messaggio di errore personalizzato
+    }
+    // Passa al prossimo middleware/gestore di errori se l'errore non è un errore di parsing JSON
+    next(err);
+});
+
 
 /**
  * Home
@@ -62,7 +74,6 @@ app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkToken
 
 /**
  * Rotta per la creazione di un grafo
- * MIGLIROAMENTO DEI MIDDLE E NON FUNZIONA BENE
  * 
 {
   "name": "Mio Grafo",
@@ -78,7 +89,12 @@ app.post("/graph", jsonParser, checkJwt, validateGraphStructure, checkUserTokens
   createGraph(req,res);
 });
 
-app.post("/graph/calculatecost", jsonParser, checkJwt, (req: Request, res: Response) =>{
+
+
+/**
+ * Rotta per calcolare il percorso minimo tra due nodi di un grafo
+ */
+app.get("/graph/calculatecost", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, checkEdgesExistence,  (req: Request, res: Response) =>{
   CalculatePath(req,res);
 })
 
@@ -181,9 +197,8 @@ app.put("/update/edges", jsonParser, checkJwt, checkGraphExistence, checkAllEdge
   "status": "accepted" // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
   }
 
-  DEVO CREARE I MIDDLEWARE PER IL FILTRO DEL HISTORY
 */
-app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
+app.get("/updates/history/graph", jsonParser, checkJwt, checkGraphExistence, validateDateRange, validateStatus,  (req: Request, res: Response) => {
   viewFilteredUpdateHistory(req,res);
 });
 
@@ -194,7 +209,7 @@ app.get("/updates/history/graph", checkJwt, (req: Request, res: Response) => {
   "format": "json" // Valori possibili: "json", "csv", "xml"
 }
  */
-app.get("/updates/format", checkJwt, (req: Request, res: Response) => {
+app.get("/updates/format", checkJwt, checkGraphExistence, validateDateRange, validateStatus, validateFormat, (req: Request, res: Response) => {
   getUpdatesInFormat(req,res);
 });
 
@@ -206,7 +221,7 @@ app.get("/updates/format", checkJwt, (req: Request, res: Response) => {
   "endNode": "B"
 }
  */
-app.post("/simulate", jsonParser, checkJwt, (req: Request, res: Response) => {
+app.get("/simulate", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, validateStartEndNodes, checkEdgesExistence, validateSimulationParameters, (req: Request, res: Response) => {
   simulateGraph(req, res);
 });
 

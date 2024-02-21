@@ -52,17 +52,20 @@ CREATE TABLE IF NOT EXISTS updates (
 
 -- Inserimento dati nella tabella 'users'
 INSERT INTO users (email, password, tokens, isadmin) VALUES
- ('daniele@op.it', 'opti2024!', 100.00, false),
- ('alessandro@op.it', 'opti2024!', 100.00, false),
- ('adriano@op.it', 'opti2024!', 100.00, true),
- ('user1@op.it', 'opti2024!', 100.00, false),
- ('user2@op.it', 'opti2024!', 100.00, false);
+ ('daniele@op.it', 'Opti2024!', 100.00, false),
+ ('alessandro@op.it', 'Opti2024!', 100.00, false),
+ ('adriano@op.it', 'Opti2024!', 100.00, true);
 
 -- Inserimento di due grafi con 8 nodi e 16 archi
 INSERT INTO graphs (user_id, name, description) VALUES
     (1, 'Graph 1', 'Description of Graph 1'),
     (2, 'Graph 2', 'Description of Graph 2'),
-    (3, 'Graph 3', 'Description of Graph 3');
+    (3, 'Graph 3', 'Description of Graph 3'),
+    (1, 'Graph 4', 'Description of Graph 4'),
+    (2, 'Graph 5', 'Description of Graph 5'),
+    (3, 'Graph 6', 'Description of Graph 6');
+    (3, 'GrafoSimulation', 'Un grafo di test per la simulazione con un arco dal peso elevato.');
+
 
 -- Inserimento degli archi per il primo grafo
 INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
@@ -97,9 +100,49 @@ INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
     (3, 'G', 'H', 2.1),
     (3, 'H', 'A', 1.2);
 
+INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
+    (4, 'I', 'J', 1.7),
+    (4, 'J', 'K', 2.1),
+    (4, 'K', 'P', 1.3),
+    (4, 'L', 'M', 1.9),
+    (4, 'M', 'N', 2.2),
+    (4, 'K', 'O', 1.5),
+    (4, 'O', 'P', 1.8),
+    (4, 'P', 'M', 2.0);
+
+INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
+    (5, 'Q', 'R', 1.6),
+    (5, 'R', 'S', 1.9),
+    (5, 'W', 'T', 2.1),
+    (5, 'T', 'U', 1.4),
+    (5, 'R', 'V', 2.3),
+    (5, 'V', 'W', 1.7),
+    (5, 'W', 'X', 1.8),
+    (5, 'X', 'V', 1.9);
+
+INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
+    (6, 'Y', 'Z', 2.2),
+    (6, 'Z', 'A1', 1.6),
+    (6, 'A1', 'B1', 1.8),
+    (6, 'B1', 'C1', 2.0),
+    (6, 'C1', 'D1', 1.5),
+    (6, 'D1', 'E1', 1.9),
+    (6, 'E1', 'F1', 2.1),
+    (6, 'F1', 'A1', 1.7);
+
+    INSERT INTO edges (graph_id, start_node, end_node, weight) VALUES
+    (1, 'A', 'B', 50),
+    (1, 'A', 'C', 1),
+    (1, 'C', 'D', 1),
+    (1, 'D', 'B', 1);
+
 -- Inserimento di alcune richieste di modifica degli archi con requester_id e receiver_id
 INSERT INTO updates (graph_id, edge_id, requester_id, receiver_id, new_weight, approved) VALUES
-    (1, 1, 2, 1, 1.7, NULL), -- Richiesta di modifica per il primo arco da daniele a adriano
-    (1, 4, 2, 1, 2.0, NULL), -- Richiesta di modifica per il quarto arco da daniele a adriano
-    (2, 9, 1, 2, 1.5, NULL); -- Richiesta di modifica per il nono arco da daniele a adriano
+    (1, 1, 2, 1, 1.7, NULL), -- Richiesta di modifica per il primo arco da alessandro a daniele
+    (1, 4, 2, 1, 2.0, NULL), -- Richiesta di modifica per il quarto arco da alessandro a daniele
+    (2, 9, 1, 3, 1.5, NULL); -- Richiesta di modifica per il nono arco da daniele a adriano
+    (2, 10, 1, 3, 1.7, true),
+    (2, 11, 1, 3, 2.0, false),
+    (2, 9, 1, 3, 1.5, NULL);
+    
    

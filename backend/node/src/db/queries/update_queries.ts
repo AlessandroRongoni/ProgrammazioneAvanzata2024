@@ -1,9 +1,5 @@
 // Importa la richiesta Express per gestire le richieste HTTP
 import { Op } from 'sequelize';
-// Importa il modello degli utenti
-import { UserModel } from '../../models/UserModel';
-// Importa il modello per i grafici
-import { GraphModel } from '../../models/GraphModel';
 // Importa il modello per gli archi
 import { EdgeModel } from '../../models/EdgeModel';
 // Importa il modello per gli aggiornamenti degli archi
@@ -194,11 +190,11 @@ export async function filterUpdates(graphId: number, startDate?: Date, endDate?:
 
     // Gestisce il filtro per le date
     if (startDate && endDate) {
-        whereCondition['createdat'] = { [Op.between]: [startDate, endDate] }; // Assicurati di usare 'createdAt' se è il nome corretto della colonna
+        whereCondition['updatedat'] = { [Op.between]: [startDate, endDate] }; // Assicurati di usare 'createdAt' se è il nome corretto della colonna
     } else if (startDate) {
-        whereCondition['createdat'] = { [Op.gte]: startDate };
+        whereCondition['updatedat'] = { [Op.gte]: startDate };
     } else if (endDate) {
-        whereCondition['createdat'] = { [Op.lte]: endDate };
+        whereCondition['updatedat'] = { [Op.lte]: endDate };
     }
 
     // Gestisce il filtro per lo stato dell'approvazione

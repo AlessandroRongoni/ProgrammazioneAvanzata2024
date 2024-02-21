@@ -26,12 +26,12 @@ export const checkIsAdmin = async (req: Request, res: Response, next: NextFuncti
             if (user.length != 0 && user[0].dataValues.isadmin && pass.length != 0 && pass[0].dataValues.password === jwtDecode.password && pass[0].dataValues.email === jwtDecode.email) {
                 next();
             } else {
-                statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.Unauthorized);
+                MessageFactory.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.Unauthorized);
             }
         } else {
-            statusMessage.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.Unauthorized);
+            MessageFactory.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.Unauthorized);
         }
     } catch (error) {
-        statusMessage.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+        MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
