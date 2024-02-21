@@ -1,6 +1,6 @@
 <div align="center">
 
-![Logo del Progetto]()
+![Grafo Ottimizzato]()
 
 [![Postgres](https://img.shields.io/badge/Made%20with-postgres-%23316192.svg?style=plastic&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![NPM](https://img.shields.io/badge/Made%20with-NPM-%23CB3837.svg?style=plastic&logo=npm&logoColor=white)](https://www.npmjs.com/)
