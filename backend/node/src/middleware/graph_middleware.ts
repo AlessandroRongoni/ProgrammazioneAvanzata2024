@@ -658,17 +658,22 @@ export const validateFormat = (req: Request, res: Response, next: NextFunction) 
     let { format } = req.body;
     const allowedFormats = ['csv', 'pdf', 'json', 'xml'];
 
+    // Verifica che status sia una stringa
+    if (format && typeof format !== 'string') {
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.FormatString);
+    }
     // Imposta un formato predefinito se il campo 'format' è vuoto o non specificato
     if (!format || format.trim() === '') {
         format = 'json'; // Predefinito a JSON
         req.body.format = format; // Aggiorna il corpo della richiesta con il formato predefinito
     }
 
-    // Se il formato specificato non è uno dei valori consentiti, restituisce un errore
-    if (!allowedFormats.includes(format.toLowerCase())) {
-        const errorMessage = getUnsupportedFormatMessage(format, allowedFormats);
-        return res.status(CustomStatusCodes.BAD_REQUEST).json({ message: errorMessage });
-        }
+
+    // // Se il formato specificato non è uno dei valori consentiti, restituisce un errore
+    // if (!allowedFormats.includes(format.toLowerCase())) {
+    //     const errorMessage = getUnsupportedFormatMessage(format, allowedFormats);
+    //     return res.status(CustomStatusCodes.BAD_REQUEST).json({ message: errorMessage });
+    //     }
 
     next();
 };
