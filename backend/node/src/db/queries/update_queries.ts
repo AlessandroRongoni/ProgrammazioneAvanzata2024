@@ -1,9 +1,5 @@
 // Importa la richiesta Express per gestire le richieste HTTP
 import { Op } from 'sequelize';
-// Importa il modello degli utenti
-import { UserModel } from '../../models/UserModel';
-// Importa il modello per i grafici
-import { GraphModel } from '../../models/GraphModel';
 // Importa il modello per gli archi
 import { EdgeModel } from '../../models/EdgeModel';
 // Importa il modello per gli aggiornamenti degli archi
