@@ -24,8 +24,57 @@
 - [Autori](#autori)
 
 ## Obiettivi del Progetto
+#### Descrizione del progetto:
+Le specifiche del progetto sono state fornite dal professore [*Adriano Mancini*](https://github.com/manciniadriano):
 
-Descrizione e obiettivi del tuo progetto, incluso il contesto, le funzionalità principali e gli obiettivi specifici che intendi raggiungere.
+*Si realizzi un sistema che consenta di gestire la creazione e valutazione di modelli di ottimizzazione su grafo. In particolare, il sistema deve prevedere la possibilità di gestire l’aggiornamento di pesi effettuato da utenti autenticati (mediante JWT). Il progetto simula il concetto del crowd-sourcing dove gli utenti possono contribuire attivamente. Un esempio di applicazione è quello di tenere traccia dei minuti che sono necessari per percorre un determinato tratto di strada. Di seguito il dettaglio di quanto si deve realizzare (tutte le chiamate devono essere autenticate con JWT):*
+
+- *Dare la possibilità di creare un nuovo modello seguendo l’interfaccia definita nella sezione API di [node-dijkstra](https://www.npmjs.com/package/node-dijkstra) ed in particolare di specificare il grafo con i relativi pesi.*
+  - *È necessario validare la richiesta di creazione del modello.*
+  - *Per ogni modello valido deve essere addebitato un numero di token in accordo con quanto segue:*
+    - *0.10 per ogni nodo.*
+    - *0.02 per ogni arco.*
+  - *Il modello può essere creato se c’è credito sufficiente adesaudire la richiesta.*
+
+- *Dare la possibilità di aggiornare un modello cambiando il peso per uno o più archi; si distinguano due casi:*
+  - *Utente che fa richiesta di aggiornamento che coincide con l’utente che ha creato il modello.*
+    - *In questo caso la richiesta se valida consente di avere una versione differente dall’ultima utilizzata.*
+  - *Utente che fa richiesta di aggiornamento che NON coincide con l’utente che ha creato il modello.*
+    - *In questo caso la richiesta deve essere approvata o rifiutata dall’utente che ha creato il modello.*
+    - *Creare una rotta per approvare o rigettare una data richiesta di aggiornamento.*
+  - *La richiesta di aggiornamento costa 0.025 per ogni arco che si vuole aggiornare; rifiutare se il credito non è sufficiente. L’importo viene sottratto all’utente che sta facendo la richiesta.*
+
+- *Per ogni nuova richiesta approvata si proceda con aggiornare il peso dell’arco mediante una media esponenziale del tipo **p(i,j) = alpha * p(i,j) + (1 – alpha) * p_new(i,j)** dove **p(i,j)** è il precedente costo associato all’arco che collega nodi i-j e **p_new** è il nuovo costo suggerito dall’utente. alpha è uguale per tutti i modelli e deve essere gestito mediante una variabile di env. alpha deve essere > 0 e < 1; valori errati nella variabile di env devono determinare l’avvio del sistema con una configurazione pari ad alpha = 0.8*
+
+- *Creare una rotta che dato un modello consenta di restituire l’elenco degli aggiornamenti effettuati nel corso del tempo filtrando opzionalmente per data (inferiore a, superiore a, compresa tra) distinguendo per stato ovvero accettato / rigettato.*
+
+- *Creare una rotta che consenta di verificare lo stato di un modello ovvero se vi è una richiesta in fase di pending.*
+
+- *Creare una rotta che consenta di visualizzare tutte le richieste di aggiornamento che sono in fase pending relative a modelli creati dall’utente che si autentica mediante token JWT.*
+
+- *Creare una rotta che consenta di approvare / rigettare la richiesta di aggiornamento peso; solo l’utente che ha creato il modello può effettuare tale operazione (l’operazione può essere fatta anche in modalità bulk specificando quali richieste approvare o meno).*
+
+- *Eseguire un modello fornendo un nodo di partenza ed uno di arrivo; per ogni esecuzione deve essere applicato un costo pari a quello addebitato nella fase di creazione. Ritornare il risultato sotto forma di JSON. Il risultato deve anche considerare il tempo impiegato per l’esecuzione. Ritornare il percorso ed il costo associato a tale percorso (per costo si intende non i termini di token, ma in termini di percorso ottimo sul grafo considerando i pesi).*
+
+- *Restituire l’elenco degli aggiornamenti in formato JSON, CSV, PDF o XML dei pesi di un dato modello eventualmente filtrando per data specificando o la data di fine, o la data di inizio o entrambe.*
+
+- *Effettuare una “simulazione” che consenta di variare il peso relativo ad un arco specificando il valore di inizio, fine ed il passo di incremento (es. start = 1 stop = 2 e passo 0.05).*
+  - *Le richieste di simulazione devono essere validate (es. range non ammissibili).*
+  - *È necessario ritornare l’elenco di tutti i risultati; ritornare anche il best result con la relativa configurazione dei pesi che sono stati usati. Restituire i dati sotto forma di JSON o PDF. Le richieste devono essere validate.*
+
+*Si chiede di sviluppare il codice possibilmente utilizzando TypeScript. Ogni utente autenticato (ovvero con JWT) ha un numero di token (valore iniziale impostato nel seed del database). Nel caso di token terminati ogni richiesta da parte dello stesso utente deve restituire 401 Unauthorized.*
+
+*Prevedere una rotta per l’utente con ruolo admin che consenta di effettuare la ricarica per un utente fornendo la mail ed il nuovo “credito” (sempre mediante JWT). I token JWT devono contenere i dati essenziali.*
+
+*Il numero residuo di token deve essere memorizzato nel db sopra citato. Si deve prevedere degli script di seed per inizializzare il sistema. Nella fase di dimostrazione (demo) è necessario prevedere almeno 2 modelli diversi con almeno due versioni con una complessità minima di 8 nodi e 16 archi.*
+
+*Si chiede di utilizzare le funzionalità di middleware.*
+
+*Si chiede di gestire eventuali errori mediante gli strati middleware sollevando le opportune eccezioni.*
+
+*Si chiede di commentare opportunamente il codice.*
+
+
 
 ## Progettazione
 
@@ -41,6 +90,6 @@ Istruzioni su come testare il tuo progetto, inclusi i passaggi per configurare l
 
 ## Autori
 
-- [Nome Autore 1](https://github.com/linkProfiloGitHub)
-- [Nome Autore 2](https://github.com/linkProfiloGitHub)
+- [Alessandro Rongoni](https://github.com/AlessandroRongoni)
+- [Daniele Sergiacomi](https://github.com/sergytube)
 
