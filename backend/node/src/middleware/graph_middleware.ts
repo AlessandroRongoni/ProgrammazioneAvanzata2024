@@ -164,8 +164,8 @@ export const validateGraphStructure = async (req: Request, res: Response, next: 
 export const checkGraphExistence = async (req: Request, res: Response, next: NextFunction) => {
     const graphId = req.body.graphId;
 
-        // Verifica che graphId sia un numero
-        if (isNaN(Number(graphId))) {
+        // Verifica che graphId ci sia e che sia un numero
+        if (!graphId || isNaN(Number(graphId))) {
             return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidGraphId);
 
         }
