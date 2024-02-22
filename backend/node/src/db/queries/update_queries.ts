@@ -22,10 +22,10 @@ export async function approveEdgeUpdate(updateId: number): Promise<any> {
 };
 
 /**
- * Respinti una richiesta di aggiornamento dell'arco nel database.
+ * Respinge una richiesta di aggiornamento dell'arco nel database.
  * 
  * @param updateId - L'ID della richiesta di aggiornamento da respingere.
- * @returns Una promessa che rappresenta l'esito dell'operazione di respingimento della richiesta di aggiornamento.
+ * @returns Una promise che rappresenta l'esito dell'operazione di respingimento della richiesta di aggiornamento.
  */
 export async function rejectEdgeUpdate(updateId: number): Promise<any> {
     return await UpdateModel.update({ approved: false }, {
@@ -41,7 +41,7 @@ export async function rejectEdgeUpdate(updateId: number): Promise<any> {
  * 
  * @param requesterId - L'ID dell'utente che ha fatto le richieste di aggiornamento.
  * @param approved - Lo stato di approvazione della richiesta di aggiornamento.
- * @returns Una promessa che rappresenta l'elenco delle richieste di aggiornamento fatte dall'utente specificato.
+ * @returns Una promise che rappresenta l'elenco delle richieste di aggiornamento fatte dall'utente specificato.
  */
 export async function findUpdatesByReceiverInPending(receiverId: number): Promise<any> {
     return await UpdateModel.findAll({
@@ -64,11 +64,12 @@ export async function findUpdatesByReceiverInPending(receiverId: number): Promis
  * @returns Una Promise che risolve con un array di oggetti UpdateModel che corrispondono ai criteri di filtro.
  */
 export async function filterUpdates(graphId: number, startDate?: Date, endDate?: Date, approved?: string) {
-    let whereCondition: WhereOptions = { // Usa WhereOptions per una maggiore flessibilità
+    // Inizializza la condizione WHERE per la query con l'ID del grafo.
+    let whereCondition: WhereOptions = { //  WhereOptions permette una maggiore flessibilità
         graph_id: graphId,
     };
 
-    // Gestisce il filtro per le date
+    // Aggiunge alla condizione WHERE i filtri basati sulle date, se specificati.
     if (startDate && endDate) {
         whereCondition['updatedat'] = { [Op.between]: [startDate, endDate] }; // Assicurati di usare 'createdAt' se è il nome corretto della colonna
     } else if (startDate) {
@@ -79,13 +80,14 @@ export async function filterUpdates(graphId: number, startDate?: Date, endDate?:
 
     // Gestisce il filtro per lo stato dell'approvazione
     if (approved !== undefined) {
+        // Filtra gli aggiornamenti in base allo stato di approvazione: accettati, rifiutati o entrambi.
         whereCondition['approved'] = approved === 'accepted' ? true : approved === 'rejected' ? false : { [Op.or]: [true, false] };
     } else {
-        // Esclude gli aggiornamenti con stato null
+        // Esclude gli aggiornamenti con stato null, ovvero quelli in attesa di approvazione    
         whereCondition['approved'] = { [Op.or]: [true, false] };
     }
 
-
+    // Esegue la query per trovare tutti gli aggiornamenti che corrispondono ai criteri specificati.
     return await UpdateModel.findAll({
         where: whereCondition
     });
@@ -114,7 +116,7 @@ export async function findPendingUpdatesByGraphId(graphId: number): Promise<any>
  * @param requesterId - L'ID dell'utente che richiede l'aggiornamento.
  * @param receiverId - L'ID dell'utente a cui è destinata la richiesta di aggiornamento.
  * @param newWeight - Il nuovo peso da assegnare all'arco.
- * @returns Una promessa che rappresenta l'esito dell'operazione di creazione della richiesta di aggiornamento.
+ * @returns Una promise che rappresenta l'esito dell'operazione di creazione della richiesta di aggiornamento.
  */
 export async function requestEdgeUpdate(graphId:number, edgeId: number, requesterId: number, receiverId: number, newWeight: number): Promise<any> {
     return await UpdateModel.create({
@@ -152,7 +154,7 @@ export async function updateEdgeWeightInDB(edgeId: number, updatedWeight: number
 /**
  * Trova un aggiornamento dal suo ID.
  * @param updateId - L'ID dell'aggiornamento da cercare.
- * @returns Una promessa che si risolve con l'aggiornamento trovato.
+ * @returns Una promise che si risolve con l'aggiornamento trovato.
  */
 export async function findUpdateById(updateId: number): Promise<any> {
     return await UpdateModel.findByPk(updateId);

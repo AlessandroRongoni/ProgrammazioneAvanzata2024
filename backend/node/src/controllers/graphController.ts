@@ -176,10 +176,13 @@ export const CalculatePath = async (req: Request, res: Response) => {
     try {
         startTime = Date.now(); // Registra l'istante di inizio
 
+        // Recupera tutti gli archi del grafo specificato.
         const edges = await findEdgesByGraphId(graphId);
+        // Prepara i dati del grafo per il calcolo del percorso.
         const graphData = prepareGraphData(edges);
-
+        // Inizializza l'oggetto Graph con i dati preparati.
         const routeGraph = new Graph(graphData);
+        // Utilizza l'oggetto Graph per calcolare il percorso più breve e il suo costo.
         const result = routeGraph.path(startNode, endNode, { cost: true });
 
         endTime = Date.now(); // Registra l'istante di fine
@@ -195,6 +198,7 @@ export const CalculatePath = async (req: Request, res: Response) => {
                 message: 'Path calculated successfully.'
             });
         } else {
+            // Se il percorso non viene trovato, restituisce un messaggio di errore.
             return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.PathNotFound);
         }
     } 
@@ -212,11 +216,11 @@ export const CalculatePath = async (req: Request, res: Response) => {
 };
 
 /**
- * Rappresenta il risultato di un percorso.
+ * Interfaccia che rappresenta il risultato di un percorso.
  */
 interface PathResult {
     cost: number;
-    configuration: number | null; // Assumo che configuration sia un numero, adattalo al tuo caso d'uso
+    configuration: number | null; // il peso dell'arco della simulazione migliore 
     path: string[]; // Specifica che path è un array di stringhe
   }
 
@@ -232,26 +236,38 @@ interface PathResult {
     const { graphId, edgeId, startNode, endNode, startWeight, endWeight, step } = req.body;
 
     try {
+        // Recupera tutti gli archi del grafo specificato.
         const edges = await findEdgesByGraphId(graphId);
+        // Inizializza un array per i risultati della simulazione.
         let results = [];
+        // Inizializza il miglior risultato con un costo infinito per successivi confronti.
         let bestResult: PathResult = { cost: Infinity, configuration: null, path: [] };
 
+
+        // Itera sui pesi da startWeight a endWeight, incrementando di 'step' ad ogni iterazione.
         for (let weight = startWeight; weight <= endWeight; weight += step) {
+            // Calcola il peso finale per l'iterazione corrente per gestire il caso in cui
+            // l'incremento superi endWeight.
             const finalWeight = (weight + step > endWeight) ? endWeight : weight;
             
+            // Simula gli archi aggiornando il peso dell'arco specificato.
             const simulatedEdges = edges.map((edge: any) => {
                 const simpleEdge = edge.get ? edge.get({ plain: true }) : edge; // Gestisce sia oggetti Sequelize che normali oggetti JS
+                // Se l'edge corrente è quello da modificare, aggiorna il suo peso.
                 if (simpleEdge.edge_id === edgeId) {
                     return { ...simpleEdge, weight }; // Aggiorna il peso per l'arco specificato
                 }
                 return simpleEdge; // Restituisce l'arco non modificato per gli altri archi
             });
 
+            // Prepara i dati del grafo con gli archi simulati e calcola il percorso.
             const graphData = prepareGraphData(simulatedEdges);
             const pathResult = calculatePathUtility(graphData, startNode, endNode);
+
+            // Se il risultato del calcolo è valido, aggiungi i dettagli al risultato della simulazione.
             if (typeof pathResult === 'object' && 'cost' in pathResult) {
                 results.push({ weight, cost: pathResult.cost, path: pathResult.path });
-
+                // Aggiorna il miglior risultato se il costo corrente è inferiore.
                 if (pathResult.cost < bestResult.cost) {
                     bestResult = { cost: pathResult.cost, configuration: weight, path: pathResult.path };
                 }
@@ -260,6 +276,7 @@ interface PathResult {
             if (finalWeight === endWeight) break;
             
         }
+        // Restituisce i risultati della simulazione e il miglior risultato trovato.
         res.json({ results, bestResult });
     } catch (error) {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);

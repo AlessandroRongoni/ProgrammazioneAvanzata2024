@@ -30,17 +30,25 @@ export function calculateCost(nodes: number, edges: number): number {
  * @returns I dati del grafo preparati.
  */
 export function prepareGraphData(edges: any) {
-    const graphData: { [key: string]: { [key: string]: number } } = {};
-  
-    edges.forEach((edge: any) => {
-      if (!graphData[edge.start_node]) {
-        graphData[edge.start_node] = {};
-      }
-      graphData[edge.start_node][edge.end_node] = edge.weight;
-    });
-  
-    return graphData;
-  }
+  // Inizializza un oggetto per contenere la rappresentazione del grafo.
+  // La struttura è un dizionario dove ogni chiave rappresenta un nodo di partenza,
+  // e il suo valore è un altro dizionario che mappa i nodi di arrivo con il peso dell'arco.
+  const graphData: { [key: string]: { [key: string]: number } } = {};
+
+  // Itera su ogni arco nell'array fornito.
+  edges.forEach((edge: any) => {
+    // Se il nodo di partenza dell'arco attuale non è ancora stato aggiunto a graphData,
+    // inizializzalo con un oggetto vuoto.
+    if (!graphData[edge.start_node]) {
+      graphData[edge.start_node] = {};
+    }
+    // Aggiunge o aggiorna il nodo di arrivo e il peso dell'arco al dizionario del nodo di partenza.
+    graphData[edge.start_node][edge.end_node] = edge.weight;
+  });
+
+  // Restituisce la struttura dati del grafo popolata.
+  return graphData;
+}
 
 
 /**
@@ -52,7 +60,13 @@ export function prepareGraphData(edges: any) {
  * @returns Il percorso più breve e il suo costo, se esiste; altrimenti, undefined.
  */
 export function calculatePathUtility(graphData: { [key: string]: { [key: string]: number } }, startNode: string, endNode: string) {
+  // Crea un'istanza della classe Graph passando i dati del grafo.
   const routeGraph = new Graph(graphData);
+
+  // Chiama il metodo path sull'istanza di Graph per trovare il percorso più breve
+  // e il costo da startNode a endNode.
+  // L'opzione { cost: true } specifica che si desidera non solo il percorso
+  // ma anche il costo totale per percorrerlo.
   return routeGraph.path(startNode, endNode, { cost: true });
 }
 

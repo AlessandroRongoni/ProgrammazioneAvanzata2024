@@ -11,7 +11,7 @@ import sequelize from "sequelize";
 /**
  * Trova un grafico per ID.
  * @param graphId - L'ID del grafico da trovare.
- * @returns Una promessa che si risolve con il grafico trovato.
+ * @returns Una promise che si risolve con il grafico trovato.
  */
 export async function findGraphById(graphId: number): Promise<any> {
     return await GraphModel.findByPk(graphId);
@@ -44,7 +44,7 @@ export async function findEdgesByGraphId(graphId: number): Promise<any> {
 /**
  * Ricerca tutti i nodi unici associati a un dato graphId.
  * @param graphId L'identificativo del grafo per cui cercare i nodi.
- * @returns Una promessa che si risolve con l'elenco dei nodi unici trovati.
+ * @returns Una promise che si risolve con l'elenco dei nodi unici trovati.
  */
 export const findNodesByGraphId = async (graphId: number): Promise<string[]> => {
     try {
@@ -88,7 +88,7 @@ export async function findEdgeById(edgeId: number): Promise<any> {
  * @param name - Il nome del grafo.
  * @param description - La descrizione del grafo.
  * @param cost - Il costo del grafo.
- * @returns Una promessa che si risolve con il nuovo grafo creato.
+ * @returns Una promise che si risolve con il nuovo grafo creato.
  */
 export async function createGraphQuery(userId: number, name: string, description: string, cost: number): Promise<any> {
     return await GraphModel.create({
@@ -116,7 +116,7 @@ export async function findGraphCostById(graphId: number): Promise<number | null>
             return null; // Restituisce null se non viene trovato nessun grafo con l'ID specificato
         }
     } catch (error) {
-        console.error("Error fetching graph cost by graphId:", error);
+        console.error("Errore nel trovare il graph cost by graphId:", error);
         throw error; // Rilancia l'errore per una gestione ulteriore
     }
 };
@@ -128,7 +128,7 @@ export async function findGraphCostById(graphId: number): Promise<number | null>
  * @param startNode - Il nodo di partenza dell'arco.
  * @param endNode - Il nodo di arrivo dell'arco.
  * @param weight - Il peso dell'arco.
- * @returns Una promessa che si risolve con il nuovo arco creato.
+ * @returns Una promise che si risolve con il nuovo arco creato.
  */
 export async function addEdgesToGraph(graphId: number, startNode: string, endNode: string, weight: number): Promise<any> {
         return EdgeModel.create({
@@ -159,7 +159,7 @@ export async function subtractTokensByEmail(email: string, tokens: number): Prom
 /**
  * Trova un grafico per nome.
  * @param name Il nome del grafico da cercare.
- * @returns Una promessa che si risolve con l'array dei grafici trovati.
+ * @returns Una promise che si risolve con l'array dei grafici trovati.
  */
 export async function findGraphByName(name: string): Promise<any> {
     return await GraphModel.findAll({

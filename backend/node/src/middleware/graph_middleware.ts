@@ -14,7 +14,8 @@ var update_cost_per_edge = parseFloat(process.env.UPDATE_COST_PER_EDGE!) || 0.02
 
 
 /**
- * Middleware function to check user tokens before creating a graph.
+ * // Middleware per controllare i token dell'utente prima di creare un grafo.
+ * // Verifica che l'utente abbia abbastanza token per procedere con la creazione.
  * 
  * @param req - The Express request object.
  * @param res - The Express response object.
@@ -23,29 +24,34 @@ var update_cost_per_edge = parseFloat(process.env.UPDATE_COST_PER_EDGE!) || 0.02
  */
 export const checkUserTokensCreate = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        // Estrai l'email dell'utente dal JWT per identificarlo univocamente.
         const jwtUserEmail = getJwtEmail(req);
 
+        // Se non viene trovato un JWT, restituisci un messaggio di errore.
         if (!jwtUserEmail) {
             return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.NoAuthHeader);
-
         }
 
+        // Cerca l'utente nel database tramite email.
         const user = await findUser(jwtUserEmail);
+        // Se l'utente non esiste, restituisci un messaggio di errore.
         if (!user) {
             return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
-
         }
 
-        // Calcola il costo totale basato sui nodi e sugli archi forniti nella richiesta
+        // Calcola il costo totale per la creazione del grafo basato sul numero di nodi e archi.
         const totalCost = calculateCost(req.body.nodes.length, req.body.edges.length);
 
+        // Verifica se l'utente ha abbastanza token per coprire il costo.
         if (user[0].dataValues.tokens < totalCost) {
             return MessageFactory.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.NoTokens);
-
         }
 
+        // Se tutti i controlli sono superati, procedi al middleware successivo.
         next();
     } catch (error) {
+        // In caso di errore nel processo, restituisci un messaggio di errore generico.
+        console.error(error);
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };

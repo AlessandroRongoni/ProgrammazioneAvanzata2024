@@ -10,8 +10,9 @@ import { saveAndRespondWithFile } from '../utils/fileGenerationService';
 
 const ALPHA = parseFloat(process.env.ALPHA || "0.8"); 
 const update_cost_per_edge = parseFloat(process.env.UPDATE_COST_EDGES || "0.025");
+
 /**
- * Updates the weight of an edge. (DA FINIRE)
+ * Aggiorna i pesi di un arco.
  * 
  * @param req - The request object.
  * @param res - The response object.
@@ -94,7 +95,7 @@ export async function updateEdgeWeight(req: Request, res: Response) {
 
 
 /**
- * Retrieves and returns the pending updates for a user. DA RIVEDERE TUTTA
+ * Trova e mostra tutti gli aggiornamenti in attesa per uno user.
  * 
  * @param req - The request object.
  * @param res - The response object.
@@ -117,10 +118,9 @@ export const viewPendingUpdatesForUser = async (req: Request, res: Response) => 
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
 };
-//daje
 
 /**
- * Retrieves and returns the filtered update history for a user within a specified date range.
+ * trova e mostra tutto lo storico degli aggiornamenti per uno user, con possibilità di filtrare per data (da, a , tra) e per status (accepted, rejected).
  * @param req - The request object.
  * @param res - The response object.
  * @returns A JSON response containing the filtered update history.
@@ -150,7 +150,7 @@ export const viewFilteredUpdateHistory = async (req: Request, res: Response) => 
 
 
 /**
- * Retrieves and returns the pending updates for a model.
+ * Trova e mostra gli aggiornamenti in attesa per un grafo.
  * 
  * @param req - The request object.
  * @param res - The response object.
@@ -180,7 +180,6 @@ export const viewPendingUpdatesForModel = async (req: Request, res: Response) =>
  * @param req - The request object.
  * @param res - The response object.
  * @returns A status message indicating the result of the approval or rejection.
- * MODIFICARLO IN MODALITA' BULK e aggiornare i MIDDLWARE per il controllo multiplo
  */
 export const answerUpdate = async (req: Request, res: Response) => {
     try {
