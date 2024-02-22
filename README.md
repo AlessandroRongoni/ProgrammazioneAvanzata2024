@@ -78,7 +78,36 @@ Le specifiche del progetto sono state fornite dal professore [*Adriano Mancini*]
 
 ## Progettazione
 
-Dettagli sulla progettazione del tuo progetto, inclusi i diagrammi UML, le scelte architetturali, le tecnologie utilizzate e la struttura delle tue API.
+### Diagrammi UML
+![Use Cases](https://github.com/AlessandroRongoni/ProgrammazioneAvanzata2024/blob/main/img/UseCasesOPTI.drawio.png?raw=true)
+
+
+## API Routes
+
+| Metodo | Rotta                          | Parametri                                                                                       | Descrizione                                                                                             |
+|--------|--------------------------------|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `GET`  | `/`                            | Nessuno                                                                                         | Pagina di benvenuto, invita a effettuare il login.                                                      |
+| `POST` | `/login`                       | email, password                                                                                 | Effettua il login e restituisce il JWT associato all'utente.                                            |
+| `POST` | `/register`                    | email, password                                                                                 | Registra un nuovo utente.                                                                               |
+| `GET`  | `/user/tokens`                 | JWT nel header                                                                                  | Restituisce i token associati ad un utente.                                                             |
+| `PUT`  | `/recharge`                    |  email, tokens                                                                   | Modifica i token di un utente.                                                                          |
+| `POST` | `/graph`                       |  name, description, nodes, edges                                                 | Crea un nuovo grafo.                                                                                    |
+| `GET`  | `/graph/calculatecost`         |  graphId, startNode, endNode                                                     | Calcola il percorso minimo tra due nodi di un grafo.                                                    |
+| `GET`  | `/graphslist`                  | JWT nel header                                                                                  | Ottiene tutta la lista dei grafi.                                                                       |
+| `GET`  | `/graph/edges`                 |  graphId                                                                         | Ottiene la lista degli archi di un grafo.                                                               |
+| `GET`  | `/user/all`                    | JWT nel header                                                                                  | Ottiene tutti gli utenti (solo per admin).                                                              |
+| `GET`  | `/updates/graph/pending`       |  graphId                                                                         | Visualizza gli aggiornamenti pendenti per un modello.                                                   |
+| `GET`  | `/updates/user/pending`        | JWT nel header                                                                                  | Visualizza gli aggiornamenti pendenti per un utente.                                                    |
+| `PUT`  | `/update/answer`               |  updateId, answer                                                                | Approva o rifiuta una richiesta di aggiornamento.                                                       |
+| `PUT`  | `/update/edges`                |  graphId, edgeId, newWeight                                                      | Aggiorna uno o più archi di un grafo.                                                                   |
+| `GET`  | `/updates/history/graph`       |  graphId, dateFilter (from, to), status                                          | Restituisce l’elenco degli aggiornamenti effettuati nel tempo, filtrati per data e stato.               |
+| `GET`  | `/updates/format`              |  graphId, dateFilter (from, to), status, format                                  | Ottiene gli aggiornamenti in formato specificato, filtrati per data e stato.                            |
+| `GET`  | `/simulate`                    |  graphId, edgeId, startNode, endNode, startWeight, endWeight, step                | Simula variazioni di peso su un arco di un grafo, validando i parametri di simulazione.                 |
+
+ **Nota:** Tutte le rotte hanno bisogno dell'autenticazione tramite JWT tranne le rotte */login* e */register*. 
+ 
+ La rotta */user/all* può essere utilizzata solo dall'ADMIN
+
 
 ## Funzionamento
 

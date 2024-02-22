@@ -68,6 +68,13 @@ app.get("/user/tokens", checkJwt,checkUserJwt, (req: Request, res: Response) => 
 
 /**
  * Modifica i token di un utente
+ * 
+ * {
+ * 
+ *  "email": " prova@opt.it",
+ * "tokens": 100.00
+ * 
+ * }
  */
 
 app.put('/recharge', jsonParser, checkIsAdmin, checkEmail, checkUser, checkTokensBody, (req: Request, res: Response) => {
@@ -208,6 +215,11 @@ app.get("/updates/history/graph", jsonParser, checkJwt, checkGraphExistence, val
  * Rotta per ottenere gli aggiornamenti in formato
  * {
   "graphId": 1,
+  dateFilter: {
+      from: "2023-01-01",
+      to: "2023-12-31",
+  },
+  "status": "accepted", // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
   "format": "json" // Valori possibili: "json", "csv", "xml"
 }
  */
@@ -218,9 +230,14 @@ app.get("/updates/format", checkJwt, checkGraphExistence, validateDateRange, val
 /**
  * Rotta per simulare un grafo
  * {
-  "graphId": 1,
+  "graphId": 2,
+  "edgeId": 1,
   "startNode": "A",
-  "endNode": "B"
+  "endNode": "B",
+  "startWeight": 0.5,
+  "endWeight": 50,
+  "step": 1
+}
 }
  */
 app.get("/simulate", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, validateStartEndNodes, checkEdgesExistence, validateSimulationParameters, (req: Request, res: Response) => {
