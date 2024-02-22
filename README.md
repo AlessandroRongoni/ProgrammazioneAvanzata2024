@@ -245,14 +245,32 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
  
  In questa sezione, forniremo una descrizione dettagliata di ogni rotta che è stata creata. Saranno inclusi i parametri richiesti per ciascuna chiamata API, insieme a un diagramma delle sequenze per illustrare l'interazione tra i componenti del sistema. Questo approccio aiuterà a comprendere il flusso di dati e la logica dietro le operazioni eseguibili tramite l'API, offrendo anche dettagli sui risultati restituiti da ciascuna rotta.
 
+ ### POST: /login
 
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+
+```json
+{
+	"email":"alessandro@op.it",
+	"password":"Opti2024!"
+}
+```
+
+
+```json
+{
+    "message": {
+        "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZXNzYW5kcm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODYxNjQ0MX0.Cdb9DhwPj6QFbzB_STt7rbTpGA3hUP8XWFaQ32-_Qfk"
+    }
+}
+```
 ## Testing
 
 Per testare il progetto, è essenziale seguire una serie di passaggi che garantiscano la configurazione corretta dell'ambiente di sviluppo e l'esecuzione efficace dei test. Ecco una guida dettagliata:
 
 1. **Scaricare il Progetto**: Utilizzare l'URL del repository Git per clonarlo o scaricare direttamente il file ZIP.
 2. **Importare il Pacchetto Postman**: Nella cartella Postman del progetto, troverai un pacchetto di chiamate da importare in Postman per testare le API.
-3. **Configurare il File `.env`**: Compila il file `.env` con i dati necessari seguendo come esempio il file `.env.example` fornito.
+3. **Configurare il File `.env`**: Compila il file `.env` con i dati necessari seguendo come esempio il file `.env` fornito.
 4. **Installare Docker**: Scaricare e installare Docker dal sito ufficiale per gestire i container necessari al progetto.
 5. **Avviare i Servizi con Docker**: Assicurati che Docker sia in esecuzione e di trovarti all'interno della cartella *backend*. Successivamente avvia i servizi necessari con il comando:
    ```bash
