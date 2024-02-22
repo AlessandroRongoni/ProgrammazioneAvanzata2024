@@ -110,10 +110,10 @@ Le specifiche del progetto sono state fornite dal professore [*Adriano Mancini*]
 
  ### Pattern Utilizzati
 
-#### MVC (Model-View-Controller)
+#### MVC (Model-View-Controller) Pattern
 Il pattern MVC è un paradigma di progettazione software che separa l'applicazione in tre componenti principali: Modello (gestisce i dati e le regole del business), Vista (presenta i dati all'utente), e Controller (interpreta i comandi dell'utente, facendo da ponte tra Modello e Vista). Nel nostro progetto, abbiamo adottato un approccio M(V)C, dove la Vista non è direttamente implementata considerando la natura del backend, focalizzandoci su Modello e Controller per gestire dati e logica applicativa.
 
-### Singleton
+#### Singleton Pattern
 Il pattern Singleton assicura che una classe abbia solo una istanza e fornisce un punto di accesso globale a questa istanza. È stato utilizzato per gestire la connessione al database, garantendo che la connessione sia unica e facilmente accessibile.
 
 ```javascript
@@ -136,6 +136,52 @@ export class DbConnector {
             DbConnector.instance = new DbConnector();
         }
         return DbConnector.instance.sequelizer;
+    }
+}
+```
+#### Factory Pattern
+
+Il pattern Factory è utilizzato per creare oggetti senza esplicitare la classe concreta che sarà istanziata. Questo permette di migliorare la modularità del codice rendendolo più flessibile e mantenibile. Nel nostro progetto, il Factory Pattern è impiegato per generare messaggi di risposta personalizzati basati sul codice di stato, facilitando la gestione delle risposte HTTP in diverse situazioni.
+
+```javascript
+export class MessageFactory {
+    constructor() { };
+
+    static getStatusMessage(cases: CustomStatusCodes, res: Response, message: string) {
+        switch (cases) {
+            case CustomStatusCodes.BAD_REQUEST:
+                return BadRequestMessage.setStatus(res, message);
+            case CustomStatusCodes.UNAUTHORIZED:
+                return UnauthorizedMessage.setStatus(res, message);
+            case CustomStatusCodes.INTERNAL_SERVER_ERROR:
+                return InternalServerErrorMessage.setStatus(res, message);
+            case CustomStatusCodes.NOT_FOUND:
+                return NotFoundErrorMessage.setStatus(res, message);
+            case CustomStatusCodes.OK:
+                return OkMessage.setStatus(res, message);
+            default:
+                return res.status(CustomStatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
+        }
+    }
+}
+```
+
+```javascript
+/**
+ * Implementazione delle interfacce per la gestione dei messaggi di stato
+ * Imposta il messaggio di stato sulla risposta HTTP con il codice di stato corrispondente.
+ */
+
+// Esempio di classe di messaggio modificata
+export class BadRequestMessage {
+    static setStatus(res: Response, message: string) {
+        res.status(CustomStatusCodes.BAD_REQUEST).json({ message });
+    }
+}
+
+export class UnauthorizedMessage {
+    static setStatus(res: Response, message: string) {
+        res.status(CustomStatusCodes.UNAUTHORIZED).json({ message });
     }
 }
 ```
