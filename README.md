@@ -108,6 +108,38 @@ Le specifiche del progetto sono state fornite dal professore [*Adriano Mancini*]
  
  La rotta */user/all* può essere utilizzata solo dall'ADMIN
 
+ ### Pattern Utilizzati
+
+#### MVC (Model-View-Controller)
+Il pattern MVC è un paradigma di progettazione software che separa l'applicazione in tre componenti principali: Modello (gestisce i dati e le regole del business), Vista (presenta i dati all'utente), e Controller (interpreta i comandi dell'utente, facendo da ponte tra Modello e Vista). Nel nostro progetto, abbiamo adottato un approccio M(V)C, dove la Vista non è direttamente implementata considerando la natura del backend, focalizzandoci su Modello e Controller per gestire dati e logica applicativa.
+
+### Singleton
+Il pattern Singleton assicura che una classe abbia solo una istanza e fornisce un punto di accesso globale a questa istanza. È stato utilizzato per gestire la connessione al database, garantendo che la connessione sia unica e facilmente accessibile.
+
+```javascript
+// Singleton per la connessione al database
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+dotenv.config();
+const dbUsername = process.env.PGUSER || 'postgres';
+const dbPassword = process.env.PGPASSWORD;
+const dbName = process.env.PGDATABASEE || 'mydb';
+const dbHost = process.env.PGHOST || 'db';
+export class DbConnector {
+    private static instance: DbConnector;
+    private sequelizer: any;
+    private constructor() {
+        this.sequelizer = new Sequelize(dbName, dbUsername, dbPassword, { host: dbHost, dialect: 'postgres', });
+    }
+    public static getConnection(): any {
+        if (!DbConnector.instance) {
+            DbConnector.instance = new DbConnector();
+        }
+        return DbConnector.instance.sequelizer;
+    }
+}
+```
+
 
 ## Funzionamento
 
