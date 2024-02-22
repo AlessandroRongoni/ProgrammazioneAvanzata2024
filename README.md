@@ -1,6 +1,6 @@
 <div align="center">
 
-![Grafo Ottimizzato](https://raw.githubusercontent.com/AlessandroRongoni/ProgrammazioneAvanzata2024/main/img/Grafo.webp)
+<img src="https://raw.githubusercontent.com/AlessandroRongoni/ProgrammazioneAvanzata2024/main/img/Grafo.webp" width="300">
 
 [![Postgres](https://img.shields.io/badge/Made%20with-postgres-%23316192.svg?style=plastic&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![NPM](https://img.shields.io/badge/Made%20with-NPM-%23CB3837.svg?style=plastic&logo=npm&logoColor=white)](https://www.npmjs.com/)
@@ -106,7 +106,7 @@ Le specifiche del progetto sono state fornite dal professore [*Adriano Mancini*]
 
  **Nota:** Tutte le rotte hanno bisogno dell'autenticazione tramite JWT tranne le rotte */login* e */register*. 
  
- La rotta */user/all* può essere utilizzata solo dall'ADMIN
+ La rotta */user/all* può essere utilizzata solo dall'admin.
 
  ### Pattern Utilizzati
 
