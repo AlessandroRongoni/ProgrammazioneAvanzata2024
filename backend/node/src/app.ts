@@ -245,7 +245,7 @@ app.get("/simulate", jsonParser, checkJwt, checkGraphExistence, validateNodes, c
 });
 
 
-// Start the server
+// Start the server: DOCKER-COMPOSE UP --BUILD
 app.listen(port,host, () => {
   console.log(`Server in ascolto su http://localhost:${port}`);
 });
