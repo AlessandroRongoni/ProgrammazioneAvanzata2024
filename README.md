@@ -185,15 +185,56 @@ export class UnauthorizedMessage {
     }
 }
 ```
+#### Chain of Responsibility Pattern
+
+Il Chain of Responsibility Pattern permette di passare una richiesta lungo una catena di handler, dove ciascuno può gestirla o passarla al successivo. Questo pattern è utile per ridurre il coupling tra mittenti e destinatari di una richiesta, permettendo a più oggetti di tentare l'elaborazione.
+
+Nel nostro contesto, viene applicato per la verifica del JWT nelle richieste HTTP, dove diversi controlli possono essere eseguiti in sequenza:
+
+```javascript
+/**
+ * Controlla la validità del token JWT nell'intestazione della richiesta.
+ * Verifica se il token JWT è presente e decodificabile correttamente.
+ * Restituisce un errore 401 se il token JWT è mancante o non valido.
+ *
+ * @param req - Oggetto della richiesta HTTP.
+ * @param res - Oggetto della risposta HTTP.
+ * @param next - Funzione di callback per passare alla prossima operazione.
+ */
+export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
+    const jwtBearerToken = req.headers.authorization;
+    const jwtDecode = jwtBearerToken ? decodeJwt(jwtBearerToken) : null;
+
+    if (jwtDecode && jwtDecode.email && jwtDecode.password) {
+        next();
+    } else {
+        return MessageFactory.getStatusMessage(CustomStatusCodes.UNAUTHORIZED, res, Messages400.Unauthorized);
+
+    }
+};
+```
 
 
 ## Funzionamento
+ 
+ In questa sezione, forniremo una descrizione dettagliata di ogni rotta che è stata creata. Saranno inclusi i parametri richiesti per ciascuna chiamata API, insieme a un diagramma delle sequenze per illustrare l'interazione tra i componenti del sistema. Questo approccio aiuterà a comprendere il flusso di dati e la logica dietro le operazioni eseguibili tramite l'API, offrendo anche dettagli sui risultati restituiti da ciascuna rotta.
 
-Descrizione dettagliata del funzionamento delle tue API, inclusi i parametri richiesti, i risultati attesi per le operazioni principali, e qualsiasi dettaglio rilevante per gli utenti o sviluppatori che interagiscono con il tuo sistema.
 
 ## Testing
 
-Istruzioni su come testare il tuo progetto, inclusi i passaggi per configurare l'ambiente di sviluppo, come eseguire i test e interpretare i risultati.
+Per testare il progetto, è essenziale seguire una serie di passaggi che garantiscano la configurazione corretta dell'ambiente di sviluppo e l'esecuzione efficace dei test. Ecco una guida dettagliata:
+
+1. **Scaricare il Progetto**: Utilizzare l'URL del repository Git per clonarlo o scaricare direttamente il file ZIP.
+2. **Importare il Pacchetto Postman**: Nella cartella Postman del progetto, troverai un pacchetto di chiamate da importare in Postman per testare le API.
+3. **Configurare il File `.env`**: Compila il file `.env` con i dati necessari seguendo come esempio il file `.env.example` fornito.
+4. **Installare Docker**: Scaricare e installare Docker dal sito ufficiale per gestire i container necessari al progetto.
+5. **Avviare i Servizi con Docker**: Assicurati che Docker sia in esecuzione e avvia i servizi necessari con i comandi:
+   ```bash
+   docker-compose up --build
+   ```
+6. **Testare con Postman**: Utilizza Postman per inviare chiamate al server e analizzare le risposte ottenute.
+
+Ricorda di consultare la documentazione del progetto per dettagli aggiuntivi e per qualsiasi chiarimento necessario. Questa procedura ti guiderà attraverso la configurazione, l'esecuzione dei test e l'interpretazione dei risultati, assicurando che il progetto funzioni come previsto.
 
 ## Autori
 
