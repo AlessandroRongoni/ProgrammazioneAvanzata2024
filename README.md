@@ -255,7 +255,9 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 	"password":"Opti2024!"
 }
 ```
+```mermaid
 
+```
 
 ```json
 {
