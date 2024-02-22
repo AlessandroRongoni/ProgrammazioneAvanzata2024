@@ -228,7 +228,7 @@ Per testare il progetto, è essenziale seguire una serie di passaggi che garanti
 2. **Importare il Pacchetto Postman**: Nella cartella Postman del progetto, troverai un pacchetto di chiamate da importare in Postman per testare le API.
 3. **Configurare il File `.env`**: Compila il file `.env` con i dati necessari seguendo come esempio il file `.env.example` fornito.
 4. **Installare Docker**: Scaricare e installare Docker dal sito ufficiale per gestire i container necessari al progetto.
-5. **Avviare i Servizi con Docker**: Assicurati che Docker sia in esecuzione e avvia i servizi necessari con i comandi:
+5. **Avviare i Servizi con Docker**: Assicurati che Docker sia in esecuzione e di trovarti all'interno della cartella *backend*. Successivamente avvia i servizi necessari con il comando:
    ```bash
    docker-compose up --build
    ```
@@ -238,6 +238,6 @@ Ricorda di consultare la documentazione del progetto per dettagli aggiuntivi e p
 
 ## Autori
 
-- [Alessandro Rongoni](https://github.com/AlessandroRongoni)
-- [Daniele Sergiacomi](https://github.com/sergytube)
+- ***[Alessandro Rongoni](https://github.com/AlessandroRongoni)***
+- ***[Daniele Sergiacomi](https://github.com/sergytube)***
 
