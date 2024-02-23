@@ -1285,6 +1285,7 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 }
 ```
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+
 ```mermaid
 sequenceDiagram
     participant client as Client
@@ -1326,7 +1327,6 @@ sequenceDiagram
     query->>controller: return: UserModel.update()
     controller->>app: return: ModelCreationSuccess
     app->>client: return: ModelCreationSuccess
-
 ```
 Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
 ```json
