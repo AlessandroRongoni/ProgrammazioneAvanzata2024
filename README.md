@@ -1661,6 +1661,59 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 ```
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
 ```mermaid
+sequenceDiagram
+    participant client as Client
+    participant app as App
+    participant middleware as Middleware
+    participant utils as Utils
+    participant controller as Controller
+    participant query as Query
+    participant model as Model
+
+    client->>app: /simulate
+    app->>middleware: jsonParser()
+    middleware->>middleware: next()
+    middleware->>utils: checkJWT()
+    utils-->>middleware: decodedJWT
+    middleware->>middleware: next()
+    middleware->>app: checkGraphExistence()
+    app->>controller: findGraphById()
+    controller->>query: findByPK()
+    query-->>model: Graph
+    model-->>query: return: Graph
+    query-->>controller: return: Graph
+    controller-->>app: return: Graph
+    app->>middleware: next()
+    middleware->>app: validateNodes()
+    app->>controller: findNodesByGraphId()
+    controller->>query: findAll()
+    query-->>model: Edges
+    model-->>query: return: Edges
+    query-->>controller: return: Nodes
+    controller-->>app: return: Nodes
+    app->>middleware: checkNodesExistence()
+    middleware->>middleware: next()
+    middleware->>app: validateStartEndNodes()
+    app->>middleware: next()
+    middleware->>app: checkEdgeBelonging()
+    app->>controller: findEdgesById()
+    controller->>query: findAll()
+    query-->>model: Edges
+    model-->>query: return: Edges
+    query-->>controller: return: Edges
+    controller-->>app: return: Edges
+    app->>middleware: next()
+    middleware->>app: checkEdgesExistence()
+    app->>middleware: next()
+    middleware->>app: validateSimulationParameters()
+    app->>middleware: next()
+    middleware->>controller: simulateGraph()
+    controller->>controller: prepareGraphData()
+    controller-->>controller: return: graphData
+    controller->>utils: calculatePathUtility()
+    utils-->>controller: return: routeGraph, path(startNode, endNode, { cost: true })
+    controller-->>app: return: results.push({ weight, cost: pathResult.cost, path: pathResult.path })
+    app-->>client: return: res.json({ results, bestResult })
 
 ```
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
