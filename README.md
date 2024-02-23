@@ -1233,7 +1233,9 @@ Se la richiesta viene effettuata correttamente viene restituito il seguente mess
     }
 ]
 ```
+
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+
 ```json
 {
   "graphId": 1,
@@ -1247,15 +1249,19 @@ In caso di errore invece verrà restituito un messaggio che ha come chiave il no
   // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
 }
 ```
+
 Genererà:
+
 ```json
 {
     status: 400 BAD REQUEST
     "message": "Il formato della/delle data/e non è nel formato corretto."
 }
 ```
+
 ### POST: /graph
 Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+
 ```json
 {
   "name": "Grafo Test Simulazione 2",
@@ -1284,7 +1290,9 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
   ]
 }
 ```
+
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+
 ```mermaid
 sequenceDiagram
     participant client as Client
@@ -1328,13 +1336,17 @@ sequenceDiagram
     app->>client: return: ModelCreationSuccess
 
 ```
+
 Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+
 ```json
 {
     "message": "Modello creato con successo."
 }
 ```
+
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+
 ```json
 {
   "name": "Grafo Test Simulazione 2",
@@ -1347,15 +1359,19 @@ In caso di errore invece verrà restituito un messaggio che ha come chiave il no
   ]
 }
 ```
+
 Genererà:
+
 ```json
 {
     status: 400 BAD REQUEST
     "message": "Il nome del grafo 'Grafo Test Simulazione 2' è già in uso."
 }
 ```
+
 ### GET: /graph/calculatecost
 Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+
 ```json
 {
   "graphId":1,
@@ -1363,7 +1379,9 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
   "endNode": "D"
 }
 ```
+
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+
 ```mermaid
 sequenceDiagram
     participant client as Client
@@ -1420,7 +1438,9 @@ sequenceDiagram
     controller->>app: return: res.json({path: result, cost: resultCost, elapsedTime: elapsedTime})
     app->>client: return: res.json({path: result, cost: resultCost, elapsedTime: elapsedTime})
 ```
+
 Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+
 ```json
 {
     "path": [
@@ -1434,7 +1454,9 @@ Se la richiesta viene effettuata correttamente viene restituito il seguente mess
     "message": "Path calculated successfully."
 }
 ```
+
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+
 ```json
 {
   "graphId":1,
@@ -1442,7 +1464,9 @@ In caso di errore invece verrà restituito un messaggio che ha come chiave il no
   "endNode": "O"
 }
 ```
+
 Genererà:
+
 ```json
 {
     status: 400 BAD REQUEST
@@ -1450,8 +1474,10 @@ Genererà:
 
 }
 ```
+
 ### GET: /updates/format
 Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+
 ```json
 {
   "graphId": 1,
@@ -1463,7 +1489,9 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
   "format": "xml" // fromati disponibili: pdf, xml, csv, json
 }
 ```
+
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+
 ```mermaid
 sequenceDiagram
     participant client as Client
@@ -1503,7 +1531,9 @@ sequenceDiagram
     app->>client: or res.download(csvFilePath)
 
 ```
+
 Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+
 ```xml
 <graphInfo>
     <dataValues>
@@ -1627,6 +1657,7 @@ Se la richiesta viene effettuata correttamente viene restituito il seguente mess
 </updates>
 ```
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+
 ```json
 {
   "graphId": 1,
@@ -1638,7 +1669,9 @@ In caso di errore invece verrà restituito un messaggio che ha come chiave il no
   "format": "docx" // fromati disponibili: pdf, xml, csv, json
 }
 ```
+
 Genererà:
+
 ```json
 {
     status: 400 BAD REQUEST
@@ -1646,8 +1679,10 @@ Genererà:
 
 }
 ```
+
 ### GET: /simulate
 Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+
 ```json
 {
   "graphId": 1,
@@ -1660,7 +1695,9 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 }
 ```
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+
 ```mermaid
+
 sequenceDiagram
     participant client as Client
     participant app as App
@@ -1714,9 +1751,10 @@ sequenceDiagram
     utils-->>controller: return: routeGraph, path(startNode, endNode, { cost: true })
     controller-->>app: return: results.push({ weight, cost: pathResult.cost, path: pathResult.path })
     app-->>client: return: res.json({ results, bestResult })
-
 ```
+
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+
 ```json
 {
   "graphId": 2,
@@ -1728,15 +1766,15 @@ In caso di errore invece verrà restituito un messaggio che ha come chiave il no
   "step": 1
 }
 ```
+
 Genererà:
+
 ```json
 {
     status: 400 BAD REQUEST
     "message": "L'arco non appartiene al grafo."
 }
 ```
-
-
 
 ## Testing
 
