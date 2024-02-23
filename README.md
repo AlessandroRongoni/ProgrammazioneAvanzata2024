@@ -255,7 +255,36 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 	"password":"Opti2024!"
 }
 ```
+
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+
 ```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant controller
+    participant query
+    participant model
+
+    client->>app: /login
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checkEmail()
+    middleware->>app: next()
+    app->>middleware: checkPassword()
+    middleware->>app: next()
+    app->>middleware: checkUser()
+    middleware->>app: next()
+    app->>middleware: checkPasswordMatch()
+    middleware->>app: next()
+    app->>controller: login()
+    controller->>query: findUser()
+    query->>model: findAll()
+    model->>query: return: User
+    query->>controller: return: User
+    controller->>app: jwtSign()
+    app->>client: return JSON.parse(JSON.stringify({ jwt: BearerToken }))
 
 ```
 
