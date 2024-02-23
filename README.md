@@ -522,6 +522,34 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 ```
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
 ```mermaid
+sequenceDiagram
+    participant client as Client
+    participant app as App
+    participant middleware as Middleware
+    participant utils as Utils
+    participant controller as Controller
+    participant query as Query
+    participant model as Model
+
+    client->>app: /graph/edges
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checkGraphExistence()
+    middleware->>app: next()
+    app->>middleware: getGraphEdges()
+    middleware->>controller: findGraphById()
+    controller->>query: findByPk()
+    query->>model: findByPk()
+    model->>query: return: Graph
+    query->>controller: return: Graph
+    controller->>query: findEdgesByGraphId()
+    query->>model: findAll()
+    model->>query: return: Edges
+    query->>controller: return: Edges
+    controller->>middleware: return: JSON.parse(JSON.stringify({ edges: Edges }))
+    middleware->>client: return: JSON.parse(JSON.stringify({ edges: Edges }))
 
 ```
 Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
