@@ -615,3 +615,30 @@ export const validateStartEndNodes = (req: Request, res: Response, next: NextFun
     }
 
 };
+
+/**
+ * Controllo per vedere se un arco passato appartiene al grafo passato
+ * tremite id
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const checkEdgeBelonging = async (req: Request, res: Response, next: NextFunction) => {
+    const { graphId, edgeId } = req.body;
+    try {
+        const edge = await findEdgeById(edgeId);
+        if (!edge) {
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+
+        }
+        if (edge.graph_id != graphId) {
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
+
+        }
+        next();
+    } catch (error) {
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+
+};
