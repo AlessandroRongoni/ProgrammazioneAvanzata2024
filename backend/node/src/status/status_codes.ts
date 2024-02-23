@@ -50,7 +50,7 @@ export enum Messages400 {
     InvalidToken = "I Token inseriti devono essere dei valori double compresi tra 0 e 1000",
     InvalidNodes = "Il valore del nodo deve essere una stringa",
     InvalidSimulationValue = "I parametri di simulazione devono essere numeri.",
-    InvalidSimulationReverse = "La data di fine deve precedere quella di inizio.",
+    InvalidSimulationReverse = "Il valore di inizio non può essere maggiore di quello di fine.",
     NegativeOrNullStep = "Lo step deve essere un numero positivo e mai uguale a zero.",
     UnsupportedFormat = " Il formato inserito non è supportato, perfavore inserisci: pdf, xml, csv o json.",
     EmailCheck = "Il formato dell'email inserita non è corretto.",

@@ -243,7 +243,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 
 ## Funzionamento
  
- In questa sezione, forniremo una descrizione dettagliata di ogni rotta che è stata creata. Saranno inclusi i parametri richiesti per ciascuna chiamata API, insieme a un diagramma delle sequenze per illustrare l'interazione tra i componenti del sistema. Questo approccio aiuterà a comprendere il flusso di dati e la logica dietro le operazioni eseguibili tramite l'API, offrendo anche dettagli sui risultati restituiti da ciascuna rotta.
+ In questa sezione, forniremo una descrizione dettagliata di ogni rotta che è stata creata. Saranno inclusi i parametri richiesti per ciascuna chiamata API, insieme a un diagramma delle sequenze per illustrare l'interazione tra i componenti del sistema. Questo approccio aiuterà a comprendere il flusso di dati e la logica dietro le operazioni eseguibili tramite l'API, offrendo anche dettagli sui risultati restituiti da ciascuna rotta. Sono state inserite alcune tipologie di errori che possono capitare qualora ci siano problemi con la richiesta passata nel body.
 
 ### POST: /login
 
@@ -522,6 +522,34 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 ```
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
 ```mermaid
+sequenceDiagram
+    participant client as Client
+    participant app as App
+    participant middleware as Middleware
+    participant utils as Utils
+    participant controller as Controller
+    participant query as Query
+    participant model as Model
+
+    client->>app: /graph/edges
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checkGraphExistence()
+    middleware->>app: next()
+    app->>middleware: getGraphEdges()
+    middleware->>controller: findGraphById()
+    controller->>query: findByPk()
+    query->>model: findByPk()
+    model->>query: return: Graph
+    query->>controller: return: Graph
+    controller->>query: findEdgesByGraphId()
+    query->>model: findAll()
+    model->>query: return: Edges
+    query->>controller: return: Edges
+    controller->>middleware: return: JSON.parse(JSON.stringify({ edges: Edges }))
+    middleware->>client: return: JSON.parse(JSON.stringify({ edges: Edges }))
 
 ```
 Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
@@ -1637,14 +1665,21 @@ Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente d
 ```
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
 ```json
-
+{
+  "graphId": 2,
+  "edgeId": 3,
+  "startNode": "A",
+  "endNode": "B",
+  "startWeight": 9,
+  "endWeight": 10,
+  "step": 1
+}
 ```
 Genererà:
 ```json
 {
     status: 400 BAD REQUEST
-    "message": "   ."
-
+    "message": "L'arco non appartiene al grafo."
 }
 ```
 
