@@ -1684,13 +1684,21 @@ sequenceDiagram
 ```
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
 ```json
-
+{
+  "graphId": 2,
+  "edgeId": 3,
+  "startNode": "A",
+  "endNode": "B",
+  "startWeight": 9,
+  "endWeight": 10,
+  "step": 1
+}
 ```
 Genererà:
 ```json
 {
     status: 400 BAD REQUEST
-    "message": "   ."
+    "message": "L'arco non appartiene al grafo."
 
 }
 ```
