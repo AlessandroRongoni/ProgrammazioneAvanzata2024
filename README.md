@@ -245,7 +245,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
  
  In questa sezione, forniremo una descrizione dettagliata di ogni rotta che è stata creata. Saranno inclusi i parametri richiesti per ciascuna chiamata API, insieme a un diagramma delle sequenze per illustrare l'interazione tra i componenti del sistema. Questo approccio aiuterà a comprendere il flusso di dati e la logica dietro le operazioni eseguibili tramite l'API, offrendo anche dettagli sui risultati restituiti da ciascuna rotta.
 
- ### POST: /login
+### POST: /login
 
 Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
 
@@ -256,13 +256,38 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 }
 ```
 ```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant controller
+    participant query
+    participant model
 
+    client->>app: /login
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checkEmail()
+    middleware->>app: next()
+    app->>middleware: checkPassword()
+    middleware->>app: next()
+    app->>middleware: checkUser()
+    middleware->>app: next()
+    app->>middleware: checkPasswordMatch()
+    middleware->>app: next()
+    app->>controller: login()
+    controller->>query: findUser()
+    query->>model: findAll()
+    model->>query: return: User
+    query->>controller: return: User
+    controller->>app: jwtSign()
+    app->>client: return JSON.parse(JSON.stringify({ jwt: BearerToken }))
 ```
 
 ```json
 {
     "message": {
-        "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZXNzYW5kcm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODYxNjQ0MX0.Cdb9DhwPj6QFbzB_STt7rbTpGA3hUP8XWFaQ32-_Qfk"
+        "jwt": "MY_TOKEN"
     }
 }
 ```
