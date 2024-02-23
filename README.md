@@ -563,7 +563,7 @@ Se la richiesta viene effettuata correttamente viene restituito il seguente mess
 ```
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
 ```json
-    {
+{
     "graphId": 80
 }
 ```
@@ -642,17 +642,1011 @@ Se la richiesta viene effettuata correttamente viene restituito il seguente mess
     }
 }
 ```
+### GET: /updates/graph/pending
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+́{
+    "graphId": 1
+}
+```
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant utils
+    participant controller
+    participant query
+    participant model
 
+    client->>app: /updates/graph/pending
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checkGraphExistence()
+    middleware->>app: next()
+    app->>controller: viewPendingUpdatesForModel()
+    controller->>query: findGraphById()
+    query->>model: findByPk()
+    model->>query: return Graph
+    query->>controller: return Graph
+    controller->>query: findPendingUpdatesByGraphId()
+    query->>model: findAll()
+    model->>query: return Updates
+    query->>controller: return Updates
+    controller->>app: return JSON.parse(JSON.stringify({pendingUpdates: pendingUpdates}))
+    app->>client: return JSON.parse(JSON.stringify({pendingUpdates: pendingUpdates}))
 
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": {
+        "pendingUpdates": [
+            {
+                "update_id": 1,
+                "graph_id": 1,
+                "edge_id": 1,
+                "requester_id": 2,
+                "receiver_id": 1,
+                "new_weight": 1.7,
+                "approved": null,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            },
+            {
+                "update_id": 2,
+                "graph_id": 1,
+                "edge_id": 4,
+                "requester_id": 2,
+                "receiver_id": 1,
+                "new_weight": 2,
+                "approved": null,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            }
+        ]
+    }
+}
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+    "graphId": 80
+}
+```
+Genererà:
+```json
+{
+    status: 404 NOT FOUND
+    "message": "Non è possibile trovare il grafo specificato."
+}
+```
+### GET: /updates/user/pending
+Per poter ottenere una risposta non è necessario inserire un body, basta aver fatto l'autenticazione tramite JWT.
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant utils
+    participant controller
+    participant query
+    participant model
 
+    client->>app: /updates/user/pending
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return jwt.verify()
+    middleware->>app: next()
+    app->>controller: viewPendingUpdatesForModel()
+    controller->>utils: _getJwtEmail()
+    utils->>controller: return jwtUserEmail
+    controller->>query: findUsers()
+    query->>model: findAll()
+    model->>query: return User
+    query->>controller: return User
+    controller->>query: findUpdatesByReceiverInPending()
+    query->>model: findAll()
+    model->>query: return Updates
+    query->>controller: return Updates
+    controller->>app: return JSON.parse(JSON.stringify({pendingUpdates: pendingUpdates}))
+    app->>client: return JSON.parse(JSON.stringify({pendingUpdates: pendingUpdates}))
 
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": {
+        "pendingUpdates": [
+            {
+                "update_id": 1,
+                "graph_id": 1,
+                "edge_id": 1,
+                "requester_id": 2,
+                "receiver_id": 1,
+                "new_weight": 1.7,
+                "approved": null,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            },
+            {
+                "update_id": 2,
+                "graph_id": 1,
+                "edge_id": 4,
+                "requester_id": 2,
+                "receiver_id": 1,
+                "new_weight": 2,
+                "approved": null,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            }
+        ]
+    }
+}
+```
+### PUT: /recharge
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+́{
+    "email":"alessandro@op.it",
+    "tokens": 101
+}
 
+```
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant utils
+    participant controller
+    participant query
+    participant model
 
+    client->>app: /recharge
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checksIsAdmin()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checkEmail()
+    middleware->>app: next()
+    app->>middleware: checkIdUser()
+    middleware->>app: next()
+    app->>middleware: checkTokenBody()
+    middleware->>controller: updateTokens()
+    controller->>query: findUser()
+    query->>model: findAll()
+    model->>query: return User
+    query->>controller: return User
+    controller->>query: checkPassword()
+    query->>model: findAll()
+    model->>query: return Pass
+    query->>controller: return Pass
+    controller->>query: findUser()
+    query->>model: findAll()
+    model->>query: return User
+    query->>controller: return User
+    controller->>query: updateTokensDb()
+    query->>model: update()
+    model->>query: return UserModel.update()
+    query->>controller: return UserModel.update()
+    controller->>app: return JSON.parse(JSON.stringify({tokens: req.body.tokens}))
+    app->>client: return JSON.parse(JSON.stringify({tokens: req.body.tokens}))
 
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": {
+        "tokens": 101
+    }
+}
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+    "email":"fabio@op.it",
+    "tokens": 101
+}
+```
+Genererà:
+```json
+{
+    status: 404 NOT FOUND
+    "message": "Non è possibile trovare l'utente specificato."
+}
+```
+Oppure per il controllo dei valori dei tokens inseriti:
+```json
+{
+    "email":"alessandro@op.it",
+    "tokens": -101
+}
+```
+Genererà:
+```json
+{
+    status: 400 BAD REQUEST
+    "message": "Non puoi inserire un numero di token negativo."
+}
+```
+### PUT: /update/answer
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+{
+      "request":[
+                {
+                    "updateId": 1,
+                    "answer": false
+                },
+                {
+                    "updateId":2,
+                    "answer":true
 
+                }
+        ]
+ }
+```
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant utils
+    participant controller
+    participant query
+    participant model
 
+    client->>app: /update-answer
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checkUpdateExistence()
+    middleware->>controller: findUpdateById()
+    controller->>query: findByPk()
+    query->>model: return Update
+    model->>query: return Update
+    query->>controller: return Update
+    controller->>middleware: next()
+    app->>middleware: checkOwnerGraph()
+    middleware->>utils: getEmail()
+    utils->>middleware: return jwt user email
+    middleware->>app: next()
+    app->>middleware: checkUpdatesArePending()
+    middleware->>controller: findUpdateById()
+    controller->>query: findByPk()
+    query->>model: return Updates
+    model->>query: return Updates
+    query->>controller: return Updates
+    controller->>middleware: next()
+    app->>middleware: checkUpdatesAreDifferent()
+    middleware->>app: next()
+    app->>middleware: checkValidationAnswer()
+    middleware->>app: next()
+    app->>controller: answerUpdate()
+    controller->>query: findUpdateById()
+    query->>model: return Updates
+    model->>query: return Updates
+    query->>controller: findEdgeById()
+    controller->>query: findByPk()
+    query->>model: return Edges
+    model->>query: return Edges
+    query->>controller: updateEdgeWeightInDB()
+    controller->>model: update()
+    model->>controller: return EdgeModel.update()
+    controller->>query: approveEdgeUpdate()
+    query->>model: update()
+    model->>query: return UpdateModel.update()
+    query->>controller: rejectEdgeUpdate()
+    controller->>model: update()
+    model->>controller: return UpdateModel.update()
+    controller->>app: return RequestAnswered
+    app->>client: return RequestAnswered
 
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": "Richieste risposte con successo."
+}
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+    status: 400 BAD REQUEST
+    "message": "Non puoi modificare un update a cui già hai risposto."
 
+}
+```
+### PUT: /update/edges
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+{
+    "graphId":1,
+    "updates":[
+        {
+            "edgeId":1,
+            "newWeight":3
+        }
+    ]
+}
+```
+Si distinguono due casi: il primo in cui i'utente che fa richiesta di modifica dell'arco **è il proprietario** del grafo e il secondo in cui l'utente che fa richiesta **non è il proprietario del grafo**, in questo caso viene inviata una richesta al proprietario che può **accettare/rifiutare** la richiesta di modifica.
+#### CASO 1: L'utente è il proprietario
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant utils
+    participant controller
+    participant query
+    participant model
+
+    client->>app: updateEdges()
+    app->>middleware: jsonParser()
+    app->>middleware: checkId()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: jwt.verify()
+    middleware->>app: next()
+    app->>utils: checkGraphExistence()
+    utils->>controller: findGraphById()
+    controller->>query: find()
+    query->>model: PK()
+    model-->>query: Graph
+    query-->>controller: Graph
+    controller-->>utils: Graph
+    utils->>app: checkEdgeExistenceAndCorrectWeights()
+    app->>middleware: checkUserTokenIsValid(update)
+    middleware->>utils: getUserIdByEmail()
+    utils-->>middleware: jwtBearerToken
+    middleware->>app: next()
+    app->>controller: updateEdgeWeight()
+    controller->>query: getEdgeWeight()
+    query->>controller: findEdgeById()
+    query->>model: PK()
+    model-->>query: Edges
+    query-->>controller: Edges
+    controller-->>app: Edges
+    app->>controller: updateEdgeWeightDB()
+    controller->>query: updateEdgeModel.update()
+    query->>model: update()
+    model-->>query: EdgeModel.update()
+    query-->>controller: EdgeModel.update()
+    controller-->>app: updateModel.update()
+    app->>middleware: requestEdgeUpdate()
+    middleware->>controller: update()
+    controller->>query: update()
+    query->>model: update()
+    model-->>query: UpdateModel.update()
+    query-->>controller: UpdateModel.update()
+    controller-->>middleware: update()
+    middleware-->>app: update()
+    app->>model: subtractTokensByEmail()
+    model->>app: UserModel.update()
+    app-->>client: Model update is successful
+
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": "Modello aggiornato con successo."
+}
+```
+#### CASO 2: L'utente non è il proprietario
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client as Client
+    participant app as App
+    participant middleware as Middleware
+    participant utils as Utils
+    participant controller as Controller
+    participant query as Query
+    participant model as Model
+
+    client->>app: updateEdges()
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checkId()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checkGraphExistence()
+    middleware->>utils: checkAllEdgesBelongingAndCorrectWeights()
+    utils->>middleware: next()
+    middleware->>app: checkUserTokensUpdate()
+    app->>middleware: getUserEmail()
+    middleware->>utils: return: jwtBearerToken
+    utils->>middleware: next()
+    middleware->>app: updateEdgeWeight()
+    app->>controller: getUserEmail()
+    controller->>app: return: jwtUserEmail()
+    app->>controller: updateEdgeWeight()
+    controller->>query: findUser()
+    query->>controller: return: User
+    controller->>app: findGraphById()
+    query->>model: find()
+    model->>query: return: Graph
+    query->>controller: return: Graph
+    controller->>app: findEdgeById()
+    query->>model: find()
+    model->>query: return: Edges
+    query->>controller: return: Edges
+    controller->>app: requestEdgeUpdate()
+    app->>query: update()
+    query->>model: update()
+    model->>query: return: UpdateModel.update()
+    query->>app: return: UpdateModel.update()
+    app->>model: subtractTokensByEmail()
+    model->>app: return: UserModel.update()
+    app->>client: return: UpdateNotification
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": "Richiesta di aggiornamento inviata con successo."
+}
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+    "graphId":1,
+    "updates":[
+        {
+            "edgeId":9,
+            "newWeight":3
+        }
+    ]
+}
+```
+```json
+{
+    status: 400 BAD REQUEST
+    "message": "L'arco non appartiene al grafo."
+
+}
+```
+### GET: /updates/history/graph
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+{
+  "graphId": 1,
+  "dateFilter": {
+    // formato data YYYY-MM-DD
+    "from": "2024-02-18", //inserire la data da cui partire (Superiore a...)
+    "to": "2024-12-31" //inserire la data finale (Inferiore a...)
+    //inserirle entrambe per avere un intervallo di tempo (Da...a...)
+  },
+  "status": ""
+  // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
+}
+```
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client as Client
+    participant app as App
+    participant middleware as Middleware
+    participant utils as Utils
+    participant controller as Controller
+    participant query as Query
+    participant model as Model
+
+    client->>app: /updates/history/graph
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checkGraphExistence()
+    middleware->>app: next()
+    app->>middleware: validateDateRange()
+    middleware->>app: next()
+    app->>middleware: validateStatus()
+    middleware->>app: next()
+    app->>controller: viewFilteredUpdateHistory()
+    controller->>query: findGraphById()
+    query->>model: findById()
+    model->>query: return: Graph
+    query->>controller: return: Graph
+    controller->>query: filterUpdates()
+    query->>model: findByField()
+    model->>query: return: Updates
+    query->>controller: return: Updates
+    controller->>app: return: res.json(updates)
+    app->>client: return: res.json(updates)
+
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+[
+    {
+        "update_id": 1,
+        "graph_id": 1,
+        "edge_id": 1,
+        "requester_id": 2,
+        "receiver_id": 1,
+        "new_weight": 1.7,
+        "approved": false,
+        "createdat": "2024-02-23",
+        "updatedat": "2024-02-23"
+    },
+    {
+        "update_id": 2,
+        "graph_id": 1,
+        "edge_id": 4,
+        "requester_id": 2,
+        "receiver_id": 1,
+        "new_weight": 2,
+        "approved": true,
+        "createdat": "2024-02-23",
+        "updatedat": "2024-02-23"
+    },
+    {
+        "update_id": 7,
+        "graph_id": 1,
+        "edge_id": 1,
+        "requester_id": 1,
+        "receiver_id": 1,
+        "new_weight": 3,
+        "approved": true,
+        "createdat": "2024-02-23",
+        "updatedat": "2024-02-23"
+    }
+]
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+  "graphId": 1,
+  "dateFilter": {
+    // formato data YYYY-MM-DD
+    "from": "2024-04-32", //inserire la data da cui partire (Superiore a...)
+    "to": "2024-12-31" //inserire la data finale (Inferiore a...)
+    //inserirle entrambe per avere un intervallo di tempo (Da...a...)
+  },
+  "status": ""
+  // Valori possibili: "accepted", "rejected", o lasciare vuoto/null per non filtrare per stato
+}
+```
+Genererà:
+```json
+{
+    status: 400 BAD REQUEST
+    "message": "Il formato della/delle data/e non è nel formato corretto."
+}
+```
+### POST: /graph
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+{
+  "name": "Grafo Test Simulazione 2",
+  "description": "Un grafo di test per la simulazione con un arco dal peso elevato.",
+  "nodes": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"],
+  "edges": [
+    {"startNode": "A", "endNode": "B", "weight": 1},
+    {"startNode": "B", "endNode": "C", "weight": 2},
+    {"startNode": "C", "endNode": "D", "weight": 2},
+    {"startNode": "D", "endNode": "E", "weight": 1},
+    {"startNode": "E", "endNode": "F", "weight": 3},
+    {"startNode": "F", "endNode": "G", "weight": 1},
+    {"startNode": "G", "endNode": "H", "weight": 2},
+    {"startNode": "H", "endNode": "A", "weight": 2},
+    {"startNode": "I", "endNode": "J", "weight": 1},
+    {"startNode": "J", "endNode": "K", "weight": 2},
+    {"startNode": "K", "endNode": "L", "weight": 1},
+    {"startNode": "L", "endNode": "M", "weight": 3},
+    {"startNode": "M", "endNode": "N", "weight": 1},
+    {"startNode": "N", "endNode": "O", "weight": 2},
+    {"startNode": "O", "endNode": "P", "weight": 2},
+    {"startNode": "P", "endNode": "I", "weight": 2},
+    {"startNode": "A", "endNode": "I", "weight": 50}, // Arco con peso esageratamente grosso
+    {"startNode": "E", "endNode": "M", "weight": 1},
+    {"startNode": "B", "endNode": "J", "weight": 1}
+  ]
+}
+```
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client as Client
+    participant app as App
+    participant middleware as Middleware
+    participant utils as Utils
+    participant controller as Controller
+    participant query as Query
+    participant model as Model
+
+    client->>app: /graph
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>middleware: validateGraphStructure()
+    middleware->>app: next()
+    app->>middleware: checkUserTokensCreate()
+    middleware->>utils: calculateCost()
+    utils->>middleware: return: totalCost
+    middleware->>app: createGraph()
+    app->>controller: findGraphByName()
+    controller->>query: find()
+    query->>model: return: Graph
+    query->>controller: return: Graph
+    controller->>utils: calculateCost()
+    utils->>controller: return: totalCost
+    controller->>query: createGraphQuery()
+    query->>model: create()
+    model->>query: return: GraphModel.create()
+    query->>controller: createGraphQuery()
+    controller->>query: create()
+    query->>model: return: EdgeModel.create()
+    controller->>query: subtractTokensByEmail()
+    query->>model: update()
+    model->>query: return: UserModel.update()
+    query->>controller: return: UserModel.update()
+    controller->>app: return: ModelCreationSuccess
+    app->>client: return: ModelCreationSuccess
+
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": "Modello creato con successo."
+}
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+  "name": "Grafo Test Simulazione 2",
+  "description": "Un grafo di test per la simulazione con un arco dal peso elevato.",
+  "nodes": ["A", "B", "C", "D"],
+  "edges": [
+    {"startNode": "A", "endNode": "B", "weight": 1},
+    {"startNode": "B", "endNode": "C", "weight": 2},
+    {"startNode": "C", "endNode": "D", "weight": 2}
+  ]
+}
+```
+Genererà:
+```json
+{
+    status: 400 BAD REQUEST
+    "message": "Il nome del grafo 'Grafo Test Simulazione 2' è già in uso."
+}
+```
+### GET: /graph/calculatecost
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+{
+  "graphId":1,
+  "startNode": "A",
+  "endNode": "D"
+}
+```
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client as Client
+    participant app as App
+    participant middleware as Middleware
+    participant utils as Utils
+    participant controller as Controller
+    participant query as Query
+    participant model as Model
+
+    client->>app: /graph/calculatecost
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checkGraphExistence()
+    middleware->>app: next()
+    app->>middleware: validateNode()
+    middleware->>app: next()
+    app->>middleware: checkNodesExistence()
+    middleware->>app: next()
+    app->>middleware: checkEdgesExistence()
+    middleware->>app: next()
+    app->>controller: calculatePath()
+    controller->>utils: getUserEmail()
+    utils->>controller: return: jwtUserEmail
+    controller->>query: findGraphById()
+    query->>model: findByPk()
+    model->>query: return: Graph
+    query->>controller: findNodesByGraphId()
+    controller->>query: findAll()
+    query->>model: return: Nodes
+    model->>query: return: Nodes
+    query->>controller: findEdgesByGraphId()
+    controller->>query: findAll()
+    query->>model: return: Edges
+    model->>query: return: Edges
+    controller->>utils: prepareGraphData()
+    utils->>controller: return: graphData
+    controller->>model: findGraphCostById()
+    model->>query: findByPk()
+    query->>model: return: Graph
+    model->>query: return: Graph
+    query->>controller: findEdgesByGraphId()
+    controller->>query: findAll()
+    query->>model: return: Edges
+    model->>query: return: Edges
+    controller->>model: subtractTokensByEmail()
+    model->>query: update()
+    query->>model: return: UserModel.update()
+    model->>query: return: UserModel.update()
+    controller->>app: return: res.json({path: result, cost: resultCost, elapsedTime: elapsedTime})
+    app->>client: return: res.json({path: result, cost: resultCost, elapsedTime: elapsedTime})
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "path": [
+        "A",
+        "B",
+        "C",
+        "D"
+    ],
+    "cost": 5.6000000000000005,
+    "elapsedTime": 3,
+    "message": "Path calculated successfully."
+}
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+  "graphId":1,
+  "startNode": "A",
+  "endNode": "O"
+}
+```
+Genererà:
+```json
+{
+    status: 400 BAD REQUEST
+    "message": "Il nodo di partenza o di arrivo non esiste/esistono."
+
+}
+```
+### GET: /updates/format
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+{
+  "graphId": 1,
+  "dateFilter": {
+    "from": "2024-01-01",
+    "to": "2024-12-31"
+  },
+  "status": "accepted", // accepted, rejected o vuoto per averle entrambe
+  "format": "xml" // fromati disponibili: pdf, xml, csv, json
+}
+```
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client as Client
+    participant app as App
+    participant middleware as Middleware
+    participant utils as Utils
+    participant controller as Controller
+    participant query as Query
+    participant model as Model
+
+    client->>app: /updates/format
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checkGraphExistence()
+    middleware->>app: next()
+    app->>middleware: validateDateRange()
+    middleware->>app: next()
+    app->>middleware: validateStatus()
+    middleware->>app: next()
+    app->>middleware: validateFormat()
+    middleware->>app: next()
+    app->>controller: getUpdatesInFormat()
+    controller->>query: filterUpdates()
+    query->>model: findAll()
+    model->>query: return: Updates
+    query->>controller: findGraphById()
+    controller->>query: findByPk()
+    query->>model: return: Graph
+    model->>query: return: Graph
+    controller->>app: saveAndRespondWithFile()
+    app->>client: choice
+    app->>client: return: res.json or res.send(xmlData) or doc.end()
+    app->>client: or res.download(csvFilePath)
+
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```xml
+<graphInfo>
+    <dataValues>
+        <graph_id>1</graph_id>
+        <user_id>1</user_id>
+        <name>Graph 1</name>
+        <description>Description of Graph 1</description>
+        <cost>3</cost>
+        <createdat>2024-02-23</createdat>
+        <updatedat>2024-02-23</updatedat>
+    </dataValues>
+    <_previousDataValues>
+        <graph_id>1</graph_id>
+        <user_id>1</user_id>
+        <name>Graph 1</name>
+        <description>Description of Graph 1</description>
+        <cost>3</cost>
+        <createdat>2024-02-23</createdat>
+        <updatedat>2024-02-23</updatedat>
+    </_previousDataValues>
+    <uniqno>1</uniqno>
+    <_changed/>
+    <_options>
+        <isNewRecord>false</isNewRecord>
+        <_schema/>
+        <_schemaDelimiter/>
+        <raw>true</raw>
+        <attributes>graph_id</attributes>
+        <attributes>user_id</attributes>
+        <attributes>name</attributes>
+        <attributes>description</attributes>
+        <attributes>cost</attributes>
+        <attributes>createdat</attributes>
+        <attributes>updatedat</attributes>
+    </_options>
+    <isNewRecord>false</isNewRecord>
+</graphInfo>
+<updates>
+    <dataValues>
+        <update_id>2</update_id>
+        <graph_id>1</graph_id>
+        <edge_id>4</edge_id>
+        <requester_id>2</requester_id>
+        <receiver_id>1</receiver_id>
+        <new_weight>2</new_weight>
+        <approved>true</approved>
+        <createdat>2024-02-23</createdat>
+        <updatedat>2024-02-23</updatedat>
+    </dataValues>
+    <_previousDataValues>
+        <update_id>2</update_id>
+        <graph_id>1</graph_id>
+        <edge_id>4</edge_id>
+        <requester_id>2</requester_id>
+        <receiver_id>1</receiver_id>
+        <new_weight>2</new_weight>
+        <approved>true</approved>
+        <createdat>2024-02-23</createdat>
+        <updatedat>2024-02-23</updatedat>
+    </_previousDataValues>
+    <uniqno>1</uniqno>
+    <_changed/>
+    <_options>
+        <isNewRecord>false</isNewRecord>
+        <_schema/>
+        <_schemaDelimiter/>
+        <raw>true</raw>
+        <attributes>update_id</attributes>
+        <attributes>graph_id</attributes>
+        <attributes>edge_id</attributes>
+        <attributes>requester_id</attributes>
+        <attributes>receiver_id</attributes>
+        <attributes>new_weight</attributes>
+        <attributes>approved</attributes>
+        <attributes>createdat</attributes>
+        <attributes>updatedat</attributes>
+    </_options>
+    <isNewRecord>false</isNewRecord>
+</updates>
+<updates>
+    <dataValues>
+        <update_id>7</update_id>
+        <graph_id>1</graph_id>
+        <edge_id>1</edge_id>
+        <requester_id>1</requester_id>
+        <receiver_id>1</receiver_id>
+        <new_weight>3</new_weight>
+        <approved>true</approved>
+        <createdat>2024-02-23</createdat>
+        <updatedat>2024-02-23</updatedat>
+    </dataValues>
+    <_previousDataValues>
+        <update_id>7</update_id>
+        <graph_id>1</graph_id>
+        <edge_id>1</edge_id>
+        <requester_id>1</requester_id>
+        <receiver_id>1</receiver_id>
+        <new_weight>3</new_weight>
+        <approved>true</approved>
+        <createdat>2024-02-23</createdat>
+        <updatedat>2024-02-23</updatedat>
+    </_previousDataValues>
+    <uniqno>1</uniqno>
+    <_changed/>
+    <_options>
+        <isNewRecord>false</isNewRecord>
+        <_schema/>
+        <_schemaDelimiter/>
+        <raw>true</raw>
+        <attributes>update_id</attributes>
+        <attributes>graph_id</attributes>
+        <attributes>edge_id</attributes>
+        <attributes>requester_id</attributes>
+        <attributes>receiver_id</attributes>
+        <attributes>new_weight</attributes>
+        <attributes>approved</attributes>
+        <attributes>createdat</attributes>
+        <attributes>updatedat</attributes>
+    </_options>
+    <isNewRecord>false</isNewRecord>
+</updates>
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+  "graphId": 1,
+  "dateFilter": {
+    "from": "2024-01-01",
+    "to": "2024-12-31"
+  },
+  "status": "", // accepted, rejected o vuoto per averle entrambe
+  "format": "docx" // fromati disponibili: pdf, xml, csv, json
+}
+```
+Genererà:
+```json
+{
+    status: 400 BAD REQUEST
+    "message": " Il formato inserito non è supportato, perfavore inserisci: pdf, xml, csv o json."
+
+}
+```
+### GET: /simulate
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+{
+  "graphId": 1,
+  "edgeId": 2,
+  "startNode": "A",
+  "endNode": "B",
+  "startWeight": 0.5,
+  "endWeight": 10,
+  "step": 1
+}
+```
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+
+```
+Genererà:
+```json
+{
+    status: 400 BAD REQUEST
+    "message": "   ."
+
+}
+```
 
 
 

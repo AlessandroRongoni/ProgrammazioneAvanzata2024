@@ -554,6 +554,10 @@ export const validateFormat = (req: Request, res: Response, next: NextFunction) 
     if (format && typeof format !== 'string') {
         return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.FormatString);
     }
+    // Controllo che l'inserimento sia ugale a uno dei formati consentiti
+    if (format && format.trim() !== '' && !allowedFormats.includes(format)) {
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnsupportedFormat);
+    }
     // Imposta un formato predefinito se il campo 'format' è vuoto o non specificato
     if (!format || format.trim() === '') {
         format = 'json'; // Predefinito a JSON
