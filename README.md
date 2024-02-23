@@ -1661,53 +1661,6 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 ```
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
 ```mermaid
-sequenceDiagram
-    participant client as Client
-    participant app as App
-    participant middleware as Middleware
-    participant utils as Utils
-    participant controller as Controller
-    participant query as Query
-    participant model as Model
-
-    client->>app: /simulate
-    app->>middleware: jsonParser()
-    middleware->>app: next()
-    app->>middleware: checkJwt()
-    middleware->>utils: decodeJwt()
-    utils->>middleware: return: jwt.verify()
-    middleware->>app: next()
-    app->>middleware: checkGraphExistence()
-    middleware->>app: next()
-    app->>middleware: validateNode()
-    middleware->>app: next()
-    app->>middleware: checkNodesExistence()
-    middleware->>app: next()
-    app->>middleware: validateStartEndNodes()
-    middleware->>app: next()
-    app->>middleware: checkEdgesExistence()
-    middleware->>app: next()
-    app->>middleware: validateSimulationParameters()
-    middleware->>app: next()
-    app->>controller: simulateGraph()
-    controller->>query: findGraphById()
-    query->>model: findByPk()
-    model->>query: return: Graph
-    query->>controller: findNodesByGraphId()
-    query->>model: findAll()
-    model->>query: return: Nodes
-    controller->>query: findEdgesByGraphId()
-    query->>model: findAll()
-    model->>query: return: Edges
-    query->>controller: findEdgesByGraphId()
-    query->>model: findAll()
-    model->>query: return: Edges
-    controller->>controller: prepareGraphData()
-    controller->>controller: return: graphData
-    controller->>controller: calculatePathUtility()
-    controller->>controller: routeGraphPath(startNode, endNode, { cost: true })
-    controller->>app: return: results.push({ weight, cost: pathResult.cost, path: pathResult.path })
-    app->>client: return: res.json({ results, bestResult })
 
 ```
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
@@ -1727,7 +1680,6 @@ Genererà:
 {
     status: 400 BAD REQUEST
     "message": "L'arco non appartiene al grafo."
-
 }
 ```
 
