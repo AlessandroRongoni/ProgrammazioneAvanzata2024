@@ -363,6 +363,7 @@ Se la richiesta viene effettuata correttamente viene restituito il seguente mess
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
 ```json
 {
+    status: 400 BAD REQUEST
     "message": "Non è possibile creare l'utente perchè è già esistente."
 }
 ```
@@ -409,7 +410,7 @@ Se la richiesta viene effettuata correttamente viene restituito il seguente mess
 In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
 ```json
 {
-    status: 401 UNAUTHORIZATED:
+    status: 401 UNAUTHORIZATED
     "message": "Questo utente non ha le autorizzazioni necessarie a svolgere l'operazione."
 }
 ```
@@ -569,7 +570,7 @@ In caso di errore invece verrà restituito un messaggio che ha come chiave il no
 Genererà:
 ```json
 {
-    status: 404 NOT FOUND:
+    status: 404 NOT FOUND
     "message": "Non è possibile trovare il grafo specificato."
 }
 ```
