@@ -245,7 +245,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
  
  In questa sezione, forniremo una descrizione dettagliata di ogni rotta che è stata creata. Saranno inclusi i parametri richiesti per ciascuna chiamata API, insieme a un diagramma delle sequenze per illustrare l'interazione tra i componenti del sistema. Questo approccio aiuterà a comprendere il flusso di dati e la logica dietro le operazioni eseguibili tramite l'API, offrendo anche dettagli sui risultati restituiti da ciascuna rotta.
 
- ### POST: /login
+### POST: /login
 
 Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
 
@@ -288,13 +288,373 @@ sequenceDiagram
 
 ```
 
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+
 ```json
 {
     "message": {
-        "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZXNzYW5kcm9Ab3AuaXQiLCJwYXNzd29yZCI6Ik9wdGkyMDI0ISIsImlhdCI6MTcwODYxNjQ0MX0.Cdb9DhwPj6QFbzB_STt7rbTpGA3hUP8XWFaQ32-_Qfk"
+        "jwt": "MY_TOKEN_JWT"
     }
 }
 ```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+    "email":"adriano@op",
+    "password":"Opti2024!"
+}
+```
+Verrà generato il seguente errore:
+```json
+{
+    status: 400 BAD REQUEST
+    
+    "message": "Il formato dell'email inserita non è corretto."
+
+}
+```
+### POST: /register
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+́{
+    "email":"prova@op.it",
+    "password":"opti2024!"
+}
+```
+
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+
+```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant controller
+    participant query
+    participant model
+
+    client->>app: /register
+    app->>middleware: jsonParser()
+    middleware->>app: next()
+    app->>middleware: checkEmail()
+    middleware->>app: next()
+    app->>middleware: checkPassword()
+    middleware->>app: next()
+    app->>middleware: checkUserNotRegistered()
+    middleware->>app: next()
+    app->>controller: createUser()
+    controller->>query: findUser()
+    query->>model: findAll()
+    model->>query: return: User
+    query->>controller: return: User
+    controller->>query: createUserDb()
+    query->>model: create()
+    model->>query: return: UserModel.create()
+    query->>controller: return: UserModel.create()
+    controller->>app: return: UserCreateSuccess
+    app->>client: return: UserCreateSuccess
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": "Utente creato con successo."
+}
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+    "message": "Non è possibile creare l'utente perchè è già esistente."
+}
+```
+### GET: /user/tokens
+Per poter ottenere una risposta non è necessario inserire un body, basta aver fatto l'autenticazione tramite JWT.
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+
+```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant utils
+    participant controller
+    participant query
+    participant model
+
+    client->>app: /user/tokens
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checkUserJwt()
+    middleware->>utils: getJwtEmail()
+    utils->>middleware: return: jwtUserEmail
+    middleware->>app: next()
+    app->>controller: getUserTokens()
+    controller->>query: findUser()
+    query->>model: findAll()
+    model->>query: return: User
+    query->>controller: return: User
+    controller->>app: return: UserCreateSuccess
+    app->>client: return: UserCreateSuccess
+
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+"message": {
+        "tokens": 100
+    }
+}
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+{
+    status: 401 UNAUTHORIZATED:
+    "message": "Questo utente non ha le autorizzazioni necessarie a svolgere l'operazione."
+}
+```
+**NOTA:** Lo status *401 UNAUTHORIZATED* viene settato ogni qualvolta che l'utente non effettua l'autenticazione per richiedere un qualunque servizio oppure non ha abbastanza tokens per effettuare un'operazione.
+### GET: /graphslist
+Per poter ottenere una risposta non è necessario inserire un body, basta aver fatto l'autenticazione tramite JWT.
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant utils
+    participant controller
+    participant query
+    participant model
+
+    client->>app: /graphslist
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>controller: getAIGraphs()
+    controller->>query: findAllGraphs()
+    query->>model: findAll()
+    model->>query: return: Graphs
+    query->>controller: return: Graphs
+    controller->>app: return: JSON.parse(JSON.stringify({ graphs: Graphs }))
+    app->>client: return: JSON.parse(JSON.stringify({ graphs: Graphs }))
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": {
+        "graphs": [
+            {
+                "graph_id": 1,
+                "user_id": 1,
+                "name": "Graph 1",
+                "description": "Description of Graph 1",
+                "cost": 3,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            },
+            {
+                "graph_id": 2,
+                "user_id": 2,
+                "name": "Graph 2",
+                "description": "Description of Graph 2",
+                "cost": 4.1,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            },
+            {
+                "graph_id": 3,
+                "user_id": 3,
+                "name": "Graph 3",
+                "description": "Description of Graph 3",
+                "cost": 2.3,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            },
+            {
+                "graph_id": 4,
+                "user_id": 1,
+                "name": "Graph 4",
+                "description": "Description of Graph 4",
+                "cost": 5.1,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            },
+            {
+                "graph_id": 5,
+                "user_id": 2,
+                "name": "Graph 5",
+                "description": "Description of Graph 5",
+                "cost": 6.6,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            },
+            {
+                "graph_id": 6,
+                "user_id": 3,
+                "name": "Graph 6",
+                "description": "Description of Graph 6",
+                "cost": 1.9,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            },
+            {
+                "graph_id": 7,
+                "user_id": 3,
+                "name": "GrafoSimulation",
+                "description": "Un grafo di test per la simulazione con un arco dal peso elevato.",
+                "cost": 9.9,
+                "createdat": "2024-02-23",
+                "updatedat": "2024-02-23"
+            }
+        ]
+    }
+}
+```
+### GET: /graph/edges
+Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il seguente modello:
+```json
+́{
+    "graphId": 1
+}
+```
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": {
+        "edges": [
+            {
+                "edge_id": 49,
+                "graph_id": 7,
+                "start_node": "A",
+                "end_node": "B",
+                "weight": 50
+            },
+            {
+                "edge_id": 50,
+                "graph_id": 7,
+                "start_node": "A",
+                "end_node": "C",
+                "weight": 1
+            },
+            {
+                "edge_id": 51,
+                "graph_id": 7,
+                "start_node": "C",
+                "end_node": "D",
+                "weight": 1
+            },
+            {
+                "edge_id": 52,
+                "graph_id": 7,
+                "start_node": "D",
+                "end_node": "B",
+                "weight": 1
+            }
+        ]
+    }
+}
+```
+In caso di errore invece verrà restituito un messaggio che ha come chiave il nome del codice violato e un messaggio di errore a seconda della casistica. Inoltre, verrà settato lo stato a seconda dello status code:
+```json
+    {
+    "graphId": 80
+}
+```
+Genererà:
+```json
+{
+    status: 404 NOT FOUND:
+    "message": "Non è possibile trovare il grafo specificato."
+}
+```
+### GET: /user/all
+Per poter ottenere una risposta non è necessario inserire un body, basta aver fatto l'autenticazione tramite JWT.
+Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+```mermaid
+sequenceDiagram
+    participant client
+    participant app
+    participant middleware
+    participant utils
+    participant controller
+    participant query
+    participant model
+
+    client->>app: /user/all
+    app->>middleware: checkJwt()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>middleware: checksAdmin()
+    middleware->>utils: decodeJwt()
+    utils->>middleware: return: jwt.verify()
+    middleware->>app: next()
+    app->>controller: getAllUsers()
+    controller->>query: findAllUser()
+    query->>model: findAll()
+    model->>query: return: Users
+    query->>controller: return: Users
+    controller->>app: return: JSON.parse(JSON.stringify({ users: users }))
+    app->>client: return: JSON.parse(JSON.stringify({ users: users }))
+
+```
+Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
+```json
+{
+    "message": {
+        "users": [
+            {
+                "user_id": 1,
+                "email": "daniele@op.it",
+                "password": "Opti2024!",
+                "tokens": 100,
+                "isadmin": false
+            },
+            {
+                "user_id": 2,
+                "email": "alessandro@op.it",
+                "password": "Opti2024!",
+                "tokens": 100,
+                "isadmin": false
+            },
+            {
+                "user_id": 3,
+                "email": "adriano@op.it",
+                "password": "Opti2024!",
+                "tokens": 100,
+                "isadmin": true
+            },
+            {
+                "user_id": 4,
+                "email": "prova@op.it",
+                "password": "opti2024!",
+                "tokens": 100,
+                "isadmin": false
+            }
+        ]
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Testing
 
 Per testare il progetto, è essenziale seguire una serie di passaggi che garantiscano la configurazione corretta dell'ambiente di sviluppo e l'esecuzione efficace dei test. Ecco una guida dettagliata:
