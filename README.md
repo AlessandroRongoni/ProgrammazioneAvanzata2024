@@ -1334,7 +1334,6 @@ sequenceDiagram
     query->>controller: return: UserModel.update()
     controller->>app: return: ModelCreationSuccess
     app->>client: return: ModelCreationSuccess
-
 ```
 
 Se la richiesta viene effettuata correttamente viene restituito il seguente messaggio:
