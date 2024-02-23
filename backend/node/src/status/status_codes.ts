@@ -52,7 +52,7 @@ export enum Messages400 {
     InvalidSimulationValue = "I parametri di simulazione devono essere numeri.",
     InvalidSimulationReverse = "La data di fine deve precedere quella di inizio.",
     NegativeOrNullStep = "Lo step deve essere un numero positivo e mai uguale a zero.",
-    UnsupportedFormat = " Il formato '{{format}}' non è supportato, perfavore inserisci: {{allowedFormats}}.",
+    UnsupportedFormat = " Il formato inserito non è supportato, perfavore inserisci: pdf, xml, csv o json.",
     EmailCheck = "Il formato dell'email inserita non è corretto.",
     PasswordCheck = "La password deve contenere almeno 8 caratteri ed un numero, un carattere speciale, un carattere maiuscolo o minuscolo.",
     SameUser = "Non puoi creare lo stesso utente più volte.",
