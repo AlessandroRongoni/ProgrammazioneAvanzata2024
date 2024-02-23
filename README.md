@@ -1430,7 +1430,7 @@ Se la richiesta viene effettuata correttamente viene restituito il seguente mess
         "D"
     ],
     "cost": 5.6000000000000005,
-    "elapsedTime": 3,
+    "elapsedTime": 3 ms,
     "message": "Path calculated successfully."
 }
 ```
