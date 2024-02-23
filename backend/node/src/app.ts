@@ -240,7 +240,7 @@ app.get("/updates/format", checkJwt, checkGraphExistence, validateDateRange, val
 }
 }
  */
-app.get("/simulate", jsonParser, checkJwt, checkGraphExistence,checkEdgeBelonging, validateNodes, checkNodesExistence, validateStartEndNodes, checkEdgesExistence, validateSimulationParameters, (req: Request, res: Response) => {
+app.get("/simulate", jsonParser, checkJwt, checkGraphExistence, validateNodes, checkNodesExistence, validateStartEndNodes, checkEdgesExistence,checkEdgeBelonging, validateSimulationParameters, (req: Request, res: Response) => {
   simulateGraph(req, res);
 });
 
