@@ -191,7 +191,7 @@ export const CalculatePath = async (req: Request, res: Response) => {
             return res.json({
                 path: result.path,
                 cost: result.cost,
-                elapsedTime: elapsedTime,
+                elapsedTime: elapsedTime + 'ms',
                 message: 'Path calculated successfully.'
             });
         } else {
