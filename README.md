@@ -1660,6 +1660,7 @@ Per poter ottenere una risposta, il corpo delle richieste dovrà seguire il segu
 }
 ```
 Il meccanismo che si innesca all'atto della chiamata è descritto dal seguente diagramma:
+
 ```mermaid
 sequenceDiagram
     participant client as Client
