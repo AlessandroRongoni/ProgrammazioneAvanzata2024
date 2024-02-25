@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a2385364-2859-4bcf-b7ee-d0129c6af55b",
+		"_postman_id": "10c82b19-3d62-4af2-932e-ed2cc34b4ca2",
 		"name": "PA 2024",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "32939762"
@@ -110,34 +110,6 @@
 			"response": []
 		},
 		{
-			"name": "Login Prova",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"email\":\"prova@op.it\",\n    \"password\":\"opti2024!\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/login",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"login"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Register",
 			"request": {
 				"method": "POST",
@@ -160,6 +132,34 @@
 					"port": "3000",
 					"path": [
 						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Prova",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"prova@op.it\",\n    \"password\":\"opti2024!\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"login"
 					]
 				}
 			},
@@ -298,7 +298,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\": 70\n}",
+					"raw": "{\n    \"graphId\": 1\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -518,7 +518,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"graphId\":1,\n    \"updates\":[\n        {\n            \"edgeId\":89,\n            \"newWeight\":3\n        }\n    ]\n}",
+					"raw": "{\n    \"graphId\":1,\n    \"updates\":[\n        {\n            \"edgeId\":1,\n            \"newWeight\":3\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -560,7 +560,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"graphId\": 1,\n  \"dateFilter\": {\n    // formato data YYYY-MM-DD\n    \"from\": \"2024-02-18\", //inserire la data da cui partire (Superiore a...)\n    \"to\": \"2024-12-31\" //inserire la data finale (Inferiore a...)\n    //inserirle entrambe per avere un intervallo di tempo (Da...a...)\n  },\n  \"status\": \"\"\n  // Valori possibili: \"accepted\", \"rejected\", o lasciare vuoto/null per non filtrare per stato\n}",
+					"raw": "{\n  \"graphId\": 1,\n  \"dateFilter\": {\n    // formato data YYYY-MM-DD\n    \"from\": \"2024-01-01\", //inserire la data da cui partire (Superiore a...)\n    \"to\": \"2024-12-31\" //inserire la data finale (Inferiore a...)\n    //inserirle entrambe per avere un intervallo di tempo (Da...a...)\n  },\n  \"status\": \"\"\n  // Valori possibili: \"accepted\", \"rejected\", o lasciare vuoto/null per non filtrare per stato\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -642,7 +642,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"graphId\":1001,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"A\"\r\n}",
+					"raw": "{\r\n  \"graphId\":1,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"B\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -683,7 +683,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"graphId\": 1,\r\n  \"dateFilter\": {\r\n    \"from\": \"2024-01-01\",\r\n    \"to\": \"2024-12-31\"\r\n  },\r\n  \"status\": \"accepted\",\r\n  \"format\": \"pippo\"\r\n}",
+					"raw": "{\r\n  \"graphId\": 1,\r\n  \"dateFilter\": {\r\n    \"from\": \"2024-01-01\",\r\n    \"to\": \"2024-12-31\"\r\n  },\r\n  \"status\": \"accepted\",\r\n  \"format\": \"csv\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -724,7 +724,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"graphId\": 2,\r\n  \"edgeId\": 91,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"B\",\r\n  \"startWeight\": 0.5,\r\n  \"endWeight\": 50,\r\n  \"step\": 1\r\n}",
+					"raw": "{\r\n  \"graphId\": 1,\r\n  \"edgeId\": 1,\r\n  \"startNode\": \"A\",\r\n  \"endNode\": \"B\",\r\n  \"startWeight\": 0.5,\r\n  \"endWeight\": 10,\r\n  \"step\": 1\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
