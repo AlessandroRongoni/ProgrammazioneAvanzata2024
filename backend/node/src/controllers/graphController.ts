@@ -169,7 +169,7 @@ export const CalculatePath = async (req: Request, res: Response) => {
     let jwtUserEmail = getJwtEmail(req)
     // Cerca l'utente tramite email
     const user = await findUser(jwtUserEmail);
-    const graphCost: any = findGraphCostById(graphId);
+    const graphCost = await findGraphCostById(graphId);
     let startTime: number; // Timestamp di inizio
     let endTime: number; // Timestamp di fine
 
@@ -185,16 +185,16 @@ export const CalculatePath = async (req: Request, res: Response) => {
         // Utilizza l'oggetto Graph per calcolare il percorso più breve e il suo costo.
         const result = routeGraph.path(startNode, endNode, { cost: true });
 
-        endTime = Date.now(); // Registra l'istante di fine
-
-
+        
+        
         // Verifica che il risultato sia di tipo PathResult
         if (!Array.isArray(result) && result.path && result.cost !== undefined) {
+            endTime = Date.now(); // Registra l'istante di fine
             const elapsedTime = endTime - startTime; // Calcola il tempo trascorso in millisecondi
-            res.json({
+            return res.json({
                 path: result.path,
                 cost: result.cost,
-                elapsedTime: elapsedTime,
+                elapsedTime: elapsedTime + 'ms',
                 message: 'Path calculated successfully.'
             });
         } else {

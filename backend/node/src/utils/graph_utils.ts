@@ -107,7 +107,10 @@ export function validateEdgeErrorMessage(startNode: string, endNode: string, wei
   if (startNode === endNode) {
       return "Il nodo di partenza e quello di arrivo non possono essere lo stesso.";
   }
-  if (typeof weight !== 'number' || weight <= 0) {
+  if (typeof weight !== 'number') {
+    return "Il peso dell'arco deve essere un numero.";
+}
+  if (weight <= 0) {
       return "Il peso dell'arco deve essere un numero maggiore di zero.";
   }
   // Se tutti i controlli sono passati, l'arco è valido

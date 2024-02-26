@@ -170,8 +170,8 @@ export const validateGraphStructure = async (req: Request, res: Response, next: 
 export const checkGraphExistence = async (req: Request, res: Response, next: NextFunction) => {
     const graphId = req.body.graphId;
 
-        // Verifica che graphId sia un numero
-        if (isNaN(Number(graphId))) {
+        // Verifica che graphId ci sia e che sia un numero
+        if (!graphId || isNaN(Number(graphId))) {
             return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.InvalidGraphId);
 
         }
@@ -560,6 +560,10 @@ export const validateFormat = (req: Request, res: Response, next: NextFunction) 
     if (format && typeof format !== 'string') {
         return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.FormatString);
     }
+    // Controllo che l'inserimento sia ugale a uno dei formati consentiti
+    if (format && format.trim() !== '' && !allowedFormats.includes(format)) {
+        return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnsupportedFormat);
+    }
     // Imposta un formato predefinito se il campo 'format' è vuoto o non specificato
     if (!format || format.trim() === '') {
         format = 'json'; // Predefinito a JSON
@@ -612,6 +616,33 @@ export const validateStartEndNodes = (req: Request, res: Response, next: NextFun
         }
         next();
         
+    } catch (error) {
+        return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
+    }
+
+};
+
+/**
+ * Controllo per vedere se un arco passato appartiene al grafo passato
+ * tremite id
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ */
+export const checkEdgeBelonging = async (req: Request, res: Response, next: NextFunction) => {
+    const { graphId, edgeId } = req.body;
+    try {
+        const edge = await findEdgeById(edgeId);
+        if (!edge) {
+            return MessageFactory.getStatusMessage(CustomStatusCodes.NOT_FOUND, res, Messages400.EdgeNotFound);
+
+        }
+        if (edge.graph_id != graphId) {
+            return MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.EdgeNotInn);
+
+        }
+        next();
     } catch (error) {
         return MessageFactory.getStatusMessage(CustomStatusCodes.INTERNAL_SERVER_ERROR, res, Messages500.InternalServerError);
     }
