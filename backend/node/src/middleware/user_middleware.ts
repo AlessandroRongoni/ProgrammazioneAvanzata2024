@@ -34,7 +34,7 @@ export const checkPassword = (req: Request, res: Response, next: NextFunction) =
     const password = req.body.password;
     const expression: RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/i;
 
-    if (password.length != 0) {
+    if (password.length !== 0) {
         if (isNaN(password)) {
             let checker: boolean = expression.test(password);
             if (checker) {
@@ -62,7 +62,7 @@ export const checkPassword = (req: Request, res: Response, next: NextFunction) =
  */
 export const checkPasswordMatch = async (req: Request, res: Response, next: NextFunction) => {
     const user: any = await findUser(req.body.email);
-    if (user.length != 0) {
+    if (user.length !== 0) {
         if (user[0].password == req.body.password) {
             next();
         } else {
@@ -105,7 +105,7 @@ export const checkEmail = (req: Request, res: Response, next: NextFunction) => {
  */
 export const checkUser = async (req: Request, res: Response, next: NextFunction) => {
     const user: any = await findUser(req.body.email);
-    if (user.length != 0) {
+    if (user.length !== 0) {
         next();
     } else {
         MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
@@ -121,7 +121,7 @@ export const checkUser = async (req: Request, res: Response, next: NextFunction)
  */
 export const checkUserNotRegistered = async (req: Request, res: Response, next: NextFunction) => {
     const user: any = await findUser(req.body.email);
-    if (user.length == 0) {
+    if (user.length === 0) {
         next();
     } else {
         MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UnauthorizedUser);
@@ -138,7 +138,7 @@ export const checkUserNotRegistered = async (req: Request, res: Response, next: 
 export const checkUserJwt = async (req: Request, res: Response, next: NextFunction) => {
     let jwtUserEmail = getJwtEmail(req);
     const user: any = await findUser(jwtUserEmail);
-    if (user.length != 0) {
+    if (user.length !== 0) {
         next();
     } else {
         MessageFactory.getStatusMessage(CustomStatusCodes.BAD_REQUEST, res, Messages400.UserNotFound);
